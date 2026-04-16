@@ -276,3 +276,322 @@ html, body, #root {
 .wd-panel__status--error {
   color: var(--wd-red);
 }
+
+
+/* ============================================================
+   Pixel components (Part C)
+   ============================================================ */
+
+/* 像素 slot(空位輸入框) */
+.wd-slot {
+  font-family: var(--wd-font-body);
+  font-size: 14px;
+  color: var(--wd-ink);
+  background: var(--wd-paper);
+  border: 2px dashed var(--wd-border-soft);
+  padding: 10px 12px;
+  outline: none;
+  border-radius: 0;
+  width: 100%;
+  box-sizing: border-box;
+  transition: none;
+}
+.wd-slot::placeholder { color: var(--wd-dim); }
+.wd-slot:focus {
+  border-style: solid;
+  border-color: var(--wd-border);
+  background: #fffdf4;
+}
+.wd-slot:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Task card 外殼 */
+.wd-task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--wd-cream);
+  border: 2px solid var(--wd-border);
+  cursor: default;
+  width: 100%;
+  box-sizing: border-box;
+}
+.wd-task--dim {
+  background: var(--wd-paper);
+  border-color: var(--wd-border-soft);
+  color: var(--wd-dim);
+}
+.wd-task__title {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.3;
+  word-break: break-all;
+}
+.wd-task--dim .wd-task__title {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+.wd-task__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* 像素 checkbox(固定尺寸,不被 flex 壓扁) */
+.wd-check {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--wd-cream);
+  border: 2px solid var(--wd-border);
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: var(--wd-shadow-sm);
+  transition: none;
+}
+.wd-check:hover:not(:disabled) { background: var(--wd-gold-soft); }
+.wd-check:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.wd-check:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  border-style: dashed;
+  box-shadow: none;
+}
+.wd-check--done {
+  background: var(--wd-green);
+  border-color: var(--wd-border);
+  box-shadow: none;
+}
+.wd-check--done::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid var(--wd-cream);
+  border-bottom: 2px solid var(--wd-cream);
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+/* Modal overlay(讓 detail modal 覆蓋整個視窗) */
+.wd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(58, 42, 26, 0.45);
+}
+
+/* Modal 對話框(像素雙層邊框) */
+.wd-modal {
+  width: 280px;
+  background: var(--wd-cream);
+  border: 2px solid var(--wd-border);
+  box-shadow:
+    inset 0 0 0 2px var(--wd-cream),
+    inset 0 0 0 4px var(--wd-border-soft),
+    var(--wd-shadow-md);
+  padding: 18px 20px;
+  border-radius: 0;
+}
+.wd-modal__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--wd-ink);
+  margin: 0;
+}
+.wd-modal__subtitle {
+  font-size: 12px;
+  color: var(--wd-ink-soft);
+  margin-top: 4px;
+  word-break: break-all;
+}
+.wd-modal__hint {
+  font-size: 12px;
+  color: var(--wd-ink-soft);
+  margin-top: 14px;
+}
+
+/* 難度分數按鈕 */
+.wd-score {
+  flex: 1;
+  font-family: var(--wd-font-body);
+  font-size: 16px;
+  color: var(--wd-ink);
+  background: var(--wd-cream);
+  border: 2px solid var(--wd-border);
+  padding: 8px 0;
+  cursor: pointer;
+  border-radius: 0;
+  box-shadow: var(--wd-shadow-sm);
+  transition: none;
+}
+.wd-score:hover { background: var(--wd-gold-soft); }
+.wd-score:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.wd-score--selected {
+  background: var(--wd-blue-soft);
+  border-color: var(--wd-blue);
+  color: var(--wd-ink);
+}
+
+/* Ceremony 區塊 */
+.wd-ceremony {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 8px;
+}
+.wd-ceremony__icon {
+  font-family: var(--wd-font-accent);
+  font-size: 36px;
+  color: var(--wd-gold);
+  margin-bottom: 14px;
+  line-height: 1;
+}
+.wd-ceremony__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--wd-ink);
+  margin: 0;
+}
+.wd-ceremony__subtitle {
+  font-size: 13px;
+  color: var(--wd-ink-soft);
+  margin-top: 6px;
+}
+.wd-ceremony__stats {
+  display: flex;
+  gap: 18px;
+  margin-top: 20px;
+}
+.wd-ceremony__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56px;
+}
+.wd-ceremony__stat-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+.wd-ceremony__stat-value--gold   { color: var(--wd-gold); }
+.wd-ceremony__stat-value--orange { color: var(--wd-orange); }
+.wd-ceremony__stat-label {
+  font-size: 11px;
+  color: var(--wd-ink-soft);
+  margin-top: 3px;
+}
+
+/* Dev panel(開發工具仍保留橘色調但貼齊像素風) */
+.wd-dev {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  z-index: 50;
+  width: 240px;
+  background: #ffe9c9;
+  border: 2px solid #a3562a;
+  box-shadow: 3px 3px 0 #a3562a;
+  padding: 10px 12px;
+  font-size: 11px;
+  color: #6b3410;
+  font-family: var(--wd-font-body);
+}
+.wd-dev__title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.wd-dev__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wd-dev__btn {
+  font-family: var(--wd-font-body);
+  font-size: 12px;
+  color: #fff;
+  background: #c97433;
+  border: 2px solid #a3562a;
+  padding: 6px 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #a3562a;
+  border-radius: 0;
+  transition: none;
+}
+.wd-dev__btn:hover  { background: #b35f22; }
+.wd-dev__btn:active { transform: translate(2px, 2px); box-shadow: none; }
+.wd-dev__btn--danger { background: #b84539; border-color: #822c22; box-shadow: 2px 2px 0 #822c22; }
+.wd-dev__btn--danger:hover { background: #9c3025; }
+.wd-dev__log {
+  margin-top: 8px;
+  max-height: 90px;
+  overflow-y: auto;
+  background: #fff7e4;
+  border: 1px solid #a3562a;
+  padding: 4px 6px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* Panel footer */
+.wd-footer {
+  padding-top: 8px;
+  margin-top: 4px;
+  border-top: 2px solid var(--wd-border-soft);
+  font-size: 11px;
+  color: var(--wd-ink-soft);
+  text-align: center;
+}
+
+/* ============================================================
+   Animations (pixel-style, step-based)
+   ============================================================ */
+
+/* 卡片完成時的閃光 + 微晃 */
+@keyframes wd-task-complete {
+  0%   { background: var(--wd-cream);      transform: translateX(0); }
+  20%  { background: var(--wd-gold-soft);  transform: translateX(-2px); }
+  40%  { background: var(--wd-gold-soft);  transform: translateX(2px); }
+  60%  { background: var(--wd-gold-soft);  transform: translateX(-1px); }
+  80%  { background: var(--wd-gold-soft);  transform: translateX(0); }
+  100% { background: var(--wd-paper);      transform: translateX(0); }
+}
+.wd-task--completing {
+  animation: wd-task-complete 420ms steps(6, end);
+}
+
+/* Checkbox 打勾時,勾號從 0 放大到滿格(像素 pop) */
+@keyframes wd-check-pop {
+  0%   { transform: scale(0); }
+  50%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.wd-check--done::after {
+  animation: wd-check-pop 260ms steps(3, end);
+}
+
+/* ============================================================
+   Task completion flash — 覆蓋整個 panel 的單任務儀式
+   ============================================================ */
+
+.wd-flash {
+  cursor: pointer;
+  animation: wd-flash-fadein 180ms steps(3, end);
+}
+@keyframes wd-flash-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

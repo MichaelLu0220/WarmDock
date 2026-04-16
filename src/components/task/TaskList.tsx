@@ -15,7 +15,7 @@ export function TaskList() {
 	
 	
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2" style={{ padding: "0 18px 4px 16px" }}>
             {/* 已建立的任務 */}
             {tasks.map((task) => (
                 <TaskCard

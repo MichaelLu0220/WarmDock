@@ -5,6 +5,7 @@ import { TaskList } from "../task/TaskList";
 import { TaskDetailModal } from "../task/TaskDetailModal";
 import { PanelHeader } from "./PanelHeader";
 import { PreviousDayCeremony, CompletionCeremony } from "../ceremony/CompletionCeremony";
+import { TaskCompletionFlash } from "../ceremony/TaskCompletionFlash";
 
 export function Panel() {
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
@@ -44,6 +45,7 @@ export function Panel() {
       {isTaskDetailOpen && selectedTask && (
         <TaskDetailModal task={selectedTask} />
       )}
+	  <TaskCompletionFlash />
     </div>
   );
 }

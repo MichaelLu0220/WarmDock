@@ -4,34 +4,53 @@ import { formatWalletDisplay } from "../../lib/points";
 
 export function PanelHeader() {
   const wallet = useWalletStore((s) => s.wallet);
-
   const today = formatDisplayDate();
-  
+
   const walletDisplay = wallet
-	? formatWalletDisplay(wallet.wallet_points, wallet.pending_today_points)
-	: null;
+    ? formatWalletDisplay(wallet.wallet_points, wallet.pending_today_points)
+    : null;
 
   return (
-    <div className="pb-3 mb-2 border-b-2" style={{ borderColor: "var(--wd-border-soft)" }}>
-      {/* 日期 */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-base font-semibold text-gray-800">{today}</h1>
-      </div>
+    <div
+      className="wd-header"
+      style={{
+        paddingBottom: 10,
+        marginBottom: 10,
+        borderBottom: "2px solid var(--wd-border-soft)",
+      }}
+    >
+      <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--wd-ink)" }}>
+        {today}
+      </h1>
+      <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--wd-ink-soft)" }}>
+        今天想完成什麼?
+      </p>
 
-      {/* Greeting */}
-      <p className="mt-1 text-sm text-gray-500">今天想完成什麼？</p>
-
-      {/* 積分列 */}
       {wallet && walletDisplay && (
-        <div className="mt-3 flex items-center gap-1 text-sm text-gray-600">
-          <span>💰</span>
-          <span className="font-medium">{walletDisplay.main}</span>
-		  {walletDisplay.suffix && (
-			<span className="text-blue-500">{walletDisplay.suffix}</span>
+        <div
+          style={{
+            marginTop: 10,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 13,
+            color: "var(--wd-ink)",
+          }}
+        >
+          <span style={{ color: "var(--wd-gold)" }}>◆</span>
+          <span style={{ fontWeight: 700 }}>{walletDisplay.main}</span>
+          {walletDisplay.suffix && (
+            <span style={{ color: "var(--wd-blue)" }}>{walletDisplay.suffix}</span>
           )}
           {wallet.streak_days > 0 && (
-            <span className="ml-auto text-xs text-orange-400">
-              🔥 {wallet.streak_days} 天
+            <span
+              style={{
+                marginLeft: "auto",
+                fontSize: 12,
+                color: "var(--wd-orange)",
+              }}
+            >
+              ▲ {wallet.streak_days} 天
             </span>
           )}
         </div>

@@ -410,11 +410,8 @@ pub fn complete_task(
         [&today], |r| r.get(0)
     ).map_err(err)?;
 
-    eprintln!("total_tasks={} completed_count={}", total_tasks, completed_count);
-
-    // MVP 上限固定 3，unlock 系統完成後改為從 DB 讀取
     let max_slots: i64 = 3;
-    let all_completed = completed_count == max_slots;
+	let all_completed = completed_count == max_slots;
 
     db.execute(
         "INSERT INTO daily_summary (date, tasks_created, tasks_completed, focus_tasks_completed, points_earned, is_all_completed)

@@ -11,6 +11,10 @@ type UIState = {
   isPreviousDaySummaryOpen: boolean;
   previousDaySummary: DailySummary | null;
   unlocks: UnlockStatus;
+  taskCompletionFlash: {
+	taskTitle: string;
+	pointsEarned: number;
+  } | null;
 };
 
 type UIActions = {
@@ -23,6 +27,8 @@ type UIActions = {
   showPreviousDaySummary: (summary: DailySummary | null) => void;
   closePreviousDaySummary: () => void;
   setUnlocks: (unlocks: UnlockStatus) => void;
+  showTaskCompletionFlash: (taskTitle: string, pointsEarned: number) => void;
+  hideTaskCompletionFlash: () => void;
 };
 
 export const useUIStore = create<UIState & UIActions>((set) => ({
@@ -33,6 +39,7 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   isPreviousDaySummaryOpen: false,
   previousDaySummary: null,
   unlocks: DEFAULT_UNLOCK_STATUS,
+  taskCompletionFlash: null,
 
   openPanel: () => set({ isPanelOpen: true }),
   closePanel: () => set({ isPanelOpen: false }),
@@ -50,4 +57,8 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   closePreviousDaySummary: () =>
     set({ isPreviousDaySummaryOpen: false, previousDaySummary: null }),
   setUnlocks: (unlocks) => set({ unlocks }),
+  showTaskCompletionFlash: (taskTitle, pointsEarned) =>
+	set({ taskCompletionFlash: { taskTitle, pointsEarned } }),
+  hideTaskCompletionFlash: () =>
+	set({ taskCompletionFlash: null }),
 }));

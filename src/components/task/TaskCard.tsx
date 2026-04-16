@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Task } from "../../models/Task";
 import { useTaskStore } from "../../store/useTaskStore";
 import { useWalletStore } from "../../store/useWalletStore";
@@ -14,91 +15,73 @@ export function TaskCard({ task, onOpenDetail }: TaskCardProps) {
   const syncWalletAfterCompletion = useWalletStore((s) => s.syncWalletAfterCompletion);
   const syncSummaryAfterCompletion = useSummaryStore((s) => s.syncSummaryAfterCompletion);
   const setAllTasksCompleted = useUIStore((s) => s.setAllTasksCompleted);
+  const showTaskCompletionFlash = useUIStore((s) => s.showTaskCompletionFlash);
+
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const needsSetup = !task.setup_completed;
   const canComplete = task.setup_completed && !task.completed;
 
   const handleComplete = async () => {
     if (!canComplete) return;
+	setIsCompleting(true);
     try {
       const result = await completeTask(task.id);
-	  console.log("completeTask result:", result);
       syncWalletAfterCompletion(result);
       syncSummaryAfterCompletion(result);
       if (result.all_tasks_completed) {
-        setAllTasksCompleted(true);
-      }
-    } catch {
-      // store 已記錄 error
-	  console.error("completeTask error:", err);
-    }
+        setTimeout(() => setAllTasksCompleted(true), 420);
+      } else {
+		setTimeout(() => {
+			showTaskCompletionFlash(
+				task.title,
+				result.reward_earned + result.bonus_earned
+			);
+		}, 420);
+	  }
+    } catch (err) {
+      console.error("completeTask error:", err);
+    } finally {
+	  setTimeout(() => setIsCompleting(false), 420);
+	}
+  };
+
+  const handleCardClick = () => {
+    if (needsSetup && onOpenDetail) onOpenDetail();
   };
 
   return (
     <div
-      className={`rounded-lg border px-3 py-2.5 text-sm transition ${
-        task.completed
-          ? "border-gray-100 bg-gray-50 text-gray-400"
-          : "border-gray-200 bg-white text-gray-700"
-      }`}
+      className={`wd-task ${task.completed ? "wd-task--dim" : ""} ${
+	    isCompleting ? "wd-task--completing" : ""
+	  }`}
+      onClick={handleCardClick}
     >
-      <div className="flex items-center gap-2">
-        {/* Checkbox */}
-        <button
-          onClick={handleComplete}
-          disabled={!canComplete}
-          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition ${
-            task.completed
-              ? "border-green-300 bg-green-100 text-green-500"
-              : canComplete
-              ? "border-gray-300 hover:border-blue-400"
-              : "border-gray-200 opacity-40 cursor-not-allowed"
-          }`}
-          aria-label="Complete task"
-        >
-          {task.completed && (
-            /*<svg className="h-2.5 w-2.5" viewBox="0 0 10 10" fill="none">
-              <path
-                d="M1.5 5l2.5 2.5 4.5-4.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>*/
-			<span className="text-[10px] leading-none text-green-500">✓</span>
-          )}
-        </button>
+      {/* Checkbox */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleComplete();
+        }}
+        disabled={!canComplete}
+        className={`wd-check ${task.completed ? "wd-check--done" : ""}`}
+        aria-label="完成任務"
+      />
 
-        {/* Title */}
-        <span className={task.completed ? "line-through" : ""}>
-          {task.title}
-        </span>
+      {/* Title */}
+      <span className="wd-task__title">{task.title}</span>
 
-        {/* 難度標籤 */}
-        {task.difficulty_selected && !task.completed && (
-          <span className="ml-auto shrink-0 rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
-            {task.difficulty_selected}
-          </span>
+      {/* Meta: 難度分數 / focus 星 / 待設定提示 */}
+      <span className="wd-task__meta">
+        {needsSetup && (
+          <span className="wd-tag wd-tag-gold">待設定</span>
         )}
-
-        {/* focus 標籤 */}
-        {task.is_focus_task && !task.completed && (
-          <span className="shrink-0 rounded bg-amber-50 px-1.5 py-0.5 text-xs text-amber-600">
-            ★
-          </span>
+        {!needsSetup && task.difficulty_selected != null && (
+          <span className="wd-tag wd-tag-blue">{task.difficulty_selected}</span>
         )}
-      </div>
-
-      {/* 尚未設定 detail */}
-      {needsSetup && !task.completed && (
-        <button
-          className="mt-1.5 text-xs text-blue-500 hover:underline"
-          onClick={onOpenDetail}
-        >
-          設定難度以完成任務
-        </button>
-      )}
+        {task.is_focus && <span className="wd-tag wd-tag-gold">★</span>}
+      </span>
     </div>
   );
 }

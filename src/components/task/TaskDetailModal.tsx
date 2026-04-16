@@ -2,11 +2,11 @@ import { useState } from "react";
 import type { Task } from "../../models/Task";
 import { useTaskStore } from "../../store/useTaskStore";
 import { useUIStore } from "../../store/useUIStore";
-import { 
-	DIFFICULTY_OPTIONS,
-	BAND_LABELS,
-	suggestDifficulty,
-	} from "../../lib/difficulty";
+import {
+  DIFFICULTY_OPTIONS,
+  BAND_LABELS,
+  suggestDifficulty,
+} from "../../lib/difficulty";
 
 type TaskDetailModalProps = {
   task: Task;
@@ -24,7 +24,6 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
 
   const handleConfirm = async () => {
     if (!selected || isSubmitting) return;
-
     setIsSubmitting(true);
     try {
       await setTaskDetail(task.id, {
@@ -40,28 +39,22 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="w-[280px] rounded-xl bg-white p-5 shadow-xl">
-        <h2 className="text-sm font-semibold text-gray-800">設定任務難度</h2>
-        <p className="mt-1 text-xs text-gray-500 truncate">{task.title}</p>
+    <div className="wd-overlay">
+      <div className="wd-modal">
+        <h2 className="wd-modal__title">設定任務難度</h2>
+        <p className="wd-modal__subtitle">{task.title}</p>
 
-        {/* 系統建議 */}
-        <div className="mt-4">
-          <span className="text-xs text-gray-400">
-            系統建議：{BAND_LABELS[suggested]}
-          </span>
-        </div>
+        <p className="wd-modal__hint">
+          系統建議:{BAND_LABELS[suggested]}
+        </p>
 
         {/* 難度選擇 */}
-        <div className="mt-3 flex gap-2">
+        <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
           {options.map((score) => (
             <button
               key={score}
-              className={`flex-1 rounded-lg border py-2 text-sm font-medium transition ${
-                selected === score
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-              }`}
+              type="button"
+              className={`wd-score ${selected === score ? "wd-score--selected" : ""}`}
               onClick={() => setSelected(score)}
             >
               {score}
@@ -71,12 +64,13 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
 
         {/* 確認 */}
         <button
-          className="mt-5 w-full rounded-lg bg-blue-500 py-2 text-sm font-medium text-white
-                     transition hover:bg-blue-600 disabled:opacity-40"
+          type="button"
+          className="wd-btn wd-btn-primary"
+          style={{ marginTop: 18, width: "100%" }}
           disabled={!selected || isSubmitting}
           onClick={handleConfirm}
         >
-          {isSubmitting ? "儲存中…" : "確認"}
+          {isSubmitting ? "儲存中..." : "確認"}
         </button>
       </div>
     </div>
