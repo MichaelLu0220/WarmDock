@@ -4,6 +4,7 @@ import { useTaskStore } from "../../store/useTaskStore";
 import { TaskList } from "../task/TaskList";
 import { TaskDetailModal } from "../task/TaskDetailModal";
 import { CompletionCeremony } from "../ceremony/CompletionCeremony";
+import { PanelHeader } from "./PanelHeader";
 
 export function Panel() {
     const isPanelOpen = useUIStore((s) => s.isPanelOpen);
@@ -22,15 +23,8 @@ export function Panel() {
     return (
         <div className="flex h-full w-[320px] flex-col rounded-l-2xl bg-white shadow-lg">
             {/* Header placeholder — 第 4 階段再做 PanelHeader */}
-            <div className="px-4 pt-5 pb-3">
-                <h1 className="text-lg font-semibold text-gray-800">
-                    {new Date().toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                    })}
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">今天想完成什麼？</p>
-            </div>
+            
+			<PanelHeader />
 
             {/* Main content */}
             <div className="flex-1 overflow-y-auto px-4 py-2">
