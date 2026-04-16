@@ -77,3 +77,12 @@ pub struct CompleteTaskResponse {
     pub all_tasks_completed: bool,
     pub streak_days: i64,
 }
+
+#[derive(Debug, Serialize)]
+pub struct RunDailyRefreshIfNeededResponse {
+    pub refresh_applied: bool,
+    pub previous_date: Option<String>,
+    pub new_date: String,
+    pub wallet: UserWallet,
+    pub previous_summary: Option<DailySummary>,
+}

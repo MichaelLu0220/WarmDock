@@ -3,13 +3,15 @@ import { useUIStore } from "../../store/useUIStore";
 import { TaskSlot } from "./TaskSlot";
 import { TaskCard } from "./TaskCard";
 
-const VISIBLE_SLOTS = 3;
+
 
 export function TaskList() {
     const tasks = useTaskStore((s) => s.tasks);
     const openTaskDetail = useUIStore((s) => s.openTaskDetail);
-    const emptySlotCount = Math.max(0, VISIBLE_SLOTS - tasks.length);
-
+	const visibleSlots = useUIStore((s) => s.unlockMaxSlots);
+    const emptySlotCount = Math.max(0, visibleSlots - tasks.length);
+	
+	
     return (
         <div className="flex flex-col gap-3">
             {/* 已建立的任務 */}

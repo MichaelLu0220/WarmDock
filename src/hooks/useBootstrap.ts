@@ -18,6 +18,7 @@ export function useBootstrap() {
   const setSettings = useSettingsStore((s) => s.setSettings);
   const setSummary = useSummaryStore((s) => s.setSummary);
   const setAllTasksCompleted = useUIStore((s) => s.setAllTasksCompleted);
+  const setUnlockMaxSlots = useUIStore((s) => s.setUnlockMaxSlots);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,11 +33,11 @@ export function useBootstrap() {
         setWallet(data.wallet);
         setSettings(data.settings);
         if (data.summary) setSummary(data.summary);
+        setUnlockMaxSlots(data.unlocks.max_visible_task_slots);
 
-        // 若 bootstrap 時已是全部完成狀態（重開 app）
         const allSetup = data.tasks.filter((t) => t.setup_completed);
         if (
-          allSetup.length === 3 &&
+          allSetup.length >= data.unlocks.max_visible_task_slots &&
           allSetup.every((t) => t.completed)
         ) {
           setAllTasksCompleted(true);

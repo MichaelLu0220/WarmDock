@@ -31,6 +31,8 @@ pub fn run() {
             commands::create_task,
             commands::set_task_detail,
 			commands::complete_task,
+			commands::run_daily_refresh_if_needed,
+			commands::dev_force_daily_refresh,
             commands::reset_all_data,
         ])
         .run(tauri::generate_context!())

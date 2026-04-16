@@ -14,7 +14,7 @@ type SummaryActions = {
 export const useSummaryStore = create<SummaryState & SummaryActions>((set) => ({
   todaySummary: null,
 
-  setSummary: (summary) => set({ todaySummary: summary }),
+  setSummary: (summary: DailySummary | null) => set({ todaySummary: summary }),
 
   syncSummaryAfterCompletion: (result) =>
     set({ todaySummary: result.today_summary }),

@@ -1,10 +1,14 @@
 import { create } from "zustand";
+import type { DailySummary } from "../models/DailySummary";
 
 type UIState = {
   isPanelOpen: boolean;
   isTaskDetailOpen: boolean;
   selectedTaskId: string | null;
   allTasksCompleted: boolean;
+  isPreviousDaySummaryOpen: boolean;
+  previousDaySummary: DailySummary | null;
+  unlockMaxSlots: number;  // 新增，從 bootstrap 讀取
 };
 
 type UIActions = {
@@ -14,6 +18,9 @@ type UIActions = {
   openTaskDetail: (taskId: string) => void;
   closeTaskDetail: () => void;
   setAllTasksCompleted: (value: boolean) => void;
+  showPreviousDaySummary: (summary: DailySummary | null) => void;
+  closePreviousDaySummary: () => void;
+  setUnlockMaxSlots: (n: number) => void;
 };
 
 export const useUIStore = create<UIState & UIActions>((set) => ({
@@ -21,6 +28,9 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   isTaskDetailOpen: false,
   selectedTaskId: null,
   allTasksCompleted: false,
+  isPreviousDaySummaryOpen: false,
+  previousDaySummary: null,
+  unlockMaxSlots: 3,
 
   openPanel: () => set({ isPanelOpen: true }),
   closePanel: () => set({ isPanelOpen: false }),
@@ -32,4 +42,10 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
 
   closeTaskDetail: () =>
     set({ isTaskDetailOpen: false, selectedTaskId: null }),
+	
+  showPreviousDaySummary: (summary) =>
+    set({ isPreviousDaySummaryOpen: true, previousDaySummary: summary }),
+  closePreviousDaySummary: () =>
+    set({ isPreviousDaySummaryOpen: false, previousDaySummary: null }),
+  setUnlockMaxSlots: (n) => set({ unlockMaxSlots: n }),
 }));

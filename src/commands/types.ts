@@ -134,4 +134,5 @@ export type RunDailyRefreshIfNeededResponse = {
   previous_date: string | null;
   new_date: string;
   wallet: UserWallet;
+  previous_summary: DailySummary | null;
 };

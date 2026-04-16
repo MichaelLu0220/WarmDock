@@ -3,8 +3,9 @@ import { useAppStore } from "../../store/useAppStore";
 import { useTaskStore } from "../../store/useTaskStore";
 import { TaskList } from "../task/TaskList";
 import { TaskDetailModal } from "../task/TaskDetailModal";
-import { CompletionCeremony } from "../ceremony/CompletionCeremony";
 import { PanelHeader } from "./PanelHeader";
+import { PreviousDayCeremony, CompletionCeremony } from "../ceremony/CompletionCeremony";
+
 
 export function Panel() {
     const isPanelOpen = useUIStore((s) => s.isPanelOpen);
@@ -13,6 +14,7 @@ export function Panel() {
     const { isBootstrapping, isReady, bootstrapError } = useAppStore();
     const tasks = useTaskStore((s) => s.tasks);
 	const allTasksCompleted = useUIStore((s) => s.allTasksCompleted);
+	const isPreviousDaySummaryOpen = useUIStore((s) => s.isPreviousDaySummaryOpen);
 
     const selectedTask = selectedTaskId
         ? tasks.find((t) => t.id === selectedTaskId) ?? null
@@ -35,7 +37,11 @@ export function Panel() {
                     <p className="text-sm text-red-500">啟動失敗：{bootstrapError}</p>
                 )}
                 {isReady && (
-					allTasksCompleted ? <CompletionCeremony /> : <TaskList />
+				  isPreviousDaySummaryOpen
+					? <PreviousDayCeremony />
+					: allTasksCompleted
+					? <CompletionCeremony />
+					: <TaskList />
 				)}
             </div>
 
