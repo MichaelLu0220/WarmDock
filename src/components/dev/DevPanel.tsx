@@ -17,22 +17,25 @@ export function DevPanel() {
   const addLog = (msg: string) =>
     setLog((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev]);
 
-  const handleForceRefresh = async () => {
-    try {
-      const result = await invoke<RunDailyRefreshIfNeededResponse>(
-        "dev_force_daily_refresh"
-      );
-      setWallet(result.wallet);
-      setTasks([]);
-      setSummary(null as any);
-      setAllTasksCompleted(false);
-      addLog(
-        `換日完成 → wallet: ${result.wallet.wallet_points}pt, streak: ${result.wallet.streak_days}天`
-      );
-    } catch (err) {
-      addLog(`錯誤：${err}`);
-    }
-  };
+    const showPreviousDaySummary = useUIStore((s) => s.showPreviousDaySummary);
+
+    const handleForceRefresh = async () => {
+        try {
+            const result = await invoke<RunDailyRefreshIfNeededResponse>(
+                "dev_force_daily_refresh"
+            );
+            setWallet(result.wallet);
+            setTasks([]);
+            setSummary(null as any);
+            setAllTasksCompleted(false);
+            showPreviousDaySummary(result.previous_summary);  // 新增
+            addLog(
+                `換日完成 → wallet: ${result.wallet.wallet_points}pt, streak: ${result.wallet.streak_days}天`
+            );
+        } catch (err) {
+            addLog(`錯誤：${err}`);
+        }
+    };
 
   const handleResetAll = async () => {
     try {
