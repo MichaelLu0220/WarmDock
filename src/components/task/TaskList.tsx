@@ -1,0 +1,30 @@
+import { useTaskStore } from "../../store/useTaskStore";
+import { useUIStore } from "../../store/useUIStore";
+import { TaskSlot } from "./TaskSlot";
+import { TaskCard } from "./TaskCard";
+
+const VISIBLE_SLOTS = 3;
+
+export function TaskList() {
+    const tasks = useTaskStore((s) => s.tasks);
+    const openTaskDetail = useUIStore((s) => s.openTaskDetail);
+    const emptySlotCount = Math.max(0, VISIBLE_SLOTS - tasks.length);
+
+    return (
+        <div className="flex flex-col gap-3">
+            {/* 已建立的任務 */}
+            {tasks.map((task) => (
+                <TaskCard
+                    key={task.id}
+                    task={task}
+                    onOpenDetail={() => openTaskDetail(task.id)}
+                />
+            ))}
+
+            {/* 空 slot */}
+            {Array.from({ length: emptySlotCount }).map((_, i) => (
+                <TaskSlot key={`slot-${i}`} />
+            ))}
+        </div>
+    );
+}

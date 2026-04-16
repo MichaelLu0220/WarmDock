@@ -1,0 +1,15 @@
+export const COMMANDS = {
+  BOOTSTRAP_APP: "bootstrap_app",
+  GET_TODAY_TASKS: "get_today_tasks",
+  CREATE_TASK: "create_task",
+  SET_TASK_DETAIL: "set_task_detail",
+  COMPLETE_TASK: "complete_task",
+  GET_WALLET: "get_wallet",
+  GET_UNLOCK_STATUS: "get_unlock_status",
+  GET_USER_SETTINGS: "get_user_settings",
+  UPDATE_USER_SETTINGS: "update_user_settings",
+  UPDATE_TRIGGER_POSITION: "update_trigger_position",
+  GET_TODAY_SUMMARY: "get_today_summary",
+  GET_RECENT_SUMMARIES: "get_recent_summaries",
+  RUN_DAILY_REFRESH_IF_NEEDED: "run_daily_refresh_if_needed",
+} as const;
