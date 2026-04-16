@@ -1,5 +1,6 @@
 import { useTaskStore } from "../../store/useTaskStore";
 import { useUIStore } from "../../store/useUIStore";
+import { getVisibleSlotCount } from "../../lib/unlock";
 import { TaskSlot } from "./TaskSlot";
 import { TaskCard } from "./TaskCard";
 
@@ -8,7 +9,8 @@ import { TaskCard } from "./TaskCard";
 export function TaskList() {
     const tasks = useTaskStore((s) => s.tasks);
     const openTaskDetail = useUIStore((s) => s.openTaskDetail);
-	const visibleSlots = useUIStore((s) => s.unlockMaxSlots);
+	const unlocks = useUIStore((s) => s.unlocks);
+	const visibleSlots = getVisibleSlotCount(unlocks);
     const emptySlotCount = Math.max(0, visibleSlots - tasks.length);
 	
 	

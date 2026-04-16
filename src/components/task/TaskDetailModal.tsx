@@ -1,33 +1,12 @@
 import { useState } from "react";
 import type { Task } from "../../models/Task";
-import type { DifficultyBand } from "../../commands/types";
 import { useTaskStore } from "../../store/useTaskStore";
 import { useUIStore } from "../../store/useUIStore";
-
-const DIFFICULTY_OPTIONS: Record<DifficultyBand, (1 | 2 | 3 | 4 | 5)[]> = {
-  easy: [1, 2, 3],
-  medium: [2, 3, 4],
-  hard: [3, 4, 5],
-};
-
-const BAND_LABELS: Record<DifficultyBand, string> = {
-  easy: "簡單",
-  medium: "中等",
-  hard: "困難",
-};
-
-/**
- * 簡易規則建議難度（MVP 版本，未來可替換）
- */
-function suggestDifficulty(title: string): DifficultyBand {
-  const lower = title.toLowerCase();
-  const hardKeywords = ["報告", "重構", "遷移", "deploy", "release", "refactor"];
-  const easyKeywords = ["買", "回覆", "確認", "check", "reply", "read"];
-
-  if (hardKeywords.some((k) => lower.includes(k))) return "hard";
-  if (easyKeywords.some((k) => lower.includes(k))) return "easy";
-  return "medium";
-}
+import { 
+	DIFFICULTY_OPTIONS,
+	BAND_LABELS,
+	suggestDifficulty,
+	} from "../../lib/difficulty";
 
 type TaskDetailModalProps = {
   task: Task;

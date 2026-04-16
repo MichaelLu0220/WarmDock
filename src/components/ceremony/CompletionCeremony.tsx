@@ -1,6 +1,8 @@
 import { useSummaryStore } from "../../store/useSummaryStore";
 import { useWalletStore } from "../../store/useWalletStore";
 import { useUIStore } from "../../store/useUIStore";
+import { getVisibleSlotCount } from "../../lib/unlock";
+import { formatPointsDelta } from "../../lib/points";
 import type { DailySummary } from "../../models/DailySummary";
 import type { UserWallet } from "../../models/UserWallet";
 
@@ -31,7 +33,9 @@ function CeremonyContent({ mode, summary, wallet, onStartNewDay }: {
               <div className="text-xs text-gray-400">完成任務</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-amber-500">+{summary.points_earned}</div>
+              <div className="text-lg font-semibold text-amber-500">
+				{formatPointsDelta(summary.points_earned)}
+			  </div>
               <div className="text-xs text-gray-400">今日積分</div>
             </div>
             {wallet && wallet.streak_days > 0 && (
@@ -60,7 +64,9 @@ function CeremonyContent({ mode, summary, wallet, onStartNewDay }: {
               <div className="text-xs text-gray-400">完成任務</div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-amber-500">+{summary.points_earned}</div>
+              <div className="text-lg font-semibold text-amber-500">
+				{formatPointsDelta(summary.points_earned)}
+			  </div>
               <div className="text-xs text-gray-400">今日積分</div>
             </div>
           </div>
@@ -128,7 +134,9 @@ function CeremonyContent({ mode, summary, wallet, onStartNewDay }: {
             <div className="text-xs text-gray-400">完成任務</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-amber-500">+{summary.points_earned}</div>
+            <div className="text-lg font-semibold text-amber-500">
+				{formatPointsDelta(summary.points_earned)}
+			</div>
             <div className="text-xs text-gray-400">昨日積分</div>
           </div>
           {wallet && wallet.streak_days > 0 && (
@@ -154,7 +162,8 @@ function CeremonyContent({ mode, summary, wallet, onStartNewDay }: {
 export function CompletionCeremony() {
   const summary = useSummaryStore((s) => s.todaySummary);
   const wallet = useWalletStore((s) => s.wallet);
-  const unlockMaxSlots = useUIStore((s) => s.unlockMaxSlots);
+  const unlocks = useUIStore((s) => s.unlocks);
+  const unlockMaxSlots = getVisibleSlotCount(unlocks);
 
   const isFullComplete = (summary?.tasks_completed ?? 0) >= unlockMaxSlots;
   const mode: CeremonyMode = isFullComplete ? "full" : "partial";

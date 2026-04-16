@@ -12,7 +12,7 @@ export function useDailyReset() {
   const setAllTasksCompleted = useUIStore((s) => s.setAllTasksCompleted);
 
   const showPreviousDaySummary = useUIStore((s) => s.showPreviousDaySummary);
-  const setUnlockMaxSlots = useUIStore((s) => s.setUnlockMaxSlots);
+  const setUnlocks = useUIStore((s) => s.setUnlocks);
   
   useEffect(() => {
     async function checkReset() {
@@ -23,7 +23,7 @@ export function useDailyReset() {
 		  setTasks([]);
 		  setSummary(null as any);
 		  setAllTasksCompleted(false);
-		  setUnlockMaxSlots(3); // MVP 固定，之後從 result 讀
+		  //setUnlockMaxSlots(3); // MVP 固定，之後從 result 讀
 		  showPreviousDaySummary(result.previous_summary);
 		}
       } catch (err) {

@@ -18,7 +18,7 @@ export function useBootstrap() {
   const setSettings = useSettingsStore((s) => s.setSettings);
   const setSummary = useSummaryStore((s) => s.setSummary);
   const setAllTasksCompleted = useUIStore((s) => s.setAllTasksCompleted);
-  const setUnlockMaxSlots = useUIStore((s) => s.setUnlockMaxSlots);
+  const setUnlocks = useUIStore((s) => s.setUnlocks);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,7 +33,7 @@ export function useBootstrap() {
         setWallet(data.wallet);
         setSettings(data.settings);
         if (data.summary) setSummary(data.summary);
-        setUnlockMaxSlots(data.unlocks.max_visible_task_slots);
+        setUnlocks(data.unlocks);
 
         const allSetup = data.tasks.filter((t) => t.setup_completed);
         if (

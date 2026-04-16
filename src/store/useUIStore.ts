@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import type { DailySummary } from "../models/DailySummary";
+import type { UnlockStatus } from "../commands/types";
+import { DEFAULT_UNLOCK_STATUS } from "../lib/unlock";
 
 type UIState = {
   isPanelOpen: boolean;
@@ -8,7 +10,7 @@ type UIState = {
   allTasksCompleted: boolean;
   isPreviousDaySummaryOpen: boolean;
   previousDaySummary: DailySummary | null;
-  unlockMaxSlots: number;  // 新增，從 bootstrap 讀取
+  unlocks: UnlockStatus;
 };
 
 type UIActions = {
@@ -20,7 +22,7 @@ type UIActions = {
   setAllTasksCompleted: (value: boolean) => void;
   showPreviousDaySummary: (summary: DailySummary | null) => void;
   closePreviousDaySummary: () => void;
-  setUnlockMaxSlots: (n: number) => void;
+  setUnlocks: (unlocks: UnlockStatus) => void;
 };
 
 export const useUIStore = create<UIState & UIActions>((set) => ({
@@ -30,7 +32,7 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   allTasksCompleted: false,
   isPreviousDaySummaryOpen: false,
   previousDaySummary: null,
-  unlockMaxSlots: 3,
+  unlocks: DEFAULT_UNLOCK_STATUS,
 
   openPanel: () => set({ isPanelOpen: true }),
   closePanel: () => set({ isPanelOpen: false }),
@@ -47,5 +49,5 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
     set({ isPreviousDaySummaryOpen: true, previousDaySummary: summary }),
   closePreviousDaySummary: () =>
     set({ isPreviousDaySummaryOpen: false, previousDaySummary: null }),
-  setUnlockMaxSlots: (n) => set({ unlockMaxSlots: n }),
+  setUnlocks: (unlocks) => set({ unlocks }),
 }));
