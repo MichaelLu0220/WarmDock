@@ -3,6 +3,7 @@ import { useAppStore } from "../../store/useAppStore";
 import { useTaskStore } from "../../store/useTaskStore";
 import { TaskList } from "../task/TaskList";
 import { TaskDetailModal } from "../task/TaskDetailModal";
+import { CompletionCeremony } from "../ceremony/CompletionCeremony";
 
 export function Panel() {
     const isPanelOpen = useUIStore((s) => s.isPanelOpen);
@@ -10,6 +11,7 @@ export function Panel() {
     const selectedTaskId = useUIStore((s) => s.selectedTaskId);
     const { isBootstrapping, isReady, bootstrapError } = useAppStore();
     const tasks = useTaskStore((s) => s.tasks);
+	const allTasksCompleted = useUIStore((s) => s.allTasksCompleted);
 
     const selectedTask = selectedTaskId
         ? tasks.find((t) => t.id === selectedTaskId) ?? null
@@ -38,7 +40,9 @@ export function Panel() {
                 {bootstrapError && (
                     <p className="text-sm text-red-500">啟動失敗：{bootstrapError}</p>
                 )}
-                {isReady && <TaskList />}
+                {isReady && (
+					allTasksCompleted ? <CompletionCeremony /> : <TaskList />
+				)}
             </div>
 
             {/* Task Detail Modal */}

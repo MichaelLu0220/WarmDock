@@ -30,6 +30,7 @@ pub fn run() {
             commands::get_today_tasks,
             commands::create_task,
             commands::set_task_detail,
+			commands::complete_task,
             commands::reset_all_data,
         ])
         .run(tauri::generate_context!())

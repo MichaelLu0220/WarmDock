@@ -65,3 +65,15 @@ pub struct BootstrapAppResponse {
     pub unlocks: UnlockStatus,
     pub refresh_applied: bool,
 }
+
+#[derive(Debug, Serialize)]
+pub struct CompleteTaskResponse {
+    pub task: Task,
+    pub reward_earned: i64,
+    pub bonus_earned: i64,
+    pub pending_today_points: i64,
+    pub wallet_points: i64,
+    pub today_summary: DailySummary,
+    pub all_tasks_completed: bool,
+    pub streak_days: i64,
+}

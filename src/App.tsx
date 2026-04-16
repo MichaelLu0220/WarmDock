@@ -13,7 +13,11 @@ function App() {
     openPanel();
   }, [openPanel]);
 
-  return <Panel />;
+  return (
+    <div className="flex h-screen w-full items-start justify-end">
+      <Panel />
+    </div>
+  );
 }
 
 export default App;

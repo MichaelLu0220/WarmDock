@@ -1,6 +1,7 @@
 import type { Task } from "../models/Task";
 import type { DifficultyBand } from "../commands/types";
-import { getTodayTasks, createTask, setTaskDetail } from "../commands/invoke";
+import { getTodayTasks, createTask, setTaskDetail, completeTask } from "../commands/invoke";
+import type { CompleteTaskResponse } from "../commands/types";
 
 /**
  * 取得今日任務列表
@@ -33,4 +34,11 @@ export async function setTaskDetailFlow(
     difficulty_selected: payload.difficulty_selected,
     is_focus_task: payload.is_focus_task,
   });
+}
+
+/**
+ * 完成任務
+ */
+export async function completeTaskFlow(taskId: string): Promise<CompleteTaskResponse> {
+  return completeTask({ task_id: taskId });
 }

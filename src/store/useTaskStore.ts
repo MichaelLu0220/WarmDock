@@ -5,7 +5,9 @@ import {
   fetchTodayTasks,
   createTaskWithFlow,
   setTaskDetailFlow,
+  completeTaskFlow,
 } from "../services/taskService";
+import type { CompleteTaskResponse } from "../commands/types";
 
 type TaskState = {
   tasks: Task[];
@@ -25,6 +27,7 @@ type TaskActions = {
     }
   ) => Promise<Task>;
   setTasks: (tasks: Task[]) => void;
+  completeTask: (taskId: string) => Promise<CompleteTaskResponse>;
 };
 
 export const useTaskStore = create<TaskState & TaskActions>((set) => ({
@@ -65,6 +68,21 @@ export const useTaskStore = create<TaskState & TaskActions>((set) => ({
         tasks: state.tasks.map((t) => (t.id === taskId ? updated : t)),
       }));
       return updated;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      set({ taskError: message });
+      throw err;
+    }
+  },
+
+  completeTask: async (taskId: string) => {
+    set({ taskError: null });
+    try {
+      const result = await completeTaskFlow(taskId);
+      set((state) => ({
+        tasks: state.tasks.map((t) => (t.id === taskId ? result.task : t)),
+      }));
+      return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       set({ taskError: message });
