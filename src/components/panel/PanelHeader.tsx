@@ -12,7 +12,7 @@ export function PanelHeader() {
 	: null;
 
   return (
-    <div className="px-4 pt-5 pb-3 border-b border-gray-100">
+    <div className="pb-3 mb-2 border-b-2" style={{ borderColor: "var(--wd-border-soft)" }}>
       {/* 日期 */}
       <div className="flex items-center justify-between">
         <h1 className="text-base font-semibold text-gray-800">{today}</h1>

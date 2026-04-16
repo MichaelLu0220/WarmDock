@@ -6,49 +6,44 @@ import { TaskDetailModal } from "../task/TaskDetailModal";
 import { PanelHeader } from "./PanelHeader";
 import { PreviousDayCeremony, CompletionCeremony } from "../ceremony/CompletionCeremony";
 
-
 export function Panel() {
-    const isPanelOpen = useUIStore((s) => s.isPanelOpen);
-    const isTaskDetailOpen = useUIStore((s) => s.isTaskDetailOpen);
-    const selectedTaskId = useUIStore((s) => s.selectedTaskId);
-    const { isBootstrapping, isReady, bootstrapError } = useAppStore();
-    const tasks = useTaskStore((s) => s.tasks);
-	const allTasksCompleted = useUIStore((s) => s.allTasksCompleted);
-	const isPreviousDaySummaryOpen = useUIStore((s) => s.isPreviousDaySummaryOpen);
+  const isPanelOpen = useUIStore((s) => s.isPanelOpen);
+  const isTaskDetailOpen = useUIStore((s) => s.isTaskDetailOpen);
+  const selectedTaskId = useUIStore((s) => s.selectedTaskId);
+  const { isBootstrapping, isReady, bootstrapError } = useAppStore();
+  const tasks = useTaskStore((s) => s.tasks);
+  const allTasksCompleted = useUIStore((s) => s.allTasksCompleted);
+  const isPreviousDaySummaryOpen = useUIStore((s) => s.isPreviousDaySummaryOpen);
 
-    const selectedTask = selectedTaskId
-        ? tasks.find((t) => t.id === selectedTaskId) ?? null
-        : null;
+  const selectedTask = selectedTaskId
+    ? tasks.find((t) => t.id === selectedTaskId) ?? null
+    : null;
 
-    if (!isPanelOpen) return null;
+  return (
+    <div className="wd-panel wd-card" data-open={isPanelOpen ? "true" : "false"}>
+      <PanelHeader />
 
-    return (
-        <div className="flex h-full w-[320px] flex-col rounded-l-2xl bg-white shadow-lg">
-            {/* Header placeholder — 第 4 階段再做 PanelHeader */}
-            
-			<PanelHeader />
+      <div className="wd-panel__body">
+        {isBootstrapping && (
+          <p className="wd-panel__status">載入中…</p>
+        )}
+        {bootstrapError && (
+          <p className="wd-panel__status wd-panel__status--error">
+            啟動失敗:{bootstrapError}
+          </p>
+        )}
+        {isReady && (
+          isPreviousDaySummaryOpen
+            ? <PreviousDayCeremony />
+            : allTasksCompleted
+            ? <CompletionCeremony />
+            : <TaskList />
+        )}
+      </div>
 
-            {/* Main content */}
-            <div className="flex-1 overflow-y-auto px-4 py-2">
-                {isBootstrapping && (
-                    <p className="text-sm text-gray-400">載入中…</p>
-                )}
-                {bootstrapError && (
-                    <p className="text-sm text-red-500">啟動失敗：{bootstrapError}</p>
-                )}
-                {isReady && (
-				  isPreviousDaySummaryOpen
-					? <PreviousDayCeremony />
-					: allTasksCompleted
-					? <CompletionCeremony />
-					: <TaskList />
-				)}
-            </div>
-
-            {/* Task Detail Modal */}
-            {isTaskDetailOpen && selectedTask && (
-                <TaskDetailModal task={selectedTask} />
-            )}
-        </div>
-    );
+      {isTaskDetailOpen && selectedTask && (
+        <TaskDetailModal task={selectedTask} />
+      )}
+    </div>
+  );
 }
