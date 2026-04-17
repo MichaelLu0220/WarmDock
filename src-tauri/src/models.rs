@@ -35,6 +35,8 @@ pub struct UserWallet {
     pub streak_days: i64,
     pub last_completed_date: Option<String>,
     pub best_streak_days: i64,
+	pub lifetime_points_earned: i64,
+    pub points_spent_on_unlocks: i64,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -76,6 +78,8 @@ pub struct CompleteTaskResponse {
     pub today_summary: DailySummary,
     pub all_tasks_completed: bool,
     pub streak_days: i64,
+	pub available_points_delta: i64,
+    pub available_points_after: i64,
 }
 
 #[derive(Debug, Serialize)]
@@ -85,4 +89,32 @@ pub struct RunDailyRefreshIfNeededResponse {
     pub new_date: String,
     pub wallet: UserWallet,
     pub previous_summary: Option<DailySummary>,
+}
+
+#[derive(serde::Serialize)]
+pub struct UnlockNodeState {
+    pub node_id: String,
+    pub category: String,
+    pub cost: i64,
+    pub requires: Vec<String>,
+    pub unlocked: bool,
+    pub unlocked_at: Option<String>,
+    pub requirements_met: bool,
+    pub affordable: bool,
+}
+
+#[derive(serde::Serialize)]
+pub struct UnlockProgressResponse {
+    pub available_points: i64,
+    pub lifetime_points_earned: i64,
+    pub points_spent_on_unlocks: i64,
+    pub nodes: Vec<UnlockNodeState>,
+}
+
+#[derive(serde::Serialize)]
+pub struct PurchaseUnlockResponse {
+    pub node_id: String,
+    pub unlocks: UnlockStatus,
+    pub available_points: i64,
+    pub points_spent_on_unlocks: i64,
 }

@@ -1,6 +1,8 @@
 use tauri::State;
 use crate::AppState;
 use crate::models::*;
+use crate::unlock_catalog::{UNLOCK_CATALOG, compute_unlock_status, find_node};
+use std::collections::HashSet;
 
 /// 格式化錯誤為字串（Tauri command 的 Err 必須是 String）
 fn err(e: impl std::fmt::Display) -> String {
@@ -10,6 +12,35 @@ fn err(e: impl std::fmt::Display) -> String {
 /// 取得今天日期 YYYY-MM-DD
 fn today_str() -> String {
     chrono::Local::now().format("%Y-%m-%d").to_string()
+}
+
+/// 讀取所有已解鎖節點 ID。
+fn load_unlocked_node_ids(db: &rusqlite::Connection) -> Result<HashSet<String>, String> {
+    let mut stmt = db
+        .prepare("SELECT node_id FROM unlock_nodes")
+        .map_err(err)?;
+    let rows = stmt
+        .query_map([], |row| row.get::<_, String>(0))
+        .map_err(err)?;
+    let mut set = HashSet::new();
+    for row in rows {
+        set.insert(row.map_err(err)?);
+    }
+    Ok(set)
+}
+
+/// 讀目前可用點數 = lifetime - spent
+fn load_available_points(db: &rusqlite::Connection) -> Result<(i64, i64, i64), String> {
+    db.query_row(
+        "SELECT lifetime_points_earned, points_spent_on_unlocks FROM user_wallet WHERE id = 1",
+        [],
+        |row| {
+            let lifetime: i64 = row.get(0)?;
+            let spent: i64 = row.get(1)?;
+            Ok((lifetime - spent, lifetime, spent))
+        },
+    )
+    .map_err(err)
 }
 
 // ─── get_today_tasks ───
@@ -243,7 +274,7 @@ pub fn bootstrap_app(
 
     let wallet = db
         .query_row(
-            "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days
+            "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days, lifetime_points_earned, points_spent_on_unlocks 
              FROM user_wallet WHERE id = 1",
             [],
             |row| Ok(UserWallet {
@@ -252,6 +283,8 @@ pub fn bootstrap_app(
                 streak_days: row.get(2)?,
                 last_completed_date: row.get(3)?,
                 best_streak_days: row.get(4)?,
+				lifetime_points_earned: row.get(5)?,
+				points_spent_on_unlocks: row.get(6)?,
             }),
         )
         .map_err(err)?;
@@ -287,12 +320,8 @@ pub fn bootstrap_app(
         )
         .ok();
 
-    let unlocks = UnlockStatus {
-        max_visible_task_slots: 3,
-        focus_task_feature_unlocked: false,
-        custom_refresh_time_unlocked: false,
-        weekly_analysis_unlocked: false,
-    };
+    let unlocked_ids = load_unlocked_node_ids(&db)?;
+	let unlocks = compute_unlock_status(&unlocked_ids);
 
     Ok(BootstrapAppResponse {
         today,
@@ -313,12 +342,15 @@ pub fn reset_all_data(state: State<'_, AppState>) -> Result<String, String> {
     db.execute_batch(
         "DELETE FROM tasks;
          DELETE FROM daily_summary;
+         DELETE FROM unlock_nodes;
          UPDATE user_wallet SET
              wallet_points = 0,
              pending_today_points = 0,
              streak_days = 0,
              last_completed_date = NULL,
-             best_streak_days = 0
+             best_streak_days = 0,
+             lifetime_points_earned = 0,
+             points_spent_on_unlocks = 0
          WHERE id = 1;
          UPDATE user_settings SET
              theme_mode = 'light',
@@ -386,7 +418,10 @@ pub fn complete_task(
     ).map_err(err)?;
 
     db.execute(
-        "UPDATE user_wallet SET pending_today_points = pending_today_points + ?1 WHERE id = 1",
+        "UPDATE user_wallet SET
+             pending_today_points = pending_today_points + ?1,
+             lifetime_points_earned = lifetime_points_earned + ?1
+         WHERE id = 1",
         rusqlite::params![task_row.final_reward_points],
     ).map_err(err)?;
 
@@ -410,8 +445,10 @@ pub fn complete_task(
         [&today], |r| r.get(0)
     ).map_err(err)?;
 
-    let max_slots: i64 = 3;
-	let all_completed = completed_count == max_slots;
+    let unlocked_ids = load_unlocked_node_ids(&db)?;
+    let unlock_status = compute_unlock_status(&unlocked_ids);
+    let max_slots: i64 = unlock_status.max_visible_task_slots as i64;
+    let all_completed = completed_count == max_slots;
 
     db.execute(
         "INSERT INTO daily_summary (date, tasks_created, tasks_completed, focus_tasks_completed, points_earned, is_all_completed)
@@ -426,7 +463,7 @@ pub fn complete_task(
     ).map_err(err)?;
 
     let updated_wallet = db.query_row(
-        "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days
+        "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days, lifetime_points_earned, points_spent_on_unlocks
          FROM user_wallet WHERE id = 1",
         [], |row| Ok(UserWallet {
             wallet_points: row.get(0)?,
@@ -434,6 +471,8 @@ pub fn complete_task(
             streak_days: row.get(2)?,
             last_completed_date: row.get(3)?,
             best_streak_days: row.get(4)?,
+			lifetime_points_earned: row.get(5)?,
+			points_spent_on_unlocks: row.get(6)?,
         })
     ).map_err(err)?;
 
@@ -477,6 +516,10 @@ pub fn complete_task(
             is_all_completed: row.get::<_, i64>(5)? != 0,
         }),
     ).map_err(err)?;
+	
+	// 算給前端做 +N 動畫的 delta
+    let (available_after, _lifetime, _spent) = load_available_points(&db)?;
+    let available_delta = task_row.final_reward_points;
 
     Ok(CompleteTaskResponse {
         task: updated_task,
@@ -487,12 +530,14 @@ pub fn complete_task(
         today_summary,
         all_tasks_completed: all_completed,
         streak_days: updated_wallet.streak_days,
+        available_points_delta: available_delta,
+        available_points_after: available_after,
     })
 }
 
 // ─── run_daily_refresh_if_needed ───
 
-#[allow(dead_code)]
+//#[allow(dead_code)]
 #[tauri::command]
 pub fn run_daily_refresh_if_needed(
     state: State<'_, AppState>,
@@ -512,7 +557,7 @@ pub fn run_daily_refresh_if_needed(
 
     if !needs_refresh {
         let wallet = db.query_row(
-            "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days
+            "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days, lifetime_points_earned, points_spent_on_unlocks
              FROM user_wallet WHERE id = 1",
             [], |row| Ok(UserWallet {
                 wallet_points: row.get(0)?,
@@ -520,6 +565,8 @@ pub fn run_daily_refresh_if_needed(
                 streak_days: row.get(2)?,
                 last_completed_date: row.get(3)?,
                 best_streak_days: row.get(4)?,
+				lifetime_points_earned: row.get(5)?,
+				points_spent_on_unlocks: row.get(6)?,
             })
         ).map_err(err)?;
 
@@ -535,7 +582,7 @@ pub fn run_daily_refresh_if_needed(
     let previous_summary = apply_daily_refresh(&db, &today, &last_summary_date)?;
 
     let wallet = db.query_row(
-        "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days
+        "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days, lifetime_points_earned, points_spent_on_unlocks
          FROM user_wallet WHERE id = 1",
         [], |row| Ok(UserWallet {
             wallet_points: row.get(0)?,
@@ -543,6 +590,8 @@ pub fn run_daily_refresh_if_needed(
             streak_days: row.get(2)?,
             last_completed_date: row.get(3)?,
             best_streak_days: row.get(4)?,
+			lifetime_points_earned: row.get(5)?,
+			points_spent_on_unlocks: row.get(6)?,
         })
     ).map_err(err)?;
 
@@ -594,7 +643,7 @@ pub fn dev_force_daily_refresh(
     ).map_err(err)?;
 
     let wallet = db.query_row(
-        "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days
+        "SELECT wallet_points, pending_today_points, streak_days, last_completed_date, best_streak_days, lifetime_points_earned, points_spent_on_unlocks
          FROM user_wallet WHERE id = 1",
         [], |row| Ok(UserWallet {
             wallet_points: row.get(0)?,
@@ -602,6 +651,8 @@ pub fn dev_force_daily_refresh(
             streak_days: row.get(2)?,
             last_completed_date: row.get(3)?,
             best_streak_days: row.get(4)?,
+			lifetime_points_earned: row.get(5)?,
+			points_spent_on_unlocks: row.get(6)?,
         })
     ).map_err(err)?;
 
@@ -675,4 +726,131 @@ fn apply_daily_refresh(
     ).map_err(err)?;
 
     Ok(previous_summary)
+}
+
+
+// ─── get_unlock_status ───
+
+#[tauri::command]
+pub fn get_unlock_status(state: State<'_, AppState>) -> Result<UnlockStatus, String> {
+    let db = state.db.lock().map_err(err)?;
+    let unlocked_ids = load_unlocked_node_ids(&db)?;
+    Ok(compute_unlock_status(&unlocked_ids))
+}
+
+// ─── get_unlock_progress ───
+
+#[tauri::command]
+pub fn get_unlock_progress(
+    state: State<'_, AppState>,
+) -> Result<UnlockProgressResponse, String> {
+    let db = state.db.lock().map_err(err)?;
+    let unlocked_ids = load_unlocked_node_ids(&db)?;
+    let (available, lifetime, spent) = load_available_points(&db)?;
+
+    // 讀每個已解鎖節點的時間戳
+    let mut unlocked_at_map: std::collections::HashMap<String, String> =
+        std::collections::HashMap::new();
+    {
+        let mut stmt = db
+            .prepare("SELECT node_id, unlocked_at FROM unlock_nodes")
+            .map_err(err)?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+            })
+            .map_err(err)?;
+        for row in rows {
+            let (id, at) = row.map_err(err)?;
+            unlocked_at_map.insert(id, at);
+        }
+    }
+
+    let nodes: Vec<UnlockNodeState> = UNLOCK_CATALOG
+        .iter()
+        .map(|n| {
+            let unlocked = unlocked_ids.contains(n.id);
+            let requirements_met =
+                n.requires.iter().all(|r| unlocked_ids.contains(*r));
+            UnlockNodeState {
+                node_id: n.id.to_string(),
+                category: n.category.to_string(),
+                cost: n.cost,
+                requires: n.requires.iter().map(|s| s.to_string()).collect(),
+                unlocked,
+                unlocked_at: unlocked_at_map.get(n.id).cloned(),
+                requirements_met,
+                affordable: !unlocked && requirements_met && available >= n.cost,
+            }
+        })
+        .collect();
+
+    Ok(UnlockProgressResponse {
+        available_points: available,
+        lifetime_points_earned: lifetime,
+        points_spent_on_unlocks: spent,
+        nodes,
+    })
+}
+
+// ─── purchase_unlock ───
+
+#[tauri::command]
+pub fn purchase_unlock(
+    state: State<'_, AppState>,
+    node_id: String,
+) -> Result<PurchaseUnlockResponse, String> {
+    let db = state.db.lock().map_err(err)?;
+
+    // 1. 節點合法性
+    let node = find_node(&node_id)
+        .ok_or_else(|| format!("unknown unlock node: {}", node_id))?;
+
+    // 2. 是否已解鎖
+    let unlocked_ids = load_unlocked_node_ids(&db)?;
+    if unlocked_ids.contains(&node_id) {
+        return Err("node already unlocked".to_string());
+    }
+
+    // 3. 前置
+    for req in node.requires {
+        if !unlocked_ids.contains(*req) {
+            return Err(format!("requirement not met: {}", req));
+        }
+    }
+
+    // 4. 點數
+    let (available, _lifetime, _spent) = load_available_points(&db)?;
+    if available < node.cost {
+        return Err(format!(
+            "not enough points: need {}, have {}",
+            node.cost, available
+        ));
+    }
+
+    // 5. 寫入 + 扣點
+    let now = chrono::Local::now().to_rfc3339();
+    db.execute(
+        "INSERT INTO unlock_nodes (node_id, unlocked_at) VALUES (?1, ?2)",
+        rusqlite::params![node_id, now],
+    )
+    .map_err(err)?;
+
+    db.execute(
+        "UPDATE user_wallet SET points_spent_on_unlocks = points_spent_on_unlocks + ?1 WHERE id = 1",
+        rusqlite::params![node.cost],
+    )
+    .map_err(err)?;
+
+    // 6. 回最新狀態
+    let new_unlocked_ids = load_unlocked_node_ids(&db)?;
+    let new_status = compute_unlock_status(&new_unlocked_ids);
+    let (new_available, _new_lifetime, new_spent) = load_available_points(&db)?;
+
+    Ok(PurchaseUnlockResponse {
+        node_id,
+        unlocks: new_status,
+        available_points: new_available,
+        points_spent_on_unlocks: new_spent,
+    })
 }
