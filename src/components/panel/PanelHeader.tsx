@@ -1,6 +1,6 @@
 import { useWalletStore } from "../../store/useWalletStore";
 import { formatDisplayDate } from "../../lib/date";
-import { formatWalletDisplay } from "../../lib/points";
+import { formatWalletDisplay, formatPoints } from "../../lib/points";
 
 export function PanelHeader() {
   const wallet = useWalletStore((s) => s.wallet);
@@ -9,6 +9,10 @@ export function PanelHeader() {
   const walletDisplay = wallet
     ? formatWalletDisplay(wallet.wallet_points, wallet.pending_today_points)
     : null;
+
+  // 今日花在解鎖的點數 — 只有 > 0 才顯示 (-N)
+  const todayUnlockSpent = wallet?.pending_today_unlock_spent ?? 0;
+  const showSpent = todayUnlockSpent > 0;
 
   return (
     <div
@@ -41,6 +45,11 @@ export function PanelHeader() {
           <span style={{ fontWeight: 700 }}>{walletDisplay.main}</span>
           {walletDisplay.suffix && (
             <span style={{ color: "var(--wd-blue)" }}>{walletDisplay.suffix}</span>
+          )}
+          {showSpent && (
+            <span style={{ color: "var(--wd-orange)" }}>
+              (-{formatPoints(todayUnlockSpent)})
+            </span>
           )}
           {wallet.streak_days > 0 && (
             <span

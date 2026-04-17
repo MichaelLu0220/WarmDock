@@ -36,6 +36,7 @@ fn run_migrations(conn: &Connection) -> Result<()> {
     let migrations: Vec<(i64, &str)> = vec![
         (1, include_str!("../migrations/001_init.sql")),
 		(2, include_str!("../migrations/002_add_unlock_nodes.sql")),
+		(3, include_str!("../migrations/003_add_pending_unlock_spent.sql")),
     ];
 
     for (version, sql) in migrations {

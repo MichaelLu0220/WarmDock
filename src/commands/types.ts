@@ -74,6 +74,9 @@ export type CompleteTaskResponse = {
   today_summary: DailySummary;
   all_tasks_completed: boolean;
   streak_days: number;
+  // Round A.0 新增:給前端做 +N 可花點動畫用
+  available_points_delta: number;
+  available_points_after: number;
 };
 
 /**
@@ -85,6 +88,42 @@ export type GetWalletResponse = UserWallet;
  * get_unlock_status
  */
 export type GetUnlockStatusResponse = UnlockStatus;
+
+/**
+ * get_unlock_progress (Round A.0 新增)
+ */
+export type UnlockNodeState = {
+  node_id: string;
+  category: string;
+  cost: number;
+  requires: string[];
+  unlocked: boolean;
+  unlocked_at: string | null;
+  requirements_met: boolean;
+  affordable: boolean;
+};
+
+export type UnlockProgressResponse = {
+  available_points: number;
+  lifetime_points_earned: number;
+  points_spent_on_unlocks: number;
+  nodes: UnlockNodeState[];
+};
+
+/**
+ * purchase_unlock (Round A.0 新增)
+ */
+export type PurchaseUnlockArgs = {
+  node_id: string;
+};
+
+export type PurchaseUnlockResponse = {
+  node_id: string;
+  unlocks: UnlockStatus;
+  available_points: number;
+  points_spent_on_unlocks: number;
+  pending_today_unlock_spent: number;
+};
 
 /**
  * get_user_settings

@@ -12,6 +12,9 @@ import type {
   CompleteTaskResponse,
   GetWalletResponse,
   GetUnlockStatusResponse,
+  UnlockProgressResponse,
+  PurchaseUnlockArgs,
+  PurchaseUnlockResponse,
   GetUserSettingsResponse,
   UpdateUserSettingsArgs,
   UpdateUserSettingsResponse,
@@ -64,6 +67,16 @@ export function getWallet(): Promise<GetWalletResponse> {
 
 export function getUnlockStatus(): Promise<GetUnlockStatusResponse> {
   return invoke(COMMANDS.GET_UNLOCK_STATUS);
+}
+
+export function getUnlockProgress(): Promise<UnlockProgressResponse> {
+  return invoke(COMMANDS.GET_UNLOCK_PROGRESS);
+}
+
+export function purchaseUnlock(
+  args: PurchaseUnlockArgs
+): Promise<PurchaseUnlockResponse> {
+  return invoke(COMMANDS.PURCHASE_UNLOCK, { nodeId: args.node_id });
 }
 
 export function getUserSettings(): Promise<GetUserSettingsResponse> {

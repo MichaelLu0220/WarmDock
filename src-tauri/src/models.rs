@@ -37,6 +37,7 @@ pub struct UserWallet {
     pub best_streak_days: i64,
 	pub lifetime_points_earned: i64,
     pub points_spent_on_unlocks: i64,
+	pub pending_today_unlock_spent: i64,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -117,4 +118,5 @@ pub struct PurchaseUnlockResponse {
     pub unlocks: UnlockStatus,
     pub available_points: i64,
     pub points_spent_on_unlocks: i64,
+	pub pending_today_unlock_spent: i64,
 }

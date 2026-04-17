@@ -6,6 +6,8 @@ export const COMMANDS = {
   COMPLETE_TASK: "complete_task",
   GET_WALLET: "get_wallet",
   GET_UNLOCK_STATUS: "get_unlock_status",
+  GET_UNLOCK_PROGRESS: "get_unlock_progress",
+  PURCHASE_UNLOCK: "purchase_unlock",
   GET_USER_SETTINGS: "get_user_settings",
   UPDATE_USER_SETTINGS: "update_user_settings",
   UPDATE_TRIGGER_POSITION: "update_trigger_position",
