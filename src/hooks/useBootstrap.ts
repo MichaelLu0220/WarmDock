@@ -6,7 +6,11 @@ import { useSettingsStore } from "../store/useSettingsStore";
 import { useSummaryStore } from "../store/useSummaryStore";
 import { useUIStore } from "../store/useUIStore";
 import { bootstrapApp } from "../commands/invoke";
-import { initWindowAnchor } from "../lib/windowMode";
+import {
+  initWindowAnchor,
+  getMonitorVerticalBounds,
+  setCenterYAnchor,
+} from "../lib/windowMode";
 
 export function useBootstrap() {
   const { isBootstrapping, isReady, bootstrapError } = useAppStore();
@@ -36,6 +40,13 @@ export function useBootstrap() {
         setTasks(data.tasks);
         setWallet(data.wallet);
         setSettings(data.settings);
+		if (data.settings?.trigger_position_y != null) {
+		  const { top, bottom } = await getMonitorVerticalBounds();
+		  const centerY =
+			top + (bottom - top) * data.settings.trigger_position_y;
+
+		  setCenterYAnchor(centerY);
+		}
         if (data.summary) setSummary(data.summary);
         setUnlocks(data.unlocks);
 

@@ -17,8 +17,6 @@
 		  "title": "WarmDock",
 		  "width": 680,
 		  "height": 680,
-		  "x": 1610,
-		  "y": 270,
 		  "resizable": false,
 		  "decorations": false,
 		  "transparent": true,

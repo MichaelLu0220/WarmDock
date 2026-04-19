@@ -956,3 +956,41 @@ pub fn update_user_settings(
 
     Ok(settings)
 }
+
+#[tauri::command]
+pub fn update_trigger_position(
+    state: State<'_, AppState>,
+    trigger_position_y: f64,
+) -> Result<UserSettings, String> {
+    let db = state.db.lock().map_err(err)?;
+
+    // 保險：限制在 0.0 ~ 1.0
+    let clamped = trigger_position_y.clamp(0.0, 1.0);
+
+    db.execute(
+        "UPDATE user_settings
+         SET trigger_position_y = ?1
+         WHERE id = 1",
+        [clamped],
+    )
+    .map_err(err)?;
+
+    let settings = db
+        .query_row(
+            "SELECT theme_mode, panel_width, pin_enabled, refresh_time, trigger_position_y
+             FROM user_settings WHERE id = 1",
+            [],
+            |row| {
+                Ok(UserSettings {
+                    theme_mode: row.get(0)?,
+                    panel_width: row.get(1)?,
+                    pin_enabled: row.get::<_, i64>(2)? != 0,
+                    refresh_time: row.get(3)?,
+                    trigger_position_y: row.get(4)?,
+                })
+            },
+        )
+        .map_err(err)?;
+
+    Ok(settings)
+}

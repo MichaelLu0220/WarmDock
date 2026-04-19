@@ -39,6 +39,7 @@ pub fn run() {
             commands::get_unlock_progress,
             commands::purchase_unlock,
             commands::update_user_settings,
+			commands::update_trigger_position,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
