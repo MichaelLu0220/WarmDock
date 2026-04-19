@@ -12,6 +12,7 @@ function App() {
   useDailyReset();
 
   const openPanel = useUIStore((state) => state.openPanel);
+  const isPanelOpen = useUIStore((state) => state.isPanelOpen);
 
   // DEV: 啟動時自動開 panel 方便開發;正式版移除
   useEffect(() => {
@@ -22,7 +23,7 @@ function App() {
     <div className="wd-app">
       <TriggerBubble />
       <Panel />
-      {import.meta.env.DEV && <DevPanel />}
+      {import.meta.env.DEV && isPanelOpen && <DevPanel />}
     </div>
   );
 }

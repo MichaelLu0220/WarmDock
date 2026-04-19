@@ -6,6 +6,7 @@ import { useSettingsStore } from "../store/useSettingsStore";
 import { useSummaryStore } from "../store/useSummaryStore";
 import { useUIStore } from "../store/useUIStore";
 import { bootstrapApp } from "../commands/invoke";
+import { initWindowAnchor } from "../lib/windowMode";
 
 export function useBootstrap() {
   const { isBootstrapping, isReady, bootstrapError } = useAppStore();
@@ -26,6 +27,9 @@ export function useBootstrap() {
     async function bootstrap() {
       startBootstrap();
       try {
+        // 記錄 app 啟動時的視窗右緣,之後所有 resize 都以此為錨點
+        await initWindowAnchor();
+
         const data = await bootstrapApp();
         if (cancelled) return;
 
@@ -52,7 +56,9 @@ export function useBootstrap() {
     }
 
     bootstrap();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { isBootstrapping, isReady, bootstrapError };

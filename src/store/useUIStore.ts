@@ -2,10 +2,14 @@ import { create } from "zustand";
 import type { DailySummary } from "../models/DailySummary";
 import type { UnlockStatus } from "../commands/types";
 import { DEFAULT_UNLOCK_STATUS } from "../lib/unlock";
+import {
+  enterPanelMode,
+  enterTriggerMode,
+  enterConfiguratorMode,
+} from "../lib/windowMode";
 
 type HeaderPointsFlash = {
   amount: number;
-  /** flash 期間要顯示的 pending 舊值 */
   oldPending: number;
   id: number;
 };
@@ -28,9 +32,9 @@ type UIState = {
 };
 
 type UIActions = {
-  openPanel: () => void;
-  closePanel: () => void;
-  togglePanel: () => void;
+  openPanel: () => Promise<void>;
+  closePanel: () => Promise<void>;
+  togglePanel: () => Promise<void>;
   openTaskDetail: (taskId: string) => void;
   closeTaskDetail: () => void;
   setAllTasksCompleted: (value: boolean) => void;
@@ -39,13 +43,8 @@ type UIActions = {
   setUnlocks: (unlocks: UnlockStatus) => void;
   showTaskCompletionFlash: (taskTitle: string, pointsEarned: number) => void;
   hideTaskCompletionFlash: () => void;
-  openUnlockTree: () => void;
-  closeUnlockTree: () => void;
-  /**
-   * 觸發 header 的 +N flash。
-   * @param amount 新增的點數
-   * @param oldPending flash 期間應該顯示的 pending 舊值(通常由呼叫端在 sync wallet 前 snapshot)
-   */
+  openUnlockTree: () => Promise<void>;
+  closeUnlockTree: () => Promise<void>;
   triggerHeaderPointsFlash: (amount: number, oldPending: number) => void;
   clearHeaderPointsFlash: () => void;
   setComposingTask: (value: boolean) => void;
@@ -53,7 +52,7 @@ type UIActions = {
 
 let _headerFlashSeq = 0;
 
-export const useUIStore = create<UIState & UIActions>((set) => ({
+export const useUIStore = create<UIState & UIActions>((set, get) => ({
   isPanelOpen: false,
   isTaskDetailOpen: false,
   selectedTaskId: null,
@@ -66,9 +65,30 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   headerPointsFlash: null,
   isComposingTask: false,
 
-  openPanel: () => set({ isPanelOpen: true }),
-  closePanel: () => set({ isPanelOpen: false }),
-  togglePanel: () => set((state) => ({ isPanelOpen: !state.isPanelOpen })),
+  openPanel: async () => {
+    // 先 resize 再 set state,避免 panel 被裁切
+    await enterPanelMode();
+    set({ isPanelOpen: true });
+  },
+
+  closePanel: async () => {
+    set({ isPanelOpen: false });
+    // 等 CSS 滑出動畫結束再縮 window,畫面比較順
+    setTimeout(() => {
+      enterTriggerMode().catch((e) =>
+        console.error("closePanel resize failed", e)
+      );
+    }, 220);
+  },
+
+  togglePanel: async () => {
+    if (get().isPanelOpen) {
+      await get().closePanel();
+    } else {
+      await get().openPanel();
+    }
+  },
+
   setAllTasksCompleted: (value) => set({ allTasksCompleted: value }),
 
   openTaskDetail: (taskId: string) =>
@@ -86,8 +106,18 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
     set({ taskCompletionFlash: { taskTitle, pointsEarned } }),
   hideTaskCompletionFlash: () =>
     set({ taskCompletionFlash: null }),
-  openUnlockTree: () => set({ isUnlockTreeOpen: true }),
-  closeUnlockTree: () => set({ isUnlockTreeOpen: false }),
+
+  openUnlockTree: async () => {
+    // 先放大 window 再顯示配置器
+    await enterConfiguratorMode();
+    set({ isUnlockTreeOpen: true });
+  },
+
+  closeUnlockTree: async () => {
+    set({ isUnlockTreeOpen: false });
+    // 配置器關閉後回到 panel mode(panel 還是開的)
+    await enterPanelMode();
+  },
 
   triggerHeaderPointsFlash: (amount, oldPending) => {
     _headerFlashSeq += 1;

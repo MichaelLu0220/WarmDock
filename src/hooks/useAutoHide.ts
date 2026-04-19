@@ -5,24 +5,18 @@ import { useSettingsStore } from "../store/useSettingsStore";
 
 export function useAutoHide() {
   const unlistenRef = useRef<(() => void) | null>(null);
-  const currentWindowRef = useRef<any>(null);
 
   useEffect(() => {
     let mounted = true;
 
     async function attach() {
       const win = getCurrentWindow();
-      currentWindowRef.current = win;
 
-      const unlisten = await win.onFocusChanged(async ({ payload: focused }) => {
+      const unlisten = await win.onFocusChanged(({ payload: focused }) => {
         if (!mounted) return;
-        if (focused) {
-          // 視窗獲得焦點 → 恢復正常點擊
-          await win.setIgnoreCursorEvents(false);
-          return;
-        }
+        if (focused) return; // 只處理失焦
 
-        // 視窗失焦 → 檢查是否要隱藏並穿透
+        // 每次觸發讀 latest state
         const ui = useUIStore.getState();
         const settings = useSettingsStore.getState().settings;
 
@@ -32,15 +26,10 @@ export function useAutoHide() {
         if (ui.isUnlockTreeOpen) return;
         if (ui.isComposingTask) return;
 
-        // 決定隱藏並讓滑鼠穿透
+        // closePanel 內部會自動縮 window 成 trigger size,
+        // 視窗縮小後桌面其他區域自然可以被點到,
+        // 不需要 setIgnoreCursorEvents。
         ui.closePanel();
-
-        // 重要：讓滑鼠事件穿透到桌面
-        try {
-          await win.setIgnoreCursorEvents(true);
-        } catch (e) {
-          console.error("setIgnoreCursorEvents failed:", e);
-        }
       });
 
       if (mounted) {
@@ -58,8 +47,6 @@ export function useAutoHide() {
         unlistenRef.current();
         unlistenRef.current = null;
       }
-      // 清理時恢復正常點擊
-      currentWindowRef.current?.setIgnoreCursorEvents(false).catch(() => {});
     };
   }, []);
 }
