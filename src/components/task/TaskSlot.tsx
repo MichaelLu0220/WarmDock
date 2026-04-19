@@ -8,6 +8,7 @@ export function TaskSlot() {
     const inputRef = useRef<HTMLInputElement>(null);
     const createTask = useTaskStore((s) => s.createTask);
     const openTaskDetail = useUIStore((s) => s.openTaskDetail);
+    const setComposingTask = useUIStore((s) => s.setComposingTask);
 
     const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== "Enter") return;
@@ -37,6 +38,8 @@ export function TaskSlot() {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={() => setComposingTask(true)}
+            onBlur={() => setComposingTask(false)}
             disabled={isSubmitting}
         />
     );

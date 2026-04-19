@@ -12,20 +12,33 @@ pub struct UnlockNode {
 }
 
 pub enum UnlockEffect {
+    /// 純解鎖儀式,不改變 UnlockStatus。
+    /// 用於中心覺醒節點 — 它的作用是作為其他節點的前置。
+    None,
     MaxSlots(i64),
     FocusTaskFeature,
     CustomRefreshTime,
     WeeklyAnalysis,
 }
 
-/// MVP 節點表。線性鏈版本,之後若要改交錯直接改這張。
+/// MVP 節點表。
+/// 中心節點 root.awaken 是所有路徑的入口(cost=0,但需主動點擊)。
+/// 線性鏈版本,之後若要改交錯直接改這張。
 pub const UNLOCK_CATALOG: &[UnlockNode] = &[
+    // 中心覺醒 — 0 cost,4 條路的前置
+    UnlockNode {
+        id: "root.awaken",
+        category: "root",
+        cost: 0,
+        requires: &[],
+        effect: UnlockEffect::None,
+    },
     // capacity 流派 — 線性鏈
     UnlockNode {
         id: "slots.4",
         category: "capacity",
         cost: 30,
-        requires: &[],
+        requires: &["root.awaken"],
         effect: UnlockEffect::MaxSlots(4),
     },
     UnlockNode {
@@ -54,7 +67,7 @@ pub const UNLOCK_CATALOG: &[UnlockNode] = &[
         id: "focus.basic",
         category: "focus",
         cost: 50,
-        requires: &[],
+        requires: &["root.awaken"],
         effect: UnlockEffect::FocusTaskFeature,
     },
     // time 流派
@@ -62,7 +75,7 @@ pub const UNLOCK_CATALOG: &[UnlockNode] = &[
         id: "time.custom_refresh",
         category: "time",
         cost: 20,
-        requires: &[],
+        requires: &["root.awaken"],
         effect: UnlockEffect::CustomRefreshTime,
     },
     // analysis 流派
@@ -70,7 +83,7 @@ pub const UNLOCK_CATALOG: &[UnlockNode] = &[
         id: "analysis.weekly",
         category: "analysis",
         cost: 120,
-        requires: &[],
+        requires: &["root.awaken"],
         effect: UnlockEffect::WeeklyAnalysis,
     },
 ];
@@ -90,6 +103,7 @@ pub fn compute_unlock_status(unlocked_ids: &HashSet<String>) -> UnlockStatus {
             continue;
         }
         match node.effect {
+            UnlockEffect::None => {}
             UnlockEffect::MaxSlots(n) => {
                 if n > status.max_visible_task_slots {
                     status.max_visible_task_slots = n;

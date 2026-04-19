@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Task } from "../../models/Task";
 import { useTaskStore } from "../../store/useTaskStore";
 import { useUIStore } from "../../store/useUIStore";
@@ -15,12 +15,29 @@ type TaskDetailModalProps = {
 export function TaskDetailModal({ task }: TaskDetailModalProps) {
   const setTaskDetail = useTaskStore((s) => s.setTaskDetail);
   const closeTaskDetail = useUIStore((s) => s.closeTaskDetail);
+  const setComposingTask = useUIStore((s) => s.setComposingTask);
 
   const suggested = suggestDifficulty(task.title);
   const options = DIFFICULTY_OPTIONS[suggested];
 
   const [selected, setSelected] = useState<1 | 2 | 3 | 4 | 5 | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 關鍵修正：當 modal 關閉時，強制清除 composing 狀態 + 移走焦點
+  useEffect(() => {
+    return () => {
+      // modal 卸載時執行（包含關閉）
+      setComposingTask(false);
+      
+      // 把焦點移到 document body，防止自動回到 TaskSlot 的 input
+      setTimeout(() => {
+        document.body.focus();
+        // 或者如果你想讓焦點回到最後一個 TaskSlot，可以這樣：
+        // const lastInput = document.querySelector('.wd-slot:last-of-type') as HTMLInputElement;
+        // lastInput?.focus();
+      }, 10);
+    };
+  }, [setComposingTask]);
 
   const handleConfirm = async () => {
     if (!selected || isSubmitting) return;
@@ -45,7 +62,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
         <p className="wd-modal__subtitle">{task.title}</p>
 
         <p className="wd-modal__hint">
-          系統建議:{BAND_LABELS[suggested]}
+          系統建議: {BAND_LABELS[suggested]}
         </p>
 
         {/* 難度選擇 */}

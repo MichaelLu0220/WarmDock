@@ -27,18 +27,19 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-			commands::bootstrap_app,
-			commands::get_today_tasks,
-			commands::create_task,
-			commands::set_task_detail,
-			commands::complete_task,
-			commands::run_daily_refresh_if_needed,
-			commands::dev_force_daily_refresh,
-			commands::reset_all_data,
-			commands::get_unlock_status,
-			commands::get_unlock_progress,
-			commands::purchase_unlock,
-		])
+            commands::bootstrap_app,
+            commands::get_today_tasks,
+            commands::create_task,
+            commands::set_task_detail,
+            commands::complete_task,
+            commands::run_daily_refresh_if_needed,
+            commands::dev_force_daily_refresh,
+            commands::reset_all_data,
+            commands::get_unlock_status,
+            commands::get_unlock_progress,
+            commands::purchase_unlock,
+            commands::update_user_settings,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -882,3 +882,77 @@ pub fn purchase_unlock(
         pending_today_unlock_spent: new_pending_spent,
     })
 }
+
+// ═══════════════════════════════════════════════════════════
+// 以下為 Round F 補上的命令 — 貼到 commands.rs 檔案底部
+// ═══════════════════════════════════════════════════════════
+
+use serde::Deserialize;
+
+/// update_user_settings 的 patch 欄位 — 全都 optional,只更新有送的欄位。
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct UpdateUserSettingsPatch {
+    pub theme_mode: Option<String>,
+    pub panel_width: Option<i64>,
+    pub pin_enabled: Option<bool>,
+    pub refresh_time: Option<String>,
+}
+
+#[tauri::command]
+pub fn update_user_settings(
+    state: State<'_, AppState>,
+    patch: UpdateUserSettingsPatch,
+) -> Result<UserSettings, String> {
+    let db = state.db.lock().map_err(err)?;
+
+    // 逐欄位 update — 有送的才改
+    if let Some(v) = &patch.theme_mode {
+        db.execute(
+            "UPDATE user_settings SET theme_mode = ?1 WHERE id = 1",
+            [v],
+        )
+        .map_err(err)?;
+    }
+    if let Some(v) = patch.panel_width {
+        db.execute(
+            "UPDATE user_settings SET panel_width = ?1 WHERE id = 1",
+            [v],
+        )
+        .map_err(err)?;
+    }
+    if let Some(v) = patch.pin_enabled {
+        db.execute(
+            "UPDATE user_settings SET pin_enabled = ?1 WHERE id = 1",
+            [if v { 1i64 } else { 0i64 }],
+        )
+        .map_err(err)?;
+    }
+    if let Some(v) = &patch.refresh_time {
+        db.execute(
+            "UPDATE user_settings SET refresh_time = ?1 WHERE id = 1",
+            [v],
+        )
+        .map_err(err)?;
+    }
+
+    // 讀回最新結果
+    let settings = db
+        .query_row(
+            "SELECT theme_mode, panel_width, pin_enabled, refresh_time, trigger_position_y
+             FROM user_settings WHERE id = 1",
+            [],
+            |row| {
+                Ok(UserSettings {
+                    theme_mode: row.get(0)?,
+                    panel_width: row.get(1)?,
+                    pin_enabled: row.get::<_, i64>(2)? != 0,
+                    refresh_time: row.get(3)?,
+                    trigger_position_y: row.get(4)?,
+                })
+            },
+        )
+        .map_err(err)?;
+
+    Ok(settings)
+}

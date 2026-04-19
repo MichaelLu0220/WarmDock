@@ -595,3 +595,104 @@ html, body, #root {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ============================================================
+   Unlock tree (Round B / Polish 4) — HTML tooltip,panel 撐寬
+   ============================================================ */
+
+.wd-unlock-tree-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(58, 42, 26, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: wd-tree-fadein 180ms ease-out;
+}
+
+@keyframes wd-tree-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.wd-unlock-tree-card {
+  position: relative;
+  transform: translate(60px, -50px);
+  width: min(420px, 96vw);
+  height: min(420px, 92vh);
+  background: var(--wd-cream);
+  border: 2px solid var(--wd-border);
+  box-shadow:
+    inset 0 0 0 2px var(--wd-cream),
+    inset 0 0 0 4px var(--wd-border-soft),
+    6px 6px 0 var(--wd-border);
+  padding: 14px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+}
+
+@keyframes wd-tree-card-in {
+  from { transform: scale(0.96); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.wd-unlock-tree-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid var(--wd-border-soft);
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   Round C — Header +N flash & pending pulse
+   追加到 globals.css 底部
+   ============================================================ */
+
+/* +N 浮字:淡入 → 漂浮 → 淡出,600ms */
+@keyframes wd-header-flash {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.85);
+  }
+  18% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1);
+  }
+  78% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-16px) scale(1);
+  }
+}
+
+.wd-header-flash {
+  animation: wd-header-flash 600ms ease-out forwards;
+}
+
+/* pending 數字脈動:scale 1 → 1.2 → 1,200ms,使用 steps 維持像素風 */
+@keyframes wd-header-pending-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.wd-header-pending {
+  display: inline-block;
+  transform-origin: center;
+}
+
+.wd-header-pending--pulse {
+  animation: wd-header-pending-pulse 220ms steps(4, end);
+}
