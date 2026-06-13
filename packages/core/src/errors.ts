@@ -9,6 +9,9 @@ export type AppErrorCode =
   | "REQUIREMENT_NOT_MET"
   | "INSUFFICIENT_POINTS"
   | "INVALID_INPUT"
+  // cloud (Supabase) authoritative RPCs
+  | "NOT_AUTHENTICATED"
+  | "CYCLE_SETTLED"
   | "DB_ERROR"
   | "UNKNOWN";
 
