@@ -1,6 +1,9 @@
 import { useRef, useState } from "react";
 import { saveTriggerPosition } from "../../app/orchestrators/settings";
-import { togglePanel } from "../../app/orchestrators/windowFlow";
+import {
+  collapsePanelFromUnlock,
+  togglePanel,
+} from "../../app/orchestrators/windowFlow";
 import { useUIStore } from "../../app/stores/uiStore";
 import { windowManager } from "../../app/window/windowManager";
 
@@ -12,8 +15,7 @@ const HOLD_TO_DRAG_MS = 2000;
  */
 export function TriggerBubble() {
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
-  const isUnlockTreeOpen = useUIStore((s) => s.isUnlockTreeOpen);
-  const isWindowTransitioning = useUIStore((s) => s.isWindowTransitioning);
+  const isUnlockExpanded = useUIStore((s) => s.isUnlockExpanded);
 
   const holdTimerRef = useRef<number | null>(null);
   const didDragRef = useRef(false);
@@ -66,12 +68,19 @@ export function TriggerBubble() {
       didDragRef.current = false;
       return;
     }
-    void togglePanel();
+    // 第二頁面(docked)開啟時點 trigger → 直接收合成泡泡(含關掉能力配置);
+    // 否則就是一般的展開/收合面板。
+    if (useUIStore.getState().isUnlockTreeOpen) {
+      void collapsePanelFromUnlock();
+    } else {
+      void togglePanel();
+    }
   };
 
-  // 能力配置開啟或原生視窗正在 resize 時隱藏 trigger。
-  // 等 set_window_rect 完成後才重新掛載,避免在舊座標短暫閃爍。
-  if (isUnlockTreeOpen || isWindowTransitioning) return null;
+  // 只有視窗鋪滿(第三頁面/放大態)時才隱藏 trigger —— 那時 right:0/top:50%
+  // 會把它定位到螢幕中央。docked 第二頁面與面板展開/收合期間都保持顯示,
+  // 讓使用者隨時能用它收合(且收合的視窗縮放不會讓它閃掉)。
+  if (isUnlockExpanded) return null;
 
   return (
     <button

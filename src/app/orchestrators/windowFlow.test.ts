@@ -5,6 +5,7 @@ const windowManagerMock = vi.hoisted(() => ({
   toFullscreen: vi.fn(),
   toPanel: vi.fn(),
   toTrigger: vi.fn(),
+  focus: vi.fn(),
   quitApp: vi.fn(),
 }));
 
@@ -16,6 +17,7 @@ import { useUIStore } from "../stores/uiStore";
 import {
   closePanel,
   closeUnlockTree,
+  collapsePanelFromUnlock,
   maximizeUnlockTree,
   openPanel,
   openUnlockTree,
@@ -43,6 +45,7 @@ beforeEach(() => {
     isUnlockTreeOpen: false,
     isUnlockTreeClosing: false,
     isUnlockMaximized: false,
+    isUnlockExpanded: false,
   });
 });
 
@@ -107,12 +110,36 @@ describe("unlock window flow", () => {
     const maximizing = maximizeUnlockTree();
 
     expect(transitionState()).toBe(true);
+    // 視窗即將鋪滿 → trigger 旗標立刻收起,放大態未完成
+    expect(useUIStore.getState().isUnlockExpanded).toBe(true);
     expect(useUIStore.getState().isUnlockMaximized).toBe(false);
 
     resize.resolve();
     await maximizing;
 
     expect(useUIStore.getState().isUnlockMaximized).toBe(true);
+    expect(useUIStore.getState().isUnlockExpanded).toBe(true);
+    expect(transitionState()).toBe(false);
+  });
+
+  it("collapses the tree and panel straight to the trigger bubble", async () => {
+    vi.useFakeTimers();
+    useUIStore.setState({ isPanelOpen: true, isUnlockTreeOpen: true });
+    const resize = deferred();
+    windowManagerMock.toTrigger.mockReturnValue(resize.promise);
+
+    const collapsing = collapsePanelFromUnlock();
+
+    // 能力配置立刻收掉,面板開始翻書收合
+    expect(useUIStore.getState().isUnlockTreeOpen).toBe(false);
+    expect(useUIStore.getState().isUnlockExpanded).toBe(false);
+    expect(useUIStore.getState().isPanelOpen).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(560);
+    expect(windowManagerMock.toTrigger).toHaveBeenCalledOnce();
+
+    resize.resolve();
+    await collapsing;
     expect(transitionState()).toBe(false);
   });
 

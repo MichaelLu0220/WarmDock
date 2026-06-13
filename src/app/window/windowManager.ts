@@ -73,6 +73,19 @@ class WindowManager {
     this.centerYAnchor = top + (bottom - top) * ratio;
   }
 
+  /**
+   * 主動取得視窗焦點。本視窗是 alwaysOnTop + transparent + skipTaskbar 的浮層,
+   * 平常不易持有 OS 焦點;開啟面板/能力配置時主動 setFocus,之後使用者點桌面
+   * 才會觸發 onFocusChanged(失焦)→ 自動收合(否則要先手動點一下 app 才有效)。
+   */
+  async focus(): Promise<void> {
+    try {
+      await getCurrentWindow().setFocus();
+    } catch (e) {
+      console.error("focus failed", e);
+    }
+  }
+
   async toTrigger(): Promise<void> {
     await this.apply("trigger", TRIGGER_WINDOW_WIDTH, TRIGGER_WINDOW_HEIGHT);
   }

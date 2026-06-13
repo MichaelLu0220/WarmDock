@@ -15,6 +15,10 @@ type Props = {
   anchor: { x: number; y: number; halfW: number; halfH: number };
   /** panel 容器寬高,用於邊界判斷 */
   panelRect: { w: number; h: number };
+  /** docked 第二頁面:卡片窄,改用「卡內全寬覆蓋面板」避免說明文字被裁切 */
+  compact: boolean;
+  /** 第三頁面:游標座標(卡片內 px),說明卡跟隨滑鼠;null = 不跟隨 */
+  pointer: { x: number; y: number } | null;
 };
 
 const TOOLTIP_W = 320;
@@ -98,6 +102,8 @@ export function UnlockTooltip({
   onMouseLeave,
   anchor,
   panelRect,
+  compact,
+  pointer,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -139,54 +145,118 @@ export function UnlockTooltip({
   const missingPoints = Math.max(0, state.cost - availablePoints);
   const remainingAfterBuy = Math.max(0, availablePoints - state.cost);
 
-  const nodeRight = anchor.x + anchor.halfW + GAP;
-  const nodeLeft = anchor.x - anchor.halfW - GAP - TOOLTIP_W;
+  // 字級/間距:compact(docked)整體縮一階,讓窄卡片塞得下完整說明。
+  const fz = compact
+    ? {
+        chip: 11,
+        cost: 14,
+        title: 15,
+        body: 13,
+        small: 12,
+        foot: 12,
+        hintTitle: 13,
+        hintSub: 11,
+      }
+    : {
+        chip: 12,
+        cost: 16,
+        title: 20,
+        body: 15,
+        small: 14,
+        foot: 13,
+        hintTitle: 14,
+        hintSub: 12,
+      };
+  const padOuter = compact ? "12px 14px" : "18px 20px";
+  const mb = compact ? 8 : 12; // 區塊間距
+  const lh = compact ? 1.5 : 1.65;
+
+  // ── 定位 ──
+  // compact:卡內全寬,放在節點「上方或下方」(取空間較大的一側),不覆蓋節點
+  //   本身 —— 否則會擋住「按住方塊 2 秒」的解鎖手勢。
+  // expanded:沿用節點旁側顯示。
+  const M = 8;
+  const POFF = 16;
+  // 第二頁面(compact)與第三頁面都讓說明卡跟隨滑鼠;有游標座標即啟用。
+  const followPointer = !!pointer;
+  // compact 卡片窄,說明卡也收窄(夾在卡內、不超出);expanded 用固定寬。
+  const tipW = compact
+    ? Math.min(Math.max(0, panelRect.w - 16), 280)
+    : TOOLTIP_W;
+  // compact 高度上限為卡片高,內容(已精簡)通常塞得下。
+  const maxHeight = compact ? Math.max(120, panelRect.h - 2 * M) : undefined;
 
   let left: number;
-  if (layout.direction === "left") {
-    left = nodeLeft < 10 ? nodeRight : nodeLeft;
-  } else if (layout.direction === "right") {
-    left = nodeRight + TOOLTIP_W > panelRect.w - 10 ? nodeLeft : nodeRight;
+  if (followPointer && pointer) {
+    // 游標右下偏移;溢出右緣則翻到游標左側,再夾進卡片內。
+    left = pointer.x + POFF;
+    if (left + tipW > panelRect.w - M) left = pointer.x - tipW - POFF;
+    if (left < M) left = M;
+  } else if (compact) {
+    left = Math.max(M, (panelRect.w - tipW) / 2);
   } else {
-    left = nodeRight + TOOLTIP_W > panelRect.w - 10 ? nodeLeft : nodeRight;
+    const nodeRight = anchor.x + anchor.halfW + GAP;
+    const nodeLeft = anchor.x - anchor.halfW - GAP - tipW;
+    if (layout.direction === "left") {
+      left = nodeLeft < 10 ? nodeRight : nodeLeft;
+    } else {
+      left = nodeRight + tipW > panelRect.w - 10 ? nodeLeft : nodeRight;
+    }
   }
 
   // render 階段不能讀 ref,先用估計高度排版,
   // paint 前由 useLayoutEffect 量實際高度修正 top(不會閃)
-  const EST_H = 300;
-  const estTop = Math.max(10, anchor.y - EST_H / 2);
+  const EST_H = compact ? 200 : 300;
+  const estTop =
+    followPointer && pointer
+      ? pointer.y + POFF
+      : Math.max(M, anchor.y - EST_H / 2);
   const pos = { left, top: estTop };
 
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const h = el.offsetHeight;
-    let top = anchor.y - h / 2;
-    if (top < 10) top = 10;
-    if (top + h > panelRect.h - 10) top = panelRect.h - 10 - h;
+    let top: number;
+    if (followPointer && pointer) {
+      top = pointer.y + POFF;
+      if (top + h > panelRect.h - M) top = pointer.y - h - POFF;
+      if (top < M) top = M;
+    } else {
+      top = anchor.y - h / 2;
+      if (top < 10) top = 10;
+      if (top + h > panelRect.h - 10) top = panelRect.h - 10 - h;
+    }
     el.style.top = `${top}px`;
   });
 
   return (
     <div
       ref={ref}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={followPointer ? undefined : onMouseEnter}
+      onMouseLeave={followPointer ? undefined : onMouseLeave}
       style={{
         position: "absolute",
         left: pos.left,
         top: pos.top,
-        width: TOOLTIP_W,
+        width: tipW,
+        maxHeight,
+        overflowY: maxHeight ? "auto" : "visible",
         background: "var(--wd-cream)",
         border: "2px solid var(--wd-border)",
         boxShadow:
           "inset 0 0 0 2px var(--wd-cream), inset 0 0 0 4px var(--wd-border-soft), 5px 5px 0 var(--wd-border)",
-        padding: "18px 20px",
+        padding: padOuter,
         fontFamily: "var(--wd-font-body)",
-        fontSize: 16,
+        fontSize: fz.body,
         color: "var(--wd-ink)",
         zIndex: 5,
-        pointerEvents: "auto",
+        // 跟隨滑鼠時不攔截指標(穿透),確保游標離開節點即消失、不會卡在說明卡上;
+        // 並加上短暫補間做出柔順的跟隨拖尾。
+        pointerEvents: followPointer ? "none" : "auto",
+        transition: followPointer
+          ? "left 90ms ease-out, top 90ms ease-out"
+          : undefined,
         boxSizing: "border-box",
       }}
     >
@@ -196,18 +266,18 @@ export function UnlockTooltip({
           alignItems: "center",
           justifyContent: "space-between",
           gap: 8,
-          marginBottom: 10,
+          marginBottom: mb,
         }}
       >
         <span
           style={{
             display: "inline-flex",
             alignItems: "center",
-            height: 24,
+            height: compact ? 20 : 24,
             padding: "0 8px",
             border: `2px solid ${categoryColors.border}`,
             background: categoryColors.bg,
-            fontSize: 12,
+            fontSize: fz.chip,
             lineHeight: 1,
           }}
         >
@@ -215,54 +285,65 @@ export function UnlockTooltip({
         </span>
         {!state.unlocked && !isCenter && (
           <span
-            style={{ color: "var(--wd-gold)", fontWeight: 700, fontSize: 16 }}
+            style={{
+              color: "var(--wd-gold)",
+              fontWeight: 700,
+              fontSize: fz.cost,
+            }}
           >
             ◆ {state.cost}
           </span>
         )}
       </div>
 
-      <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 8 }}>
+      <div style={{ fontWeight: 700, fontSize: fz.title, marginBottom: 6 }}>
         {layout.displayName}
       </div>
       <div
         style={{
-          fontSize: 15,
-          lineHeight: 1.65,
+          fontSize: fz.body,
+          lineHeight: lh,
           color: "var(--wd-ink-soft)",
-          marginBottom: 12,
+          marginBottom: mb,
         }}
       >
         {layout.description}
       </div>
 
-      <div
-        style={{
-          borderTop: "1px solid var(--wd-border-soft)",
-          marginBottom: 12,
-        }}
-      />
+      {/* 效果清單:compact(第二頁面)省略,完整內容在放大的第三頁面顯示 */}
+      {!compact && (
+        <>
+          <div
+            style={{
+              borderTop: "1px solid var(--wd-border-soft)",
+              marginBottom: mb,
+            }}
+          />
 
-      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>效果</div>
-      <ul
-        style={{
-          margin: "0 0 12px 18px",
-          padding: 0,
-          fontSize: 15,
-          lineHeight: 1.65,
-        }}
-      >
-        {layout.effectLines.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
-      </ul>
+          <div style={{ fontSize: fz.body, fontWeight: 700, marginBottom: 6 }}>
+            效果
+          </div>
+          <ul
+            style={{
+              margin: `0 0 ${mb}px 18px`,
+              padding: 0,
+              fontSize: fz.body,
+              lineHeight: lh,
+            }}
+          >
+            {layout.effectLines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </>
+      )}
 
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           gap: 12,
-          fontSize: 15,
+          fontSize: fz.body,
           marginBottom: 8,
           color: "var(--wd-ink-soft)",
         }}
@@ -278,8 +359,8 @@ export function UnlockTooltip({
           display: "flex",
           justifyContent: "space-between",
           gap: 12,
-          fontSize: 15,
-          marginBottom: 12,
+          fontSize: fz.body,
+          marginBottom: mb,
           color: "var(--wd-ink-soft)",
         }}
       >
@@ -294,7 +375,7 @@ export function UnlockTooltip({
       {!state.unlocked && missingPoints > 0 && !isCenter && (
         <div
           style={{
-            fontSize: 14,
+            fontSize: fz.small,
             color: "var(--wd-orange)",
             marginBottom: 10,
           }}
@@ -303,22 +384,25 @@ export function UnlockTooltip({
         </div>
       )}
 
-      <div
-        style={{
-          fontSize: 15,
-          color: "var(--wd-ink-soft)",
-          lineHeight: 1.6,
-          fontStyle: "italic",
-          marginBottom: 12,
-        }}
-      >
-        「{layout.mantra}」
-      </div>
+      {/* 標語:compact 省略以節省高度 */}
+      {!compact && (
+        <div
+          style={{
+            fontSize: fz.body,
+            color: "var(--wd-ink-soft)",
+            lineHeight: lh,
+            fontStyle: "italic",
+            marginBottom: mb,
+          }}
+        >
+          「{layout.mantra}」
+        </div>
+      )}
 
       {purchaseError && (
         <div
           style={{
-            fontSize: 14,
+            fontSize: fz.small,
             color: "var(--wd-red)",
             marginBottom: 10,
           }}
@@ -332,26 +416,27 @@ export function UnlockTooltip({
         <div
           style={{
             marginTop: 4,
-            padding: "10px 12px",
+            padding: compact ? "8px 10px" : "10px 12px",
             background: "var(--wd-paper)",
             border: "2px dashed var(--wd-border-soft)",
-            fontSize: 14,
+            fontSize: fz.small,
             lineHeight: 1.5,
             textAlign: "center",
             color: "var(--wd-ink)",
           }}
         >
           <div style={{ fontWeight: 700, marginBottom: 2 }}>按住方塊 2 秒</div>
-          <div style={{ fontSize: 12, color: "var(--wd-ink-soft)" }}>
+          <div style={{ fontSize: fz.hintSub, color: "var(--wd-ink-soft)" }}>
             {isCenter ? "準備覺醒" : "準備解鎖"}
           </div>
         </div>
       )}
 
-      {!state.unlocked && !isCenter && (
+      {/* 可用/解鎖後點數:compact 省略(卡片標題列已顯示可用點數) */}
+      {!compact && !state.unlocked && !isCenter && (
         <div
           style={{
-            fontSize: 13,
+            fontSize: fz.foot,
             color: "var(--wd-ink-soft)",
             textAlign: "right",
             marginTop: 10,
@@ -366,16 +451,14 @@ export function UnlockTooltip({
       {state.unlocked && (
         <div
           style={{
-            fontSize: 13,
+            fontSize: fz.foot,
             color: "var(--wd-ink-soft)",
             textAlign: "right",
             marginTop: 10,
           }}
         >
           此效果已生效
-          {state.unlockedAt && (
-            <div>解鎖於 {state.unlockedAt.slice(0, 10)}</div>
-          )}
+          {state.unlockedAt && <div>解鎖於 {state.unlockedAt.slice(0, 10)}</div>}
         </div>
       )}
     </div>

@@ -19,7 +19,9 @@ describe("unlock tree layout modes", () => {
     const expanded = getUnlockTreeLayout("expanded");
 
     expect(compact.viewBox.h).toBeLessThan(expanded.viewBox.h);
-    expect(compact.nodeSize).toBeGreaterThanOrEqual(80);
+    // docked 節點刻意比放大版小,但仍維持可讀/可點的下限,且中心節點最大
+    expect(compact.nodeSize).toBeGreaterThanOrEqual(56);
+    expect(compact.nodeSize).toBeLessThan(expanded.nodeSize);
     expect(compact.centerSize).toBeGreaterThan(compact.nodeSize);
   });
 

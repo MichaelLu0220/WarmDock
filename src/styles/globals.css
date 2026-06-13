@@ -784,10 +784,16 @@ html.wd-card-instant .wd-unlock-tree-card {
   transition: none !important;
 }
 
-/* 關閉能力配置:翻書關上(書脊在右緣,rotateY 攤平→立起),與開啟翻入相反 */
+/* 關閉能力配置(第二頁面 docked):翻書關上(書脊在右緣,rotateY 攤平→立起),
+   與開啟翻入相反。 */
 .wd-unlock-tree-card[data-closing="true"] {
   animation: wd-page-flip-out var(--wd-dur-panel) var(--wd-ease-smooth) forwards;
   pointer-events: none;
+}
+
+/* 第三頁面(centered)關閉:書脊翻出在螢幕中央會很突兀,改用淡出+微縮 */
+.wd-unlock-tree-card[data-closing="true"][data-mode="centered"] {
+  animation: wd-card-fade-out var(--wd-dur-panel) var(--wd-ease-smooth) forwards;
 }
 
 /* centered:飛到螢幕中央、放大成較大的直式頁面(視窗已鋪滿全螢幕)。

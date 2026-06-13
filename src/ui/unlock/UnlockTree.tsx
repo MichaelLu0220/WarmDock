@@ -5,6 +5,7 @@ import {
 } from "../../app/orchestrators/unlocks";
 import {
   closeUnlockTree,
+  collapsePanelFromUnlock,
   maximizeUnlockTree,
   restoreUnlockTree,
 } from "../../app/orchestrators/windowFlow";
@@ -90,18 +91,25 @@ export function UnlockTree() {
     offsetY: 0,
   });
   const [panelSize, setPanelSize] = useState({ w: 0, h: 0 });
+  // 第三頁面(放大)說明卡跟隨滑鼠用的游標座標(卡片 padding box 內)
+  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
 
   const remeasure = () => {
-    if (!panelRef.current || !svgContainerRef.current) return;
-    const panelRect = panelRef.current.getBoundingClientRect();
-    const svgRect = svgContainerRef.current.getBoundingClientRect();
+    const panel = panelRef.current;
+    const field = svgContainerRef.current;
+    if (!panel || !field) return;
+    // 用 layout 度量(offset*)而非 getBoundingClientRect:後者會被卡片的
+    // 翻書 rotateY / 淡出 scale 等 CSS transform 扭曲,且 ResizeObserver 不會
+    // 因 transform 觸發,導致動畫中量到的錯誤尺寸卡住 → 說明卡寬度算錯而變形。
+    // field 的 offsetParent 是卡片(position:fixed),offsetLeft/Top 即它在卡片
+    // padding box 內的座標,正好對應絕對定位的 tooltip。
     setSvgMetrics({
-      width: svgRect.width,
-      height: svgRect.height,
-      offsetX: svgRect.left - panelRect.left,
-      offsetY: svgRect.top - panelRect.top,
+      width: field.offsetWidth,
+      height: field.offsetHeight,
+      offsetX: field.offsetLeft,
+      offsetY: field.offsetTop,
     });
-    setPanelSize({ w: panelRect.width, h: panelRect.height });
+    setPanelSize({ w: panel.offsetWidth, h: panel.offsetHeight });
   };
 
   useLayoutEffect(() => {
@@ -230,14 +238,19 @@ export function UnlockTree() {
 
   return (
     <>
-      {/* 全螢幕 backdrop:未放大時點任何空白處(含首頁)即收起能力配置,
-          回到首頁(req 3)。放大時 backdrop 仍擋住點擊但不關閉,改用 ✕/縮回。 */}
-      <div
-        className="wd-unlock-backdrop"
-        onMouseDown={() => {
-          if (!isMaximized && !isPinned) void closeUnlockTree();
-        }}
-      />
+      {/* 全螢幕 backdrop:未放大時點任何空白處(含首頁)即直接收合成右緣泡泡
+          (連同首頁一起收掉,不只是回到首頁)。放大時 backdrop 仍擋住點擊但不
+          關閉,改用 ✕/縮回。
+          關閉動畫進行中(isClosing)不渲染 backdrop —— 否則它仍蓋在首頁上方,
+          翻書那 0.5 秒內點首頁會被 backdrop 攔截而誤收成泡泡。 */}
+      {!isClosing && (
+        <div
+          className="wd-unlock-backdrop"
+          onMouseDown={() => {
+            if (!isMaximized && !isPinned) void collapsePanelFromUnlock();
+          }}
+        />
+      )}
       <div
         className="wd-unlock-tree-card"
         ref={panelRef}
@@ -273,7 +286,19 @@ export function UnlockTree() {
           </button>
         </div>
 
-        <div ref={svgContainerRef} className="wd-unlock-tree-field">
+        <div
+          ref={svgContainerRef}
+          className="wd-unlock-tree-field"
+          onMouseMove={(e) => {
+            const card = panelRef.current;
+            if (!card) return;
+            const rect = card.getBoundingClientRect();
+            setPointer({
+              x: e.clientX - rect.left,
+              y: e.clientY - rect.top,
+            });
+          }}
+        >
           <svg
             viewBox={`0 0 ${treeViewBox.w} ${treeViewBox.h}`}
             style={{ width: "100%", height: "100%" }}
@@ -438,6 +463,8 @@ export function UnlockTree() {
             onMouseLeave={scheduleClear}
             anchor={anchor}
             panelRect={panelSize}
+            compact={!isMaximized}
+            pointer={pointer}
           />
         )}
       </div>

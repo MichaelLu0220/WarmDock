@@ -15,6 +15,8 @@ export async function openPanel(): Promise<void> {
   try {
     await windowManager.toPanel();
     useUIStore.getState().setPanelOpen(true);
+    // 取得焦點,讓之後點視窗外(桌面)能觸發失焦自動收合
+    void windowManager.focus();
   } finally {
     useUIStore.getState().setWindowTransitioning(false);
   }
@@ -53,6 +55,9 @@ export function openUnlockTree(): void {
   const ui = useUIStore.getState();
   ui.setUnlockMaximized(false);
   ui.setUnlockTreeOpen(true);
+  // 確保視窗持有焦點,之後點桌面才會失焦 → 整個收成泡泡
+  // (否則要先手動點一下 app 視窗才有效)
+  void windowManager.focus();
 }
 
 /**
@@ -74,13 +79,32 @@ export async function closeUnlockTree(): Promise<void> {
   u.setUnlockMaximized(false);
 
   if (windowManager.mode === "configurator") {
-    useUIStore.getState().setWindowTransitioning(true);
+    // 放大態關閉:視窗仍鋪滿,翻出動畫期間保持 expanded(trigger 隱藏),
+    // 等縮回 panel 後才放行 trigger。
+    u.setWindowTransitioning(true);
     try {
       await windowManager.toPanel();
     } finally {
-      useUIStore.getState().setWindowTransitioning(false);
+      const u2 = useUIStore.getState();
+      u2.setUnlockExpanded(false);
+      u2.setWindowTransitioning(false);
     }
+  } else {
+    u.setUnlockExpanded(false);
   }
+}
+
+/**
+ * 從第二頁面(docked)直接收合成右緣泡泡:不播翻出動畫,把能力配置整個收掉,
+ * 再把面板翻書收合、視窗縮成 trigger。供右緣 trigger 在第二頁面開啟時點擊用。
+ */
+export async function collapsePanelFromUnlock(): Promise<void> {
+  const ui = useUIStore.getState();
+  ui.setUnlockTreeOpen(false);
+  ui.setUnlockTreeClosing(false);
+  ui.setUnlockMaximized(false);
+  ui.setUnlockExpanded(false);
+  await closePanel();
 }
 
 const nextFrame = () =>
@@ -99,7 +123,10 @@ const nextFrame = () =>
  * 2. 下一帧才翻到 centered —— 純 CSS 把卡片從右側飛到中央放大,首頁留右側原位。
  */
 export async function maximizeUnlockTree(): Promise<void> {
-  useUIStore.getState().setWindowTransitioning(true);
+  const ui = useUIStore.getState();
+  // 視窗即將鋪滿 → 先收起右緣 trigger(否則它會被 top:50% 定位到螢幕中央)。
+  ui.setUnlockExpanded(true);
+  ui.setWindowTransitioning(true);
   try {
     await windowManager.toFullscreen();
   } finally {
@@ -127,7 +154,10 @@ export async function restoreUnlockTree(): Promise<void> {
   try {
     await windowManager.toPanel();
   } finally {
-    useUIStore.getState().setWindowTransitioning(false);
+    const u = useUIStore.getState();
+    // 視窗已縮回 panel → 放行右緣 trigger(回到 docked 第二頁面)。
+    u.setUnlockExpanded(false);
+    u.setWindowTransitioning(false);
   }
 }
 

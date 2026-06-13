@@ -26,6 +26,10 @@ type UIState = {
   isUnlockTreeOpen: boolean;
   isUnlockTreeClosing: boolean;
   isUnlockMaximized: boolean;
+  // 視窗目前是否為鋪滿(第三頁面)形態。為 true 時右緣 trigger 會被
+  // top:50%/right:0 定位到螢幕中央而非錨點,故需隱藏;涵蓋放大、放大態、
+  // 縮回動畫到縮窗完成為止。
+  isUnlockExpanded: boolean;
   isPreviousDaySummaryOpen: boolean;
   previousDaySummary: DailySummary | null;
   taskCompletionFlash: TaskCompletionFlash | null;
@@ -39,6 +43,7 @@ type UIActions = {
   setUnlockTreeOpen: (value: boolean) => void;
   setUnlockTreeClosing: (value: boolean) => void;
   setUnlockMaximized: (value: boolean) => void;
+  setUnlockExpanded: (value: boolean) => void;
   openTaskDetail: (taskId: string) => void;
   closeTaskDetail: () => void;
   openSettings: () => void;
@@ -63,6 +68,7 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   isUnlockTreeOpen: false,
   isUnlockTreeClosing: false,
   isUnlockMaximized: false,
+  isUnlockExpanded: false,
   isPreviousDaySummaryOpen: false,
   previousDaySummary: null,
   taskCompletionFlash: null,
@@ -74,6 +80,7 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   setUnlockTreeOpen: (value) => set({ isUnlockTreeOpen: value }),
   setUnlockTreeClosing: (value) => set({ isUnlockTreeClosing: value }),
   setUnlockMaximized: (value) => set({ isUnlockMaximized: value }),
+  setUnlockExpanded: (value) => set({ isUnlockExpanded: value }),
 
   openTaskDetail: (taskId) =>
     set({ isTaskDetailOpen: true, selectedTaskId: taskId }),

@@ -164,15 +164,15 @@ export const UNLOCK_TREE_LAYOUTS: Record<
 > = {
   compact: {
     viewBox: { w: 340, h: 520 },
-    nodeSize: 88,
-    centerSize: 116,
+    nodeSize: 68,
+    centerSize: 90,
     center: { x: 170, y: 300 },
     nodes: createNodes(COMPACT_GEOMETRY),
   },
   expanded: {
     viewBox: { w: 560, h: 860 },
-    nodeSize: 116,
-    centerSize: 146,
+    nodeSize: 96,
+    centerSize: 120,
     center: { x: 280, y: 480 },
     nodes: createNodes(EXPANDED_GEOMETRY),
   },

@@ -189,13 +189,25 @@
   }
 }
 
-/* 能力配置卡片書脊翻出(關閉,與翻入相反) */
+/* 能力配置卡片書脊翻出(第二頁面 docked 關閉,與翻入相反) */
 @keyframes wd-page-flip-out {
   from {
     transform: translateY(-50%) perspective(1600px) rotateY(0deg);
   }
   to {
     transform: translateY(-50%) perspective(1600px) rotateY(104deg);
+  }
+}
+
+/* 第三頁面(centered)關閉:淡出 + 微縮(螢幕中央書脊翻出太突兀) */
+@keyframes wd-card-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.96);
   }
 }
 
