@@ -1,23 +1,24 @@
 import { useEffect } from "react";
-import "./App.css";
-import { Panel } from "./components/panel/Panel";
-import { TriggerBubble } from "./components/trigger/TriggerBubble";
-import { useBootstrap } from "./hooks/useBootstrap";
-import { useUIStore } from "./store/useUIStore";
-import { useDailyReset } from "./hooks/useDailyReset";
-import { DevPanel } from "./components/dev/DevPanel";
+import { useApplySettings } from "./app/hooks/useApplySettings";
+import { useBootstrap } from "./app/hooks/useBootstrap";
+import { useDailyReset } from "./app/hooks/useDailyReset";
+import { openPanel } from "./app/orchestrators/windowFlow";
+import { useUIStore } from "./app/stores/uiStore";
+import { DevPanel } from "./ui/dev/DevPanel";
+import { Panel } from "./ui/panel/Panel";
+import { TriggerBubble } from "./ui/trigger/TriggerBubble";
 
 function App() {
   useBootstrap();
   useDailyReset();
+  useApplySettings();
 
-  const openPanel = useUIStore((state) => state.openPanel);
-  const isPanelOpen = useUIStore((state) => state.isPanelOpen);
+  const isPanelOpen = useUIStore((s) => s.isPanelOpen);
 
-  // DEV: 啟動時自動開 panel 方便開發;正式版移除
+  // DEV: 啟動時自動開 panel 方便開發;正式版只顯示 trigger
   useEffect(() => {
-    if (import.meta.env.DEV) openPanel();
-  }, [openPanel]);
+    if (import.meta.env.DEV) void openPanel();
+  }, []);
 
   return (
     <div className="wd-app">
