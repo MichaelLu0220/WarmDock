@@ -1,0 +1,5 @@
+/* WarmDock shared web styles. Import once in the web app layout:
+   import "@warmdock/ui-web/styles.css"; */
+@import "./tokens.css";
+@import "./motion.css";
+@import "./globals.css";
