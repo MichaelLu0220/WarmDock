@@ -476,6 +476,14 @@ body,
 .wd-panel__status--error {
   color: var(--wd-red);
 }
+.wd-panel__status--offline {
+  color: var(--wd-ink-soft);
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  font-size: var(--wd-fs-sm, 0.85em);
+}
 
 /* Header */
 .wd-header {

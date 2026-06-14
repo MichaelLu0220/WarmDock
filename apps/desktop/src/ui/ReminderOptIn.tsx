@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useUIStore } from "@warmdock/ui-web";
-import { ensureNotificationPermission } from "../lib/notifications";
+import { ensureNotificationPermission, notify } from "../lib/notifications";
 import { isDecided, setEnabled } from "../lib/notifyPref";
 
 const card: React.CSSProperties = {
@@ -25,14 +25,28 @@ export function ReminderOptIn() {
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
   const [dismissed, setDismissed] = useState(() => isDecided());
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (dismissed || !isPanelOpen) return null;
 
   async function enable() {
     setBusy(true);
-    const granted = await ensureNotificationPermission();
-    setEnabled(granted);
-    setDismissed(true);
+    setError(null);
+    try {
+      const granted = await ensureNotificationPermission();
+      setEnabled(granted);
+      if (granted) {
+        // immediate confirmation so the user can see notifications work
+        await notify("WarmDock", "提醒已開啟,我會在快到每日重置時提醒你未完成的任務。");
+        setDismissed(true);
+      } else {
+        setError("系統未允許通知,請到系統設定開啟 WarmDock 的通知權限。");
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
   }
 
   function later() {
@@ -58,6 +72,7 @@ export function ReminderOptIn() {
           稍後
         </button>
       </div>
+      {error && <p style={{ color: "#b3402f", marginTop: 8 }}>{error}</p>}
     </div>
   );
 }

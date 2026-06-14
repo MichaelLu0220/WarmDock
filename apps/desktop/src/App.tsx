@@ -18,6 +18,7 @@ import { useAutoHide } from "./app/hooks/useAutoHide";
 import { useReminders } from "./app/useReminders";
 import { TriggerBubble } from "./ui/trigger/TriggerBubble";
 import { ReminderOptIn } from "./ui/ReminderOptIn";
+import { SignOutButton } from "./ui/SignOutButton";
 import { SignIn } from "./ui/SignIn";
 
 // wire the cloud client + desktop window adapter once
@@ -69,6 +70,7 @@ function Authed({ userId }: { userId: string }) {
     <div className="wd-app">
       <TriggerBubble />
       <Panel />
+      <SignOutButton />
       <ReminderOptIn />
     </div>
   );

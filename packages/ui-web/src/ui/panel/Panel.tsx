@@ -30,6 +30,7 @@ export function Panel() {
   const isReady = useSessionStore((s) => s.isReady);
   const bootstrapError = useSessionStore((s) => s.bootstrapError);
   const allTasksCompleted = useSessionStore((s) => s.allTasksCompleted);
+  const isOffline = useSessionStore((s) => s.isOffline);
 
   const tasks = useTaskStore((s) => s.tasks);
 
@@ -53,6 +54,11 @@ export function Panel() {
         <PanelHeader />
 
         <div className="wd-panel__body">
+          {isOffline && (
+            <p className="wd-panel__status wd-panel__status--offline">
+              {t("error.OFFLINE")}
+            </p>
+          )}
           {isBootstrapping && (
             <p className="wd-panel__status">{t("app.loading")}</p>
           )}
