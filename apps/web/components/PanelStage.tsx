@@ -1,5 +1,6 @@
 "use client";
 
+import "../lib/i18nSetup";
 import { useEffect } from "react";
 import { Panel, useUIStore } from "@warmdock/ui-web";
 

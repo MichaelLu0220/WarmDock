@@ -52,6 +52,22 @@ body {
   color: #5b5240;
 }
 
+.wd-web-topbar {
+  position: fixed;
+  top: 16px;
+  left: 20px;
+  z-index: 10;
+}
+.wd-web-topbar a {
+  color: #5b5240;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-bottom: 1px solid transparent;
+}
+.wd-web-topbar a:hover {
+  border-bottom-color: #5b5240;
+}
+
 /* --- auth + shared buttons --- */
 .wd-web-auth {
   max-width: 380px;

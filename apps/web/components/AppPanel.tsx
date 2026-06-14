@@ -1,53 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { configureGateways, useBootstrap } from "@warmdock/ui-web";
 import { getWarmDockClient } from "../lib/supabaseClient";
 import { PanelStage } from "./PanelStage";
+import { RecoveryGate } from "./RecoveryGate";
 
-/** Authenticated panel: real Supabase client + realtime; redirects if signed out. */
+type Phase = "loading" | "pending" | "active";
+
+/** Authenticated panel: redirects if signed out, shows recovery during grace. */
 export function AppPanel() {
   const router = useRouter();
-  const [userId, setUserId] = useState<string | null | undefined>(undefined);
+  const [phase, setPhase] = useState<Phase>("loading");
+  const [userId, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
+  const check = useCallback(async () => {
     const client = getWarmDockClient();
     configureGateways(client);
-    let active = true;
-
-    void client.auth.getSession().then((session) => {
-      if (!active) return;
-      if (!session) {
-        setUserId(null);
-        router.replace("/sign-in");
-      } else {
-        setUserId(session.user.id);
-      }
-    });
-
-    const unsubscribe = client.auth.onAuthStateChange((session) => {
-      if (!active) return;
-      if (!session) {
-        setUserId(null);
-        router.replace("/sign-in");
-      } else {
-        setUserId(session.user.id);
-      }
-    });
-
-    return () => {
-      active = false;
-      unsubscribe();
-    };
+    const session = await client.auth.getSession();
+    if (!session) {
+      router.replace("/sign-in");
+      return;
+    }
+    setUserId(session.user.id);
+    const { data } = await client.supabase
+      .from("profiles")
+      .select("status")
+      .eq("user_id", session.user.id)
+      .single();
+    setPhase(data?.status === "pending_deletion" ? "pending" : "active");
   }, [router]);
 
-  if (userId === undefined) return <p className="wd-web-status">Loading…</p>;
-  if (userId === null) return <p className="wd-web-status">Redirecting to sign in…</p>;
-  return <AuthedBody userId={userId} />;
+  useEffect(() => {
+    void check();
+    const unsubscribe = getWarmDockClient().auth.onAuthStateChange((session) => {
+      if (!session) router.replace("/sign-in");
+    });
+    return unsubscribe;
+  }, [check, router]);
+
+  if (phase === "loading") return <p className="wd-web-status">Loading…</p>;
+  if (phase === "pending") {
+    return (
+      <RecoveryGate
+        onRecovered={() => {
+          setPhase("loading");
+          void check();
+        }}
+      />
+    );
+  }
+  return <AuthedBody userId={userId!} />;
 }
 
 function AuthedBody({ userId }: { userId: string }) {
   useBootstrap(userId);
-  return <PanelStage />;
+  return (
+    <>
+      <nav className="wd-web-topbar">
+        <a href="/account">Account</a>
+      </nav>
+      <PanelStage />
+    </>
+  );
 }

@@ -44,6 +44,10 @@ export interface AuthGateway {
   signInWithEmailOtp(email: string): Promise<void>;
   verifyEmailOtp(email: string, token: string): Promise<Session>;
   signOut(): Promise<void>;
+  /** Enter the 30-day deletion grace period and sign out all devices. */
+  requestAccountDeletion(): Promise<void>;
+  /** Recover an account that is still within its grace period. */
+  recoverAccount(): Promise<void>;
 }
 
 export type RealtimeEvent = "task" | "wallet" | "cycle" | "profile";

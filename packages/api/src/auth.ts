@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AppError } from "@warmdock/core";
+import { mapPostgrestError } from "./errors";
 import type { AuthGateway } from "./ports";
 
 export function createAuthGateway(sb: SupabaseClient): AuthGateway {
@@ -34,5 +35,16 @@ export function createAuthGateway(sb: SupabaseClient): AuthGateway {
       const { error } = await sb.auth.signOut();
       if (error) throw new AppError("UNKNOWN", error.message);
     },
+    async requestAccountDeletion() {
+      const { error } = await sb.rpc("request_account_deletion");
+      const mapped = mapPostgrestError(error);
+      if (mapped) throw mapped;
+    },
+    async recoverAccount() {
+      const { error } = await sb.rpc("recover_account");
+      const mapped = mapPostgrestError(error);
+      if (mapped) throw mapped;
+    },
   };
 }
+

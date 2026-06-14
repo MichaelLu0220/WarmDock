@@ -103,8 +103,25 @@ export const zhTW = {
   "error.REQUIREMENT_NOT_MET": "前置條件還沒滿足",
   "error.INSUFFICIENT_POINTS": "點數不足",
   "error.INVALID_INPUT": "輸入內容不正確",
+  "error.NOT_AUTHENTICATED": "尚未登入",
+  "error.CYCLE_SETTLED": "今天已結算,無法再變更",
   "error.DB_ERROR": "資料儲存發生問題",
   "error.UNKNOWN": "發生未知錯誤",
+
+  // Account / deletion
+  "account.title": "帳號",
+  "account.signOut": "登出",
+  "account.deleteTitle": "刪除帳號",
+  "account.deleteWarning":
+    "刪除後帳號會立即停用並登出所有裝置,30 天後永久刪除雲端資料與本機快取。期間內再次登入即可恢復。",
+  "account.deleteButton": "刪除我的帳號",
+  "account.deleteConfirm": "確認刪除",
+  "account.deleteCancel": "取消",
+  "account.deleting": "處理中…",
+  "account.recoverTitle": "恢復帳號?",
+  "account.recoverBody": "你的帳號正在 30 天刪除寬限期內。要恢復並繼續使用 WarmDock 嗎?",
+  "account.recoverButton": "恢復帳號",
+  "account.recovering": "恢復中…",
 
   // Footer mantra 池(逗號分隔的特殊處理見 mantras.ts)
 } as const;

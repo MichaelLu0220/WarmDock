@@ -1,3 +1,5 @@
+import { getLocale } from "../i18n";
+
 /** 今天的本地 ISO 日期(YYYY-MM-DD),對應 Rust SystemClock::today()。 */
 export function todayISOString(): string {
   const now = new Date();
@@ -7,13 +9,12 @@ export function todayISOString(): string {
   return `${year}-${month}-${day}`;
 }
 
-/** "YYYY-MM-DD" → 使用者可讀日期,例如 "4月17日 週五"。 */
-export function formatDisplayDate(
-  isoDate?: string,
-  locale: string = "zh-TW"
-): string {
+/** "YYYY-MM-DD" → 使用者可讀日期。未指定 locale 時跟隨 i18n 當前語言
+ *  (desktop = zh-TW,web = en),例如 "4月17日 週五" / "Apr 17, Fri"。 */
+export function formatDisplayDate(isoDate?: string, locale?: string): string {
+  const loc = locale ?? getLocale();
   const date = isoDate ? new Date(`${isoDate}T00:00:00`) : new Date();
-  return date.toLocaleDateString(locale, {
+  return date.toLocaleDateString(loc, {
     month: "long",
     day: "numeric",
     weekday: "short",
