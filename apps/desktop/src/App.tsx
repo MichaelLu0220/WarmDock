@@ -13,7 +13,9 @@ import { windowManager } from "./app/window/windowManager";
 import { loadTriggerPositionY } from "./lib/triggerPosition";
 import { useApplyTheme } from "./app/theme";
 import { useAutoHide } from "./app/hooks/useAutoHide";
+import { useReminders } from "./app/useReminders";
 import { TriggerBubble } from "./ui/trigger/TriggerBubble";
+import { ReminderOptIn } from "./ui/ReminderOptIn";
 import { SignIn } from "./ui/SignIn";
 
 // wire the cloud client + desktop window adapter once
@@ -53,6 +55,7 @@ function Authed({ userId }: { userId: string }) {
   useBootstrap(userId);
   useApplyTheme();
   useAutoHide();
+  useReminders();
 
   useEffect(() => {
     if (import.meta.env.DEV) void openPanel();
@@ -62,6 +65,7 @@ function Authed({ userId }: { userId: string }) {
     <div className="wd-app">
       <TriggerBubble />
       <Panel />
+      <ReminderOptIn />
     </div>
   );
 }
