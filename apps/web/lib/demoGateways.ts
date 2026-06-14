@@ -131,6 +131,14 @@ export function createDemoGateways(): UiGateways {
         requestIds.set(clientRequestId, id);
         return { ...task };
       },
+      async updateTitle(taskId, title) {
+        const task = tasks.find((t) => t.id === taskId)!;
+        if (task.status === "draft") {
+          task.title = title;
+          task.updatedAt = new Date().toISOString();
+        }
+        return { ...task };
+      },
       async setDetail(taskId, input: TaskDetailInput) {
         const task = tasks.find((t) => t.id === taskId)!;
         task.difficulty = input.difficulty;

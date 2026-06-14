@@ -55,6 +55,20 @@ export async function createTask(title: string): Promise<Task> {
   }
 }
 
+export async function updateTaskTitle(taskId: string, title: string): Promise<Task> {
+  useTaskStore.getState().setError(null);
+  try {
+    assertOnline();
+    const task = await getGateways().task.updateTitle(taskId, title);
+    useTaskStore.getState().upsertTask(task);
+    return task;
+  } catch (err) {
+    const appErr = toAppError(err);
+    useTaskStore.getState().setError(appErr.message);
+    throw appErr;
+  }
+}
+
 export async function setTaskDetail(taskId: string, input: TaskDetailInput): Promise<Task> {
   useTaskStore.getState().setError(null);
   try {

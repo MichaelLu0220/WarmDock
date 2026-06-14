@@ -44,6 +44,13 @@ export function createTaskGateway(sb: SupabaseClient): TaskGateway {
       });
       return taskFromDto(rpcResult<TaskDto>(data, error));
     },
+    async updateTitle(taskId, title) {
+      const { data, error } = await sb.rpc("update_task_title", {
+        p_task_id: taskId,
+        p_title: title,
+      });
+      return taskFromDto(rpcResult<TaskDto>(data, error));
+    },
     async setDetail(taskId, input) {
       const { data, error } = await sb.rpc("set_task_detail", {
         p_task_id: taskId,

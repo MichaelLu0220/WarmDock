@@ -17,6 +17,8 @@ export interface TaskGateway {
   listToday(): Promise<Task[]>;
   /** create requires a client-generated UUID (idempotency) and the device IANA timezone. */
   create(title: string, clientRequestId: string, timezone: string): Promise<Task>;
+  /** edit a draft task's title (only allowed before difficulty is set). */
+  updateTitle(taskId: string, title: string): Promise<Task>;
   setDetail(taskId: string, input: TaskDetailInput): Promise<Task>;
   complete(taskId: string): Promise<CompleteTaskResult>;
 }

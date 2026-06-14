@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { setTaskDetail } from "../../app/orchestrators/tasks";
+import { setTaskDetail, updateTaskTitle } from "../../app/orchestrators/tasks";
 import { useUIStore } from "../../app/stores/uiStore";
 import { useUnlockStore } from "../../app/stores/unlockStore";
 import { difficultyBandLabel, t } from "@warmdock/core/i18n";
@@ -16,13 +16,23 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
   const setComposingTask = useUIStore((s) => s.setComposingTask);
   const unlocks = useUnlockStore((s) => s.status);
 
-  const suggested = suggestDifficulty(task.title);
-  const options = DIFFICULTY_OPTIONS[suggested];
-  const showFocusOption = canShowFocusTaskOption(unlocks);
-
+  const [title, setTitle] = useState(task.title);
   const [selected, setSelected] = useState<Difficulty | null>(null);
   const [isFocus, setIsFocus] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // suggestion follows the (possibly edited) title
+  const suggested = suggestDifficulty(title);
+  const options = DIFFICULTY_OPTIONS[suggested];
+  const showFocusOption = canShowFocusTaskOption(unlocks);
+
+  // persist a draft title edit (no-op if unchanged/empty)
+  const persistTitleIfChanged = async () => {
+    const trimmed = title.trim();
+    if (trimmed && trimmed !== task.title) {
+      await updateTaskTitle(task.id, trimmed);
+    }
+  };
 
   // modal 關閉(卸載)時清 composing 狀態 + 移走焦點,
   // 防止焦點自動回到 TaskSlot 的 input
@@ -37,6 +47,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
     if (!selected || isSubmitting) return;
     setIsSubmitting(true);
     try {
+      await persistTitleIfChanged();
       await setTaskDetail(task.id, {
         difficultySuggested: suggested,
         difficulty: selected,
@@ -50,11 +61,32 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
     }
   };
 
+  // dismiss without setting difficulty — keep any title edit, leave task as draft
+  const handleLater = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await persistTitleIfChanged();
+    } catch {
+      // error 已記錄在 taskStore
+    } finally {
+      setIsSubmitting(false);
+      closeTaskDetail();
+    }
+  };
+
   return (
-    <div className="wd-overlay" onClick={closeTaskDetail}>
+    <div className="wd-overlay" onClick={() => void handleLater()}>
       <div className="wd-modal" onClick={(e) => e.stopPropagation()}>
         <h2 className="wd-modal__title">{t("detail.title")}</h2>
-        <p className="wd-modal__subtitle">{task.title}</p>
+        <input
+          className="wd-input"
+          style={{ width: "100%", boxSizing: "border-box", marginTop: 4 }}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          disabled={isSubmitting}
+          aria-label={t("detail.title")}
+        />
 
         <p className="wd-modal__hint">
           {t("detail.suggestion", { band: difficultyBandLabel(suggested) })}
@@ -114,7 +146,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
           className="wd-btn"
           style={{ marginTop: 10, width: "100%", background: "transparent" }}
           disabled={isSubmitting}
-          onClick={closeTaskDetail}
+          onClick={() => void handleLater()}
         >
           {t("detail.later")}
         </button>
