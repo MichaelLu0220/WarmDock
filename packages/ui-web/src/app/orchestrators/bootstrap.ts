@@ -41,7 +41,10 @@ export async function runBootstrap(): Promise<void> {
     const snap = await getGateways().session.bootstrap();
     applySnapshot(snap);
     useSessionStore.getState().setOffline(false);
-    void getCache()?.saveSnapshot(snap);
+    const cache = getCache();
+    if (cache) {
+      void cache.saveSnapshot(snap).catch((e) => console.warn("cache save failed", e));
+    }
     useSessionStore.getState().finishBootstrap();
   } catch (err) {
     const cache = getCache();
