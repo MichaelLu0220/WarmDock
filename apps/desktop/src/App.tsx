@@ -1,21 +1,59 @@
-import { useEffect } from "react";
-import { useApplySettings } from "./app/hooks/useApplySettings";
-import { useBootstrap } from "./app/hooks/useBootstrap";
-import { useDailyReset } from "./app/hooks/useDailyReset";
-import { openPanel } from "./app/orchestrators/windowFlow";
-import { useUIStore } from "./app/stores/uiStore";
-import { DevPanel } from "./ui/dev/DevPanel";
-import { Panel } from "./ui/panel/Panel";
+import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import {
+  configureGateways,
+  configurePlatformWindow,
+  openPanel,
+  Panel,
+  useBootstrap,
+} from "@warmdock/ui-web";
+import { getClient } from "./lib/client";
+import { desktopPlatformWindow } from "./app/platformWindow";
+import { windowManager } from "./app/window/windowManager";
+import { loadTriggerPositionY } from "./lib/triggerPosition";
+import { useApplyTheme } from "./app/theme";
+import { useAutoHide } from "./app/hooks/useAutoHide";
 import { TriggerBubble } from "./ui/trigger/TriggerBubble";
+import { SignIn } from "./ui/SignIn";
+
+// wire the cloud client + desktop window adapter once
+const client = getClient();
+configureGateways(client);
+configurePlatformWindow(desktopPlatformWindow);
 
 function App() {
-  useBootstrap();
-  useDailyReset();
-  useApplySettings();
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
 
-  const isPanelOpen = useUIStore((s) => s.isPanelOpen);
+  useEffect(() => {
+    void windowManager.init().then(() => windowManager.setAnchorFromRatio(loadTriggerPositionY()));
+    void client.auth.getSession().then(setSession);
+    const unsubscribe = client.auth.onAuthStateChange((s) => setSession(s));
+    return unsubscribe;
+  }, []);
 
-  // DEV: 啟動時自動開 panel 方便開發;正式版只顯示 trigger
+  if (session === undefined) return null;
+  if (!session) return <SignInGate />;
+  return <Authed userId={session.user.id} />;
+}
+
+function SignInGate() {
+  useEffect(() => {
+    void openPanel();
+  }, []);
+  return (
+    <div className="wd-app">
+      <div className="wd-panel wd-card" data-open="true">
+        <SignIn />
+      </div>
+    </div>
+  );
+}
+
+function Authed({ userId }: { userId: string }) {
+  useBootstrap(userId);
+  useApplyTheme();
+  useAutoHide();
+
   useEffect(() => {
     if (import.meta.env.DEV) void openPanel();
   }, []);
@@ -24,7 +62,6 @@ function App() {
     <div className="wd-app">
       <TriggerBubble />
       <Panel />
-      {import.meta.env.DEV && isPanelOpen && <DevPanel />}
     </div>
   );
 }

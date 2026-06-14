@@ -1,18 +1,11 @@
 import { useRef, useState } from "react";
-import { saveTriggerPosition } from "../../app/orchestrators/settings";
-import {
-  collapsePanelFromUnlock,
-  togglePanel,
-} from "../../app/orchestrators/windowFlow";
-import { useUIStore } from "../../app/stores/uiStore";
+import { collapsePanelFromUnlock, togglePanel, useUIStore } from "@warmdock/ui-web";
 import { windowManager } from "../../app/window/windowManager";
+import { saveTriggerPositionY } from "../../lib/triggerPosition";
 
 const HOLD_TO_DRAG_MS = 2000;
 
-/**
- * 右緣 trigger:點擊 toggle panel,長按 2 秒進入垂直拖曳。
- * 拖曳的座標細節在 windowManager,這裡只做手勢判斷。
- */
+/** Right-edge trigger: click toggles the panel, 2s hold enters vertical drag. */
 export function TriggerBubble() {
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
   const isUnlockExpanded = useUIStore((s) => s.isUnlockExpanded);
@@ -56,11 +49,7 @@ export function TriggerBubble() {
 
     setIsDragging(false);
     const ratio = await windowManager.endDrag();
-    if (ratio != null) {
-      saveTriggerPosition(ratio).catch((err) =>
-        console.error("save trigger position failed:", err)
-      );
-    }
+    if (ratio != null) saveTriggerPositionY(ratio);
   };
 
   const handleClick = () => {
@@ -68,8 +57,6 @@ export function TriggerBubble() {
       didDragRef.current = false;
       return;
     }
-    // 第二頁面(docked)開啟時點 trigger → 直接收合成泡泡(含關掉能力配置);
-    // 否則就是一般的展開/收合面板。
     if (useUIStore.getState().isUnlockTreeOpen) {
       void collapsePanelFromUnlock();
     } else {
@@ -77,9 +64,6 @@ export function TriggerBubble() {
     }
   };
 
-  // 只有視窗鋪滿(第三頁面/放大態)時才隱藏 trigger —— 那時 right:0/top:50%
-  // 會把它定位到螢幕中央。docked 第二頁面與面板展開/收合期間都保持顯示,
-  // 讓使用者隨時能用它收合(且收合的視窗縮放不會讓它閃掉)。
   if (isUnlockExpanded) return null;
 
   return (

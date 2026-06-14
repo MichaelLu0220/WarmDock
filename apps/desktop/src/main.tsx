@@ -1,10 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "@warmdock/ui-web/styles.css";
+import { ErrorBoundary, injectMotionVars } from "@warmdock/ui-web";
 import App from "./App";
-import "./styles/globals.css";
-import { applyCachedTheme } from "./app/hooks/useApplySettings";
-import { ErrorBoundary } from "./ui/ErrorBoundary";
-import { injectMotionVars } from "./ui/motion";
+import { applyCachedTheme } from "./app/theme";
 
 applyCachedTheme();
 injectMotionVars();

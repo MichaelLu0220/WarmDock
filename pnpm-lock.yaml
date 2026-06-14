@@ -17,15 +17,24 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.45.0
+        version: 2.108.1
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.0
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.5.4
+      '@warmdock/api':
+        specifier: workspace:*
+        version: link:../../packages/api
       '@warmdock/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@warmdock/ui-web':
+        specifier: workspace:*
+        version: link:../../packages/ui-web
       react:
         specifier: ^19.1.0
         version: 19.2.7
