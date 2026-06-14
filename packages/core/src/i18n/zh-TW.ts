@@ -105,6 +105,7 @@ export const zhTW = {
   "error.INVALID_INPUT": "輸入內容不正確",
   "error.NOT_AUTHENTICATED": "尚未登入",
   "error.CYCLE_SETTLED": "今天已結算,無法再變更",
+  "error.OFFLINE": "目前離線,僅能檢視快取資料",
   "error.DB_ERROR": "資料儲存發生問題",
   "error.UNKNOWN": "發生未知錯誤",
 

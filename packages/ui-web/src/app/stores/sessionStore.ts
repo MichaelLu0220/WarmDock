@@ -6,6 +6,8 @@ type SessionState = {
   isBootstrapping: boolean;
   isReady: boolean;
   bootstrapError: string | null;
+  /** True when showing cached data because the authoritative server is unreachable. */
+  isOffline: boolean;
   today: string | null;
   todaySummary: DailySummary | null;
   allTasksCompleted: boolean;
@@ -15,6 +17,7 @@ type SessionActions = {
   startBootstrap: () => void;
   finishBootstrap: () => void;
   failBootstrap: (message: string) => void;
+  setOffline: (value: boolean) => void;
   setToday: (date: string) => void;
   setTodaySummary: (summary: DailySummary | null) => void;
   setAllTasksCompleted: (value: boolean) => void;
@@ -24,6 +27,7 @@ export const useSessionStore = create<SessionState & SessionActions>((set) => ({
   isBootstrapping: false,
   isReady: false,
   bootstrapError: null,
+  isOffline: false,
   today: null,
   todaySummary: null,
   allTasksCompleted: false,
@@ -34,6 +38,7 @@ export const useSessionStore = create<SessionState & SessionActions>((set) => ({
   failBootstrap: (message) =>
     set({ isBootstrapping: false, isReady: false, bootstrapError: message }),
 
+  setOffline: (value) => set({ isOffline: value }),
   setToday: (date) => set({ today: date }),
   setTodaySummary: (summary) => set({ todaySummary: summary }),
   setAllTasksCompleted: (value) => set({ allTasksCompleted: value }),

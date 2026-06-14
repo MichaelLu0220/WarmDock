@@ -1,6 +1,8 @@
-import { toAppError } from "@warmdock/core/errors";
+import { AppError, toAppError } from "@warmdock/core/errors";
+import { errorMessage } from "@warmdock/core/i18n";
 import type { PurchaseUnlockResult } from "@warmdock/core/types";
 import { getGateways } from "../client";
+import { useSessionStore } from "../stores/sessionStore";
 import { useUnlockStore } from "../stores/unlockStore";
 import { useWalletStore } from "../stores/walletStore";
 
@@ -20,6 +22,9 @@ export async function loadUnlockProgress(): Promise<void> {
 export async function purchaseUnlock(nodeId: string): Promise<PurchaseUnlockResult> {
   useUnlockStore.getState().setError(null);
   try {
+    if (useSessionStore.getState().isOffline) {
+      throw new AppError("OFFLINE", errorMessage("OFFLINE"));
+    }
     const result = await getGateways().unlock.purchase(nodeId);
 
     useUnlockStore.getState().setStatus(result.unlocks);

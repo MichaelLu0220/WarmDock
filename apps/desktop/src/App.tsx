@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
+  configureCache,
   configureGateways,
   configurePlatformWindow,
   openPanel,
@@ -8,6 +9,7 @@ import {
   useBootstrap,
 } from "@warmdock/ui-web";
 import { getClient } from "./lib/client";
+import { createDesktopCache } from "./lib/cache";
 import { desktopPlatformWindow } from "./app/platformWindow";
 import { windowManager } from "./app/window/windowManager";
 import { loadTriggerPositionY } from "./lib/triggerPosition";
@@ -52,6 +54,8 @@ function SignInGate() {
 }
 
 function Authed({ userId }: { userId: string }) {
+  // configure the encrypted offline cache before bootstrap runs
+  configureCache(createDesktopCache(userId));
   useBootstrap(userId);
   useApplyTheme();
   useAutoHide();

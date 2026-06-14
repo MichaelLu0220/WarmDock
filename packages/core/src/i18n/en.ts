@@ -106,6 +106,7 @@ export const en: Record<keyof typeof zhTW, string> = {
   "error.INVALID_INPUT": "That input isn't valid",
   "error.NOT_AUTHENTICATED": "You're not signed in",
   "error.CYCLE_SETTLED": "Today is already settled and can't be changed",
+  "error.OFFLINE": "You're offline — showing cached data only",
   "error.DB_ERROR": "Something went wrong saving your data",
   "error.UNKNOWN": "An unknown error occurred",
 

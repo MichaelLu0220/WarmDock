@@ -2,6 +2,9 @@
 export { configureGateways, getGateways, type UiGateways } from "./app/client";
 export { profileToSettings, defaultSettings } from "./app/profile";
 
+// offline cache adapter (desktop injects an encrypted local cache)
+export { configureCache, getCache, type CacheAdapter } from "./app/cache";
+
 // platform window adapter (desktop injects a windowManager-backed impl)
 export {
   configurePlatformWindow,

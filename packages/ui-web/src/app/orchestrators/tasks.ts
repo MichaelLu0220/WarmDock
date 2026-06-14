@@ -1,9 +1,17 @@
-import { toAppError } from "@warmdock/core/errors";
+import { AppError, toAppError } from "@warmdock/core/errors";
+import { errorMessage } from "@warmdock/core/i18n";
 import type { CompleteTaskResult, Task, TaskDetailInput } from "@warmdock/core/types";
 import { getGateways } from "../client";
 import { useSessionStore } from "../stores/sessionStore";
 import { useTaskStore } from "../stores/taskStore";
 import { useWalletStore } from "../stores/walletStore";
+
+/** Mutations are disabled while offline (read-only cached view). */
+function assertOnline(): void {
+  if (useSessionStore.getState().isOffline) {
+    throw new AppError("OFFLINE", errorMessage("OFFLINE"));
+  }
+}
 
 function newRequestId(): string {
   const c = globalThis.crypto;
@@ -35,6 +43,7 @@ export async function loadTodayTasks(): Promise<void> {
 export async function createTask(title: string): Promise<Task> {
   useTaskStore.getState().setError(null);
   try {
+    assertOnline();
     // cloud create needs a client-generated idempotency id + the device timezone
     const task = await getGateways().task.create(title, newRequestId(), deviceTimezone());
     useTaskStore.getState().upsertTask(task);
@@ -49,6 +58,7 @@ export async function createTask(title: string): Promise<Task> {
 export async function setTaskDetail(taskId: string, input: TaskDetailInput): Promise<Task> {
   useTaskStore.getState().setError(null);
   try {
+    assertOnline();
     const task = await getGateways().task.setDetail(taskId, input);
     useTaskStore.getState().upsertTask(task);
     return task;
@@ -62,6 +72,7 @@ export async function setTaskDetail(taskId: string, input: TaskDetailInput): Pro
 export async function completeTask(taskId: string): Promise<CompleteTaskResult> {
   useTaskStore.getState().setError(null);
   try {
+    assertOnline();
     const result = await getGateways().task.complete(taskId);
 
     useTaskStore.getState().upsertTask(result.task);

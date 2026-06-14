@@ -12,6 +12,8 @@ export type AppErrorCode =
   // cloud (Supabase) authoritative RPCs
   | "NOT_AUTHENTICATED"
   | "CYCLE_SETTLED"
+  // client offline (read-only cache; mutations disabled)
+  | "OFFLINE"
   | "DB_ERROR"
   | "UNKNOWN";
 

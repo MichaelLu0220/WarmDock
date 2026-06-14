@@ -10,7 +10,10 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .invoke_handler(tauri::generate_handler![
-            commands::window_cmds::set_window_rect
+            commands::window_cmds::set_window_rect,
+            commands::cache_cmds::cache_write_snapshot,
+            commands::cache_cmds::cache_read_snapshot,
+            commands::cache_cmds::cache_clear
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
