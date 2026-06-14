@@ -35,6 +35,7 @@ export const en: Record<keyof typeof zhTW, string> = {
   "detail.focusOption": "Mark as a Focus task (+1 point)",
   "detail.confirm": "Confirm",
   "detail.saving": "Saving...",
+  "detail.later": "Set later",
 
   // Difficulty bands
   "difficulty.easy": "Easy",

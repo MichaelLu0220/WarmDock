@@ -34,6 +34,7 @@ export const zhTW = {
   "detail.focusOption": "標記為 Focus 任務(+1 點)",
   "detail.confirm": "確認",
   "detail.saving": "儲存中...",
+  "detail.later": "稍後再設",
 
   // Difficulty bands
   "difficulty.easy": "簡單",

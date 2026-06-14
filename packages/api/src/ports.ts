@@ -55,6 +55,8 @@ export type RealtimeEvent = "task" | "wallet" | "cycle" | "profile";
 export interface RealtimeHandlers {
   /** Fired when an authoritative row for this user changes (another device, cron, etc.). */
   onChange: (event: RealtimeEvent) => void;
+  /** Fired when the realtime socket connects/disconnects (drives offline detection). */
+  onConnectionChange?: (connected: boolean) => void;
 }
 
 export interface RealtimeGateway {

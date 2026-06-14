@@ -1,14 +1,20 @@
 import { useEffect } from "react";
 import { getGateways } from "../client";
-import { retryReconnect, runBootstrap } from "../orchestrators/bootstrap";
+import { checkConnection, runBootstrap } from "../orchestrators/bootstrap";
 import { useSessionStore } from "../stores/sessionStore";
 
-const RECONNECT_MS = 8000;
+// Backstop only — runs a network check ONLY while already offline. When online
+// this fires but does nothing (a flag check, zero network/health polling).
+const OFFLINE_RETRY_MS = 8000;
 
 /**
- * Fetch authoritative state on mount, then subscribe to Realtime and re-fetch on
- * any change (the desktop daily-refresh polling is retired). Pass the signed-in
- * user id; pass null while unauthenticated (e.g. demo provides its own data).
+ * Fetch authoritative state on mount, then detect connectivity changes WITHOUT
+ * health polling:
+ *  - Realtime socket connect/disconnect (the socket is already open — free).
+ *  - Browser online/offline events.
+ *  - An offline-only backstop retry (no network while online).
+ * On any change it re-fetches; loss shows the read-only offline banner, recovery
+ * shows a transient "back online" notice. Pass null while unauthenticated (demo).
  */
 export function useBootstrap(userId: string | null) {
   const isBootstrapping = useSessionStore((s) => s.isBootstrapping);
@@ -19,28 +25,42 @@ export function useBootstrap(userId: string | null) {
     let cancelled = false;
     void runBootstrap();
 
-    // While offline, retry in the background (no loading flicker); on reconnect
-    // it refreshes seamlessly and shows a transient notice.
-    const reconnectTimer = window.setInterval(() => {
-      if (!cancelled) void retryReconnect();
-    }, RECONNECT_MS);
+    // Backstop: only does a network call while offline; a no-op when online.
+    const offlineRetry = window.setInterval(() => {
+      if (!cancelled && useSessionStore.getState().isOffline) void checkConnection();
+    }, OFFLINE_RETRY_MS);
 
-    if (!userId) {
-      return () => {
-        cancelled = true;
-        window.clearInterval(reconnectTimer);
-      };
+    // Browser network events (instant, event-driven).
+    const onWindowOffline = () => {
+      if (!cancelled) useSessionStore.getState().setOffline(true);
+    };
+    const onWindowOnline = () => {
+      if (!cancelled) void checkConnection();
+    };
+    window.addEventListener("offline", onWindowOffline);
+    window.addEventListener("online", onWindowOnline);
+
+    let unsubscribe: (() => void) | undefined;
+    if (userId) {
+      const realtime = getGateways().realtime;
+      let connected = true; // assume connected; react only to transitions
+      unsubscribe = realtime?.subscribe(userId, {
+        onChange: () => {
+          if (!cancelled) void checkConnection(); // refetch without loading flicker
+        },
+        onConnectionChange: (isConnected) => {
+          if (cancelled || isConnected === connected) return;
+          connected = isConnected;
+          void checkConnection(); // confirm via RPC: sets offline / clears + notice
+        },
+      });
     }
 
-    const realtime = getGateways().realtime;
-    const unsubscribe = realtime?.subscribe(userId, {
-      onChange: () => {
-        if (!cancelled) void runBootstrap();
-      },
-    });
     return () => {
       cancelled = true;
-      window.clearInterval(reconnectTimer);
+      window.clearInterval(offlineRetry);
+      window.removeEventListener("offline", onWindowOffline);
+      window.removeEventListener("online", onWindowOnline);
       unsubscribe?.();
     };
   }, [userId]);

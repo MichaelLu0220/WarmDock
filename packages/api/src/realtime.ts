@@ -25,7 +25,10 @@ export function createRealtimeGateway(sb: SupabaseClient): RealtimeGateway {
         .on("postgres_changes", { event: "*", schema: "public", table: "profiles", filter }, () =>
           handlers.onChange("profile")
         )
-        .subscribe();
+        .subscribe((status) => {
+          // SUBSCRIBED = connected; CHANNEL_ERROR / TIMED_OUT / CLOSED = disconnected.
+          handlers.onConnectionChange?.(status === "SUBSCRIBED");
+        });
 
       return () => {
         void sb.removeChannel(channel);

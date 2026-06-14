@@ -70,21 +70,24 @@ export async function runBootstrap(): Promise<void> {
 }
 
 /**
- * Background reconnect attempt while offline. Unlike runBootstrap it does NOT
- * toggle the loading state, so the cached read-only view stays put until the
- * server is reachable again — then it seamlessly refreshes and shows a transient
- * "back online" notice. Returns true once reconnected.
+ * Event-driven connectivity check (no health polling). Refetches the snapshot;
+ * does NOT toggle loading, so the current view stays put. Transitions both ways:
+ *  - online -> fetch fails  => enter offline (read-only banner, mutations blocked)
+ *  - offline -> fetch ok     => leave offline + transient "back online" notice
+ * Used on realtime connect/disconnect, window online/offline, and as the
+ * offline-only backstop retry.
  */
-export async function retryReconnect(): Promise<boolean> {
-  if (!useSessionStore.getState().isOffline) return true;
+export async function checkConnection(): Promise<void> {
+  const wasOffline = useSessionStore.getState().isOffline;
   try {
     const snap = await getGateways().session.bootstrap();
     applySnapshot(snap);
-    useSessionStore.getState().setOffline(false);
     persistToCache(snap);
-    useUIStore.getState().showNotice(t("app.reconnected"));
-    return true;
+    if (wasOffline) {
+      useSessionStore.getState().setOffline(false);
+      useUIStore.getState().showNotice(t("app.reconnected"));
+    }
   } catch {
-    return false;
+    if (!wasOffline) useSessionStore.getState().setOffline(true);
   }
 }

@@ -51,8 +51,8 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
   };
 
   return (
-    <div className="wd-overlay">
-      <div className="wd-modal">
+    <div className="wd-overlay" onClick={closeTaskDetail}>
+      <div className="wd-modal" onClick={(e) => e.stopPropagation()}>
         <h2 className="wd-modal__title">{t("detail.title")}</h2>
         <p className="wd-modal__subtitle">{task.title}</p>
 
@@ -105,6 +105,18 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
           onClick={() => void handleConfirm()}
         >
           {isSubmitting ? t("detail.saving") : t("detail.confirm")}
+        </button>
+
+        {/* dismiss without setting — the task stays "needs setup" and can't be
+            completed until a difficulty is chosen later. */}
+        <button
+          type="button"
+          className="wd-btn"
+          style={{ marginTop: 10, width: "100%", background: "transparent" }}
+          disabled={isSubmitting}
+          onClick={closeTaskDetail}
+        >
+          {t("detail.later")}
         </button>
       </div>
     </div>
