@@ -35,6 +35,8 @@ type UIState = {
   taskCompletionFlash: TaskCompletionFlash | null;
   headerPointsFlash: HeaderPointsFlash | null;
   isComposingTask: boolean;
+  /** Transient toast (e.g. "Back online"); id changes each time to retrigger. */
+  notice: { text: string; id: number } | null;
 };
 
 type UIActions = {
@@ -55,9 +57,12 @@ type UIActions = {
   triggerHeaderPointsFlash: (amount: number, oldPending: number) => void;
   clearHeaderPointsFlash: () => void;
   setComposingTask: (value: boolean) => void;
+  showNotice: (text: string) => void;
+  clearNotice: () => void;
 };
 
 let headerFlashSeq = 0;
+let noticeSeq = 0;
 
 export const useUIStore = create<UIState & UIActions>((set) => ({
   isPanelOpen: false,
@@ -74,6 +79,7 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   taskCompletionFlash: null,
   headerPointsFlash: null,
   isComposingTask: false,
+  notice: null,
 
   setPanelOpen: (value) => set({ isPanelOpen: value }),
   setWindowTransitioning: (value) => set({ isWindowTransitioning: value }),
@@ -105,4 +111,10 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   clearHeaderPointsFlash: () => set({ headerPointsFlash: null }),
 
   setComposingTask: (value) => set({ isComposingTask: value }),
+
+  showNotice: (text) => {
+    noticeSeq += 1;
+    set({ notice: { text, id: noticeSeq } });
+  },
+  clearNotice: () => set({ notice: null }),
 }));

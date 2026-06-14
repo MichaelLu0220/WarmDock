@@ -12,6 +12,7 @@ import { SettingsPanel } from "../settings/SettingsPanel";
 import { TaskDetailModal } from "../task/TaskDetailModal";
 import { TaskList } from "../task/TaskList";
 import { UnlockTree } from "../unlock/UnlockTree";
+import { Toast } from "../Toast";
 import { PanelFooter } from "./PanelFooter";
 import { PanelHeader } from "./PanelHeader";
 
@@ -92,6 +93,8 @@ export function Panel() {
           才不會在視窗 resize(收合/喚出)時於左上角閃一下它的 header 按鈕。
           isUnlockTreeClosing 期間保留掛載,讓書脊翻出動畫跑完再卸載。 */}
       {(isUnlockTreeOpen || isUnlockTreeClosing) && <UnlockTree />}
+
+      <Toast />
     </>
   );
 }

@@ -5,6 +5,9 @@ export { profileToSettings, defaultSettings } from "./app/profile";
 // offline cache adapter (desktop injects an encrypted local cache)
 export { configureCache, getCache, type CacheAdapter } from "./app/cache";
 
+// optional auth actions surfaced in shared UI (desktop injects sign-out)
+export { configureAuthActions, getAuthActions, type AuthActions } from "./app/authActions";
+
 // platform window adapter (desktop injects a windowManager-backed impl)
 export {
   configurePlatformWindow,

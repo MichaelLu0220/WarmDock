@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
+  configureAuthActions,
   configureCache,
   configureGateways,
   configurePlatformWindow,
@@ -18,13 +19,13 @@ import { useAutoHide } from "./app/hooks/useAutoHide";
 import { useReminders } from "./app/useReminders";
 import { TriggerBubble } from "./ui/trigger/TriggerBubble";
 import { ReminderOptIn } from "./ui/ReminderOptIn";
-import { SignOutButton } from "./ui/SignOutButton";
 import { SignIn } from "./ui/SignIn";
 
 // wire the cloud client + desktop window adapter once
 const client = getClient();
 configureGateways(client);
 configurePlatformWindow(desktopPlatformWindow);
+configureAuthActions({ signOut: () => client.auth.signOut() });
 
 function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
@@ -70,7 +71,6 @@ function Authed({ userId }: { userId: string }) {
     <div className="wd-app">
       <TriggerBubble />
       <Panel />
-      <SignOutButton />
       <ReminderOptIn />
     </div>
   );

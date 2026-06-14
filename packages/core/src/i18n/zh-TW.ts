@@ -10,6 +10,7 @@ export const zhTW = {
   "app.crashTitle": "出了一點狀況",
   "app.crashBody": "WarmDock 遇到預期外的錯誤。",
   "app.crashRetry": "重新載入",
+  "app.reconnected": "已恢復連線",
 
   // Panel header
   "header.greeting": "今天想完成什麼?",

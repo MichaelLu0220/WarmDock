@@ -1,4 +1,5 @@
 import { toAppError } from "@warmdock/core/errors";
+import { t } from "@warmdock/core/i18n";
 import type { Snapshot } from "@warmdock/api";
 import { getCache } from "../cache";
 import { getGateways } from "../client";
@@ -6,8 +7,14 @@ import { profileToSettings } from "../profile";
 import { useSessionStore } from "../stores/sessionStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useTaskStore } from "../stores/taskStore";
+import { useUIStore } from "../stores/uiStore";
 import { useUnlockStore } from "../stores/unlockStore";
 import { useWalletStore } from "../stores/walletStore";
+
+function persistToCache(snap: Snapshot): void {
+  const cache = getCache();
+  if (cache) void cache.saveSnapshot(snap).catch((e) => console.warn("cache save failed", e));
+}
 
 /** Fill every store from a snapshot (used for both online and cached data). */
 function applySnapshot(snap: Snapshot): void {
@@ -41,10 +48,7 @@ export async function runBootstrap(): Promise<void> {
     const snap = await getGateways().session.bootstrap();
     applySnapshot(snap);
     useSessionStore.getState().setOffline(false);
-    const cache = getCache();
-    if (cache) {
-      void cache.saveSnapshot(snap).catch((e) => console.warn("cache save failed", e));
-    }
+    persistToCache(snap);
     useSessionStore.getState().finishBootstrap();
   } catch (err) {
     const cache = getCache();
@@ -62,5 +66,25 @@ export async function runBootstrap(): Promise<void> {
       }
     }
     useSessionStore.getState().failBootstrap(toAppError(err).message);
+  }
+}
+
+/**
+ * Background reconnect attempt while offline. Unlike runBootstrap it does NOT
+ * toggle the loading state, so the cached read-only view stays put until the
+ * server is reachable again — then it seamlessly refreshes and shows a transient
+ * "back online" notice. Returns true once reconnected.
+ */
+export async function retryReconnect(): Promise<boolean> {
+  if (!useSessionStore.getState().isOffline) return true;
+  try {
+    const snap = await getGateways().session.bootstrap();
+    applySnapshot(snap);
+    useSessionStore.getState().setOffline(false);
+    persistToCache(snap);
+    useUIStore.getState().showNotice(t("app.reconnected"));
+    return true;
+  } catch {
+    return false;
   }
 }

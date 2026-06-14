@@ -11,6 +11,7 @@ export const en: Record<keyof typeof zhTW, string> = {
   "app.crashTitle": "Something went wrong",
   "app.crashBody": "WarmDock hit an unexpected error.",
   "app.crashRetry": "Reload",
+  "app.reconnected": "Back online",
 
   // Panel header
   "header.greeting": "What do you want to finish today?",

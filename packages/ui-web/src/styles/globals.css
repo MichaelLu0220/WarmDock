@@ -485,6 +485,29 @@ body,
   font-size: var(--wd-fs-sm, 0.85em);
 }
 
+/* transient toast (auto-fades) */
+.wd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 200;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--wd-ink, #3a3326);
+  color: var(--wd-paper, #f4ecd8);
+  font-size: var(--wd-fs-sm, 0.85em);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  animation: wd-toast-fade 2.5s ease forwards;
+}
+@keyframes wd-toast-fade {
+  0% { opacity: 0; transform: translate(-50%, 8px); }
+  12% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -4px); }
+}
+
 /* Header */
 .wd-header {
   padding-bottom: 10px;

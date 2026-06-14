@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getAuthActions } from "../../app/authActions";
 import { updateSettings } from "../../app/orchestrators/settings";
 import { quitApp } from "../../app/orchestrators/windowFlow";
 import { useSettingsStore } from "../../app/stores/settingsStore";
@@ -23,6 +24,7 @@ export function SettingsPanel() {
   const settings = useSettingsStore((s) => s.settings);
   const closeSettings = useUIStore((s) => s.closeSettings);
   const unlocks = useUnlockStore((s) => s.status);
+  const auth = getAuthActions();
 
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -137,6 +139,17 @@ export function SettingsPanel() {
         >
           {t("settings.done")}
         </button>
+
+        {auth && (
+          <button
+            type="button"
+            className="wd-btn"
+            style={{ marginTop: 10, width: "100%" }}
+            onClick={() => void auth.signOut()}
+          >
+            {t("account.signOut")}
+          </button>
+        )}
 
         <button
           type="button"
