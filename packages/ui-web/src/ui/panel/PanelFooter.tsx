@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSessionStore } from "../../app/stores/sessionStore";
-import { useSettingsStore } from "../../app/stores/settingsStore";
-import { useTaskStore } from "../../app/stores/taskStore";
-import { useUIStore } from "../../app/stores/uiStore";
+import { useSessionStore } from "@warmdock/app";
+import { useSettingsStore } from "@warmdock/app";
+import { useTaskStore } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
 import { pickRandomMantra, t } from "@warmdock/core/i18n";
 import { formatTimeUntilRefresh } from "@warmdock/core/rules/date";
 

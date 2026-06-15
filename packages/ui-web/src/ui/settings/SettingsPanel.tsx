@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { getAuthActions } from "../../app/authActions";
-import { updateSettings } from "../../app/orchestrators/settings";
+import {
+  getAuthActions,
+  updateSettings,
+  useSettingsStore,
+  useUIStore,
+  useUnlockStore,
+} from "@warmdock/app";
 import { quitApp } from "../../app/orchestrators/windowFlow";
-import { useSettingsStore } from "../../app/stores/settingsStore";
-import { useUIStore } from "../../app/stores/uiStore";
-import { useUnlockStore } from "../../app/stores/unlockStore";
 import { t } from "@warmdock/core/i18n";
 import { isRefreshTimeSettingVisible } from "@warmdock/core/rules/unlock";
 import type { SettingsPatch } from "@warmdock/core/types";

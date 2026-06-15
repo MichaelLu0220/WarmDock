@@ -1,7 +1,7 @@
-import { useSessionStore } from "../../app/stores/sessionStore";
-import { useUIStore } from "../../app/stores/uiStore";
-import { useUnlockStore } from "../../app/stores/unlockStore";
-import { useWalletStore } from "../../app/stores/walletStore";
+import { useSessionStore } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
+import { useUnlockStore } from "@warmdock/app";
+import { useWalletStore } from "@warmdock/app";
 import { formatPointsDelta } from "@warmdock/core/rules/points";
 import { getVisibleSlotCount } from "@warmdock/core/rules/unlock";
 import type { DailySummary, Wallet } from "@warmdock/core/types";

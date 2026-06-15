@@ -3,9 +3,9 @@
  * identical everywhere; OS-window operations are delegated to the injected
  * PlatformWindow (no-op on web, windowManager-backed on desktop).
  */
+import { useUIStore } from "@warmdock/app";
 import { DUR_PANEL } from "../../ui/motion";
 import { getPlatformWindow } from "../platform";
-import { useUIStore } from "../stores/uiStore";
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const nextFrame = () =>

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useUIStore } from "../app/stores/uiStore";
+import { useUIStore } from "@warmdock/app";
 
 const VISIBLE_MS = 2500;
 

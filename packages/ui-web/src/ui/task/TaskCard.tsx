@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { completeTask } from "../../app/orchestrators/tasks";
-import { useSessionStore } from "../../app/stores/sessionStore";
-import { useUIStore } from "../../app/stores/uiStore";
-import { useWalletStore } from "../../app/stores/walletStore";
+import { completeTask } from "@warmdock/app";
+import { useSessionStore } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
+import { useWalletStore } from "@warmdock/app";
 import { t } from "@warmdock/core/i18n";
 import type { Task } from "@warmdock/core/types";
 import {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { discardTask, setTaskDetail, updateTaskTitle } from "../../app/orchestrators/tasks";
-import { useUIStore } from "../../app/stores/uiStore";
-import { useUnlockStore } from "../../app/stores/unlockStore";
+import { discardTask, setTaskDetail, updateTaskTitle } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
+import { useUnlockStore } from "@warmdock/app";
 import { difficultyBandLabel, t } from "@warmdock/core/i18n";
 import { canShowFocusTaskOption } from "@warmdock/core/rules/unlock";
 import { DIFFICULTY_OPTIONS, suggestDifficulty } from "@warmdock/core/rules/task";

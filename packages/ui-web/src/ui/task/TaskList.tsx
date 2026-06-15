@@ -1,7 +1,7 @@
-import { useSessionStore } from "../../app/stores/sessionStore";
-import { useTaskStore } from "../../app/stores/taskStore";
-import { useUIStore } from "../../app/stores/uiStore";
-import { useUnlockStore } from "../../app/stores/unlockStore";
+import { useSessionStore } from "@warmdock/app";
+import { useTaskStore } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
+import { useUnlockStore } from "@warmdock/app";
 import { getVisibleSlotCount } from "@warmdock/core/rules/unlock";
 import { TaskCard } from "./TaskCard";
 import { TaskSlot } from "./TaskSlot";

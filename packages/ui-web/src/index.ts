@@ -1,12 +1,10 @@
-// gateway injection
-export { configureGateways, getGateways, type UiGateways } from "./app/client";
-export { profileToSettings, defaultSettings } from "./app/profile";
+// @warmdock/ui-web — web/desktop DOM components + the platform window adapter +
+// panel flow choreography. The framework-agnostic app layer lives in
+// @warmdock/app and is re-exported here for convenience (web/desktop import from
+// one place; mobile imports @warmdock/app directly).
 
-// offline cache adapter (desktop injects an encrypted local cache)
-export { configureCache, getCache, type CacheAdapter } from "./app/cache";
-
-// optional auth actions surfaced in shared UI (desktop injects sign-out)
-export { configureAuthActions, getAuthActions, type AuthActions } from "./app/authActions";
+// re-export the shared app layer (stores, orchestrators, gateway/cache/auth/profile)
+export * from "@warmdock/app";
 
 // platform window adapter (desktop injects a windowManager-backed impl)
 export {
@@ -16,7 +14,7 @@ export {
   type WindowMode,
 } from "./app/platform";
 
-// flow orchestration (shared; window ops go through the platform adapter)
+// flow choreography (window ops go through the platform adapter)
 export {
   openPanel,
   closePanel,
@@ -29,24 +27,7 @@ export {
   quitApp,
 } from "./app/orchestrators/windowFlow";
 
-// lifecycle
-export { useBootstrap } from "./app/hooks/useBootstrap";
-export { runBootstrap } from "./app/orchestrators/bootstrap";
-
-// orchestrator actions (for custom UI / demo wiring)
-export { createTask, setTaskDetail, completeTask, loadTodayTasks } from "./app/orchestrators/tasks";
-export { loadUnlockProgress, purchaseUnlock } from "./app/orchestrators/unlocks";
-export { updateSettings } from "./app/orchestrators/settings";
-
-// stores
-export { useTaskStore } from "./app/stores/taskStore";
-export { useWalletStore } from "./app/stores/walletStore";
-export { useUnlockStore } from "./app/stores/unlockStore";
-export { useSessionStore } from "./app/stores/sessionStore";
-export { useSettingsStore } from "./app/stores/settingsStore";
-export { useUIStore } from "./app/stores/uiStore";
-
-// the panel + composing pieces
+// DOM pieces
 export { Panel } from "./ui/panel/Panel";
 export { ErrorBoundary } from "./ui/ErrorBoundary";
 export { injectMotionVars } from "./ui/motion";

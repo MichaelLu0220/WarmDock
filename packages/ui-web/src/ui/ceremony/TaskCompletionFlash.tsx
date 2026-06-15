@@ -1,4 +1,4 @@
-import { useUIStore } from "../../app/stores/uiStore";
+import { useUIStore } from "@warmdock/app";
 import { t } from "@warmdock/core/i18n";
 import { formatPointsDelta } from "@warmdock/core/rules/points";
 

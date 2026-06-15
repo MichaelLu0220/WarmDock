@@ -2,16 +2,16 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   loadUnlockProgress,
   purchaseUnlock,
-} from "../../app/orchestrators/unlocks";
+} from "@warmdock/app";
 import {
   closeUnlockTree,
   collapsePanelFromUnlock,
   maximizeUnlockTree,
   restoreUnlockTree,
 } from "../../app/orchestrators/windowFlow";
-import { useSettingsStore } from "../../app/stores/settingsStore";
-import { useUIStore } from "../../app/stores/uiStore";
-import { useUnlockStore } from "../../app/stores/unlockStore";
+import { useSettingsStore } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
+import { useUnlockStore } from "@warmdock/app";
 import { t } from "@warmdock/core/i18n";
 import { formatPoints } from "@warmdock/core/rules/points";
 import { UnlockAwakenBurst } from "./UnlockAwakenBurst";

@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import { createTask } from "../../app/orchestrators/tasks";
-import { useUIStore } from "../../app/stores/uiStore";
+import { createTask } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
 import { t } from "@warmdock/core/i18n";
 
 export function TaskSlot() {

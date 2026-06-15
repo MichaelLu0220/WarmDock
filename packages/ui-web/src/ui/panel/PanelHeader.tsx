@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { updateSettings } from "../../app/orchestrators/settings";
+import { updateSettings } from "@warmdock/app";
 import { openUnlockTree } from "../../app/orchestrators/windowFlow";
-import { useSettingsStore } from "../../app/stores/settingsStore";
-import { useUIStore } from "../../app/stores/uiStore";
-import { useWalletStore } from "../../app/stores/walletStore";
+import { useSettingsStore } from "@warmdock/app";
+import { useUIStore } from "@warmdock/app";
+import { useWalletStore } from "@warmdock/app";
 import { t } from "@warmdock/core/i18n";
 import { formatDisplayDate } from "@warmdock/core/rules/date";
 import { formatPoints, formatWalletDisplay } from "@warmdock/core/rules/points";
