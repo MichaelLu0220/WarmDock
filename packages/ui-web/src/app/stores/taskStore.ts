@@ -10,6 +10,7 @@ type TaskState = {
 type TaskActions = {
   setTasks: (tasks: Task[]) => void;
   upsertTask: (task: Task) => void;
+  removeTask: (taskId: string) => void;
   setLoading: (value: boolean) => void;
   setError: (message: string | null) => void;
 };
@@ -30,6 +31,9 @@ export const useTaskStore = create<TaskState & TaskActions>((set) => ({
           : [...state.tasks, task],
       };
     }),
+
+  removeTask: (taskId) =>
+    set((state) => ({ tasks: state.tasks.filter((t) => t.id !== taskId) })),
 
   setLoading: (value) => set({ isLoading: value }),
   setError: (message) => set({ error: message }),

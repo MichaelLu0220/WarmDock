@@ -10,9 +10,7 @@ export function TaskSlot() {
   const openTaskDetail = useUIStore((s) => s.openTaskDetail);
   const setComposingTask = useUIStore((s) => s.setComposingTask);
 
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter") return;
-
+  const submit = async () => {
     const trimmed = value.trim();
     if (!trimmed || isSubmitting) return;
 
@@ -20,12 +18,25 @@ export function TaskSlot() {
     try {
       const task = await createTask(trimmed);
       setValue("");
-      openTaskDetail(task.id);
+      openTaskDetail(task.id); // open the difficulty modal
     } catch (err) {
       console.error("createTask failed:", err);
     } finally {
       setIsSubmitting(false);
-      inputRef.current?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") void submit();
+  };
+
+  // losing focus with text still entered also commits (and opens the modal);
+  // keep composing flag alive until the modal takes over so auto-hide won't fire.
+  const handleBlur = () => {
+    if (value.trim() && !isSubmitting) {
+      void submit();
+    } else {
+      setComposingTask(false);
     }
   };
 
@@ -39,7 +50,7 @@ export function TaskSlot() {
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onFocus={() => setComposingTask(true)}
-      onBlur={() => setComposingTask(false)}
+      onBlur={handleBlur}
       disabled={isSubmitting}
     />
   );

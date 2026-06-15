@@ -69,6 +69,18 @@ export async function updateTaskTitle(taskId: string, title: string): Promise<Ta
   }
 }
 
+export async function discardTask(taskId: string): Promise<void> {
+  useTaskStore.getState().setError(null);
+  try {
+    await getGateways().task.discard(taskId);
+    useTaskStore.getState().removeTask(taskId);
+  } catch (err) {
+    const appErr = toAppError(err);
+    useTaskStore.getState().setError(appErr.message);
+    throw appErr;
+  }
+}
+
 export async function setTaskDetail(taskId: string, input: TaskDetailInput): Promise<Task> {
   useTaskStore.getState().setError(null);
   try {

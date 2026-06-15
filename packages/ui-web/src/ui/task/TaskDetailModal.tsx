@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { setTaskDetail, updateTaskTitle } from "../../app/orchestrators/tasks";
+import { discardTask, setTaskDetail, updateTaskTitle } from "../../app/orchestrators/tasks";
 import { useUIStore } from "../../app/stores/uiStore";
 import { useUnlockStore } from "../../app/stores/unlockStore";
 import { difficultyBandLabel, t } from "@warmdock/core/i18n";
@@ -61,12 +61,18 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
     }
   };
 
-  // dismiss without setting difficulty — keep any title edit, leave task as draft
+  // dismiss without setting difficulty:
+  //  - empty title  => cancel the task (remove the draft, back to an empty slot)
+  //  - otherwise    => keep any title edit, leave the task as a draft
   const handleLater = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await persistTitleIfChanged();
+      if (title.trim() === "") {
+        await discardTask(task.id);
+      } else {
+        await persistTitleIfChanged();
+      }
     } catch {
       // error 已記錄在 taskStore
     } finally {

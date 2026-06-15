@@ -19,6 +19,8 @@ export interface TaskGateway {
   create(title: string, clientRequestId: string, timezone: string): Promise<Task>;
   /** edit a draft task's title (only allowed before difficulty is set). */
   updateTitle(taskId: string, title: string): Promise<Task>;
+  /** discard a draft task (cancel before difficulty is set). */
+  discard(taskId: string): Promise<void>;
   setDetail(taskId: string, input: TaskDetailInput): Promise<Task>;
   complete(taskId: string): Promise<CompleteTaskResult>;
 }

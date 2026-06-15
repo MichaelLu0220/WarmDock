@@ -20,7 +20,7 @@ import type {
   UnlockProgressDto,
 } from "./types";
 import { AppError } from "@warmdock/core";
-import { rpcResult } from "./errors";
+import { mapPostgrestError, rpcResult } from "./errors";
 import {
   completeFromDto,
   profileFromDto,
@@ -50,6 +50,11 @@ export function createTaskGateway(sb: SupabaseClient): TaskGateway {
         p_title: title,
       });
       return taskFromDto(rpcResult<TaskDto>(data, error));
+    },
+    async discard(taskId) {
+      const { error } = await sb.rpc("discard_task", { p_task_id: taskId });
+      const mapped = mapPostgrestError(error);
+      if (mapped) throw mapped;
     },
     async setDetail(taskId, input) {
       const { data, error } = await sb.rpc("set_task_detail", {

@@ -24,6 +24,7 @@ const APP_CODES: ReadonlySet<string> = new Set<AppErrorCode>([
   "INVALID_INPUT",
   "NOT_AUTHENTICATED",
   "CYCLE_SETTLED",
+  "DAY_SETTLED",
 ]);
 
 export function mapPostgrestError(error: PostgrestErrorLike | null): AppError | null {

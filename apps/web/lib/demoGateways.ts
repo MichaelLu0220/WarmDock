@@ -139,6 +139,10 @@ export function createDemoGateways(): UiGateways {
         }
         return { ...task };
       },
+      async discard(taskId) {
+        const i = tasks.findIndex((t) => t.id === taskId);
+        if (i >= 0 && tasks[i].status === "draft") tasks.splice(i, 1);
+      },
       async setDetail(taskId, input: TaskDetailInput) {
         const task = tasks.find((t) => t.id === taskId)!;
         task.difficulty = input.difficulty;
