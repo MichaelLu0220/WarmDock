@@ -15,6 +15,7 @@ coverage/
 .vite/
 .turbo/
 .next/
+.expo/
 *.tsbuildinfo
 
 # Local environment files

@@ -26,19 +26,24 @@ export function useBootstrap(userId: string | null) {
     void runBootstrap();
 
     // Backstop: only does a network call while offline; a no-op when online.
-    const offlineRetry = window.setInterval(() => {
+    const offlineRetry = setInterval(() => {
       if (!cancelled && useSessionStore.getState().isOffline) void checkConnection();
     }, OFFLINE_RETRY_MS);
 
-    // Browser network events (instant, event-driven).
+    // Browser network events (web/desktop only; React Native has no window events
+    // and relies on the realtime socket signal below).
     const onWindowOffline = () => {
       if (!cancelled) useSessionStore.getState().setOffline(true);
     };
     const onWindowOnline = () => {
       if (!cancelled) void checkConnection();
     };
-    window.addEventListener("offline", onWindowOffline);
-    window.addEventListener("online", onWindowOnline);
+    const hasWindowEvents =
+      typeof window !== "undefined" && typeof window.addEventListener === "function";
+    if (hasWindowEvents) {
+      window.addEventListener("offline", onWindowOffline);
+      window.addEventListener("online", onWindowOnline);
+    }
 
     let unsubscribe: (() => void) | undefined;
     if (userId) {
@@ -58,9 +63,11 @@ export function useBootstrap(userId: string | null) {
 
     return () => {
       cancelled = true;
-      window.clearInterval(offlineRetry);
-      window.removeEventListener("offline", onWindowOffline);
-      window.removeEventListener("online", onWindowOnline);
+      clearInterval(offlineRetry);
+      if (hasWindowEvents) {
+        window.removeEventListener("offline", onWindowOffline);
+        window.removeEventListener("online", onWindowOnline);
+      }
       unsubscribe?.();
     };
   }, [userId]);

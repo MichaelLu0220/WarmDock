@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "WarmDock",
+    "slug": "warmdock",
+    "scheme": "warmdock",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.warmdock.app"
+    },
+    "android": {
+      "package": "com.warmdock.app"
+    }
+  }
+}
