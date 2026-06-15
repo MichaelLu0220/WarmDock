@@ -13,6 +13,9 @@
     },
     "android": {
       "package": "com.warmdock.app"
-    }
+    },
+    "plugins": [
+      "expo-asset"
+    ]
   }
 }
