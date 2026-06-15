@@ -132,6 +132,7 @@ describe("profileFromDto / snapshotFromDto", () => {
   it("maps the profile under snapshot.profile", () => {
     const snap: SnapshotDto = {
       today: "2026-06-14",
+      settled: false,
       tasks: [taskDto],
       wallet: {
         user_id: "u1",

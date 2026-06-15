@@ -145,6 +145,7 @@ export function purchaseFromDto(dto: PurchaseDto): PurchaseUnlockResult {
 export function snapshotFromDto(dto: SnapshotDto): Snapshot {
   return {
     today: dto.today,
+    settled: dto.settled,
     tasks: dto.tasks.map(taskFromDto),
     wallet: walletFromDto(dto.wallet),
     profile: profileFromDto(dto.settings),

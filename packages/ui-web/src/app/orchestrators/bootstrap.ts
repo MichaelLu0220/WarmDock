@@ -26,13 +26,10 @@ function applySnapshot(snap: Snapshot): void {
   const session = useSessionStore.getState();
   session.setToday(snap.today ?? "");
   session.setTodaySummary(snap.summary);
-
-  const committed = snap.tasks.filter((t) => t.status !== "draft");
-  session.setAllTasksCompleted(
-    committed.length > 0 &&
-      committed.length >= snap.unlocks.maxVisibleTaskSlots &&
-      committed.every((t) => t.status === "completed")
-  );
+  session.setDaySettled(snap.settled);
+  // authoritative all-complete flag (frozen at settlement; unaffected by later
+  // slot unlocks), so the "day done" ceremony stays put.
+  session.setAllTasksCompleted(snap.summary?.isAllCompleted ?? false);
 }
 
 /**

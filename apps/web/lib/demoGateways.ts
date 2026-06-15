@@ -180,6 +180,7 @@ export function createDemoGateways(): UiGateways {
       async bootstrap(): Promise<Snapshot> {
         return {
           today,
+          settled: false,
           tasks: [...tasks],
           wallet: { ...wallet },
           profile: { ...profile },

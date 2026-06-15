@@ -1,6 +1,6 @@
 -- Editable draft titles + the just-settled day stays visible.
 begin;
-select plan(6);
+select plan(7);
 
 do $$ begin
   insert into auth.users (id) values
@@ -54,6 +54,9 @@ select ok(
 select is(
   jsonb_array_length(public.bootstrap() -> 'tasks'),
   3, 'bootstrap still returns the completed tasks of the just-settled day');
+select is(
+  (public.bootstrap() ->> 'settled')::boolean,
+  true, 'bootstrap reports the just-settled day as settled');
 
 select * from finish();
 rollback;

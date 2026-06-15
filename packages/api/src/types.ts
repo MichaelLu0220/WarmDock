@@ -128,6 +128,7 @@ export interface ProfileDto {
 
 export interface SnapshotDto {
   today: string | null;
+  settled: boolean;
   tasks: TaskDto[];
   wallet: WalletDto;
   settings: ProfileDto;
@@ -163,6 +164,7 @@ export interface ProfilePatch {
 
 export interface Snapshot {
   today: string | null;
+  settled: boolean;
   tasks: Task[];
   wallet: Wallet;
   profile: Profile;

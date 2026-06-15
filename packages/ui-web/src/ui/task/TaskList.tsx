@@ -1,3 +1,4 @@
+import { useSessionStore } from "../../app/stores/sessionStore";
 import { useTaskStore } from "../../app/stores/taskStore";
 import { useUIStore } from "../../app/stores/uiStore";
 import { useUnlockStore } from "../../app/stores/unlockStore";
@@ -11,9 +12,11 @@ export function TaskList() {
   const tasks = useTaskStore((s) => s.tasks);
   const openTaskDetail = useUIStore((s) => s.openTaskDetail);
   const unlocks = useUnlockStore((s) => s.status);
+  const isDaySettled = useSessionStore((s) => s.isDaySettled);
 
   const visibleSlots = getVisibleSlotCount(unlocks);
-  const emptySlotCount = Math.max(0, visibleSlots - tasks.length);
+  // once the day is settled, no new tasks — don't render empty slots
+  const emptySlotCount = isDaySettled ? 0 : Math.max(0, visibleSlots - tasks.length);
 
   return (
     <div className="wd-task-list">
