@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import {
   createTask,
   useBootstrap,
@@ -12,6 +12,7 @@ import type { Task } from "@warmdock/core";
 import { getClient } from "../client";
 import { TaskRow } from "../components/TaskRow";
 import { DifficultyModal } from "../components/DifficultyModal";
+import { Abilities } from "./Abilities";
 
 export function Today({ userId }: { userId: string }) {
   const { isReady, bootstrapError } = useBootstrap(userId);
@@ -26,6 +27,7 @@ export function Today({ userId }: { userId: string }) {
   const [busy, setBusy] = useState(false);
   const [peek, setPeek] = useState(false);
   const [setupTask, setSetupTask] = useState<Task | null>(null);
+  const [showAbilities, setShowAbilities] = useState(false);
 
   const points = wallet ? availablePoints(wallet) : 0;
   const streak = wallet?.streakDays ?? 0;
@@ -52,6 +54,9 @@ export function Today({ userId }: { userId: string }) {
         <View style={styles.headerRight}>
           <Text style={styles.stat}>◆ {points}</Text>
           <Text style={styles.stat}>▲ {streak}d</Text>
+          <Pressable onPress={() => setShowAbilities(true)}>
+            <Text style={styles.link}>Abilities</Text>
+          </Pressable>
           <Pressable onPress={() => void getClient().auth.signOut()}>
             <Text style={styles.signOut}>Sign out</Text>
           </Pressable>
@@ -102,6 +107,10 @@ export function Today({ userId }: { userId: string }) {
       ) : null}
 
       {setupTask && <DifficultyModal task={setupTask} onClose={() => setSetupTask(null)} />}
+
+      <Modal visible={showAbilities} animationType="slide" onRequestClose={() => setShowAbilities(false)}>
+        <Abilities onClose={() => setShowAbilities(false)} />
+      </Modal>
     </View>
   );
 }
@@ -121,6 +130,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "700", color: "#3a3326" },
   headerRight: { flexDirection: "row", alignItems: "center", gap: 12 },
   stat: { fontSize: 14, color: "#5b5240" },
+  link: { fontSize: 14, color: "#b58a4b", fontWeight: "600" },
   signOut: { fontSize: 14, color: "#8a7e63" },
   offline: { marginTop: 10, padding: 8, borderRadius: 6, backgroundColor: "rgba(0,0,0,0.06)", color: "#5b5240" },
   error: { marginTop: 10, color: "#b3402f" },
