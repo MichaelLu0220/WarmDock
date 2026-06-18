@@ -57,18 +57,30 @@ export const zhTW = {
   "settings.done": "完成",
   "settings.quit": "結束 WarmDock",
 
-  // Ceremony
-  "ceremony.allDoneTitle": "今天的承諾,都兌現了",
-  "ceremony.allDoneSubtitle": "好好休息,明天見。",
-  "ceremony.viewTasks": "查看今日任務",
-  "ceremony.statPoints": "獲得積分",
-  "ceremony.statStreak": "連續天數",
-  "ceremony.statCompleted": "完成任務",
-  "ceremony.prevFullTitle": "昨天的承諾,全都兌現了",
-  "ceremony.prevPartialTitle": "昨天也走了一段路",
-  "ceremony.prevEmptyTitle": "新的一天開始了",
-  "ceremony.startToday": "開始今天",
+  // Ceremony — 任務完成快閃
+  "ceremony.flashTitle": "完成一項承諾。",
   "ceremony.flashHint": "點擊任意處繼續",
+  // Ceremony — 今日結算
+  "ceremony.allDoneTitle": "今天的承諾,都兌現了。",
+  "ceremony.allDoneSubtitle": "你做到了。",
+  "ceremony.partialTitle": "今天完成了一部分。",
+  "ceremony.partialSubtitle": "每一步都算數,明天繼續。",
+  "ceremony.pointsDeferredHint": "積分將在明天開始時存入錢包。",
+  "ceremony.viewTasks": "查看今日任務",
+  // Ceremony — 昨日回顧
+  "ceremony.prevFullTitle": "昨天的承諾,全都兌現了。",
+  "ceremony.prevFullSubtitle": "帶著這份動力,繼續今天。",
+  "ceremony.prevPartialTitle": "昨天完成了一部分。",
+  "ceremony.prevPartialSubtitle": "每一步都算數,今天繼續。",
+  "ceremony.prevEmptyTitle": "昨天沒有留下紀錄。",
+  "ceremony.prevEmptySubtitle": "今天是新的開始。",
+  "ceremony.prevEmptyGoalSubtitle": "今天是新的開始,試著訂下一個目標。",
+  "ceremony.startToday": "開始新的一天",
+  // Ceremony — 統計欄位
+  "ceremony.statCompleted": "完成任務",
+  "ceremony.statStreak": "連續天數",
+  "ceremony.statPointsToday": "今日積分",
+  "ceremony.statPointsPrev": "昨日積分",
 
   // Unlock tree
   "unlock.title": "能力配置",

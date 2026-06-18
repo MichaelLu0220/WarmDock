@@ -58,18 +58,30 @@ export const en: Record<keyof typeof zhTW, string> = {
   "settings.done": "Done",
   "settings.quit": "Quit WarmDock",
 
-  // Ceremony
-  "ceremony.allDoneTitle": "Every promise kept today",
-  "ceremony.allDoneSubtitle": "Rest well — see you tomorrow.",
-  "ceremony.viewTasks": "View today's tasks",
-  "ceremony.statPoints": "Points earned",
-  "ceremony.statStreak": "Streak",
-  "ceremony.statCompleted": "Tasks done",
-  "ceremony.prevFullTitle": "Yesterday, every promise kept",
-  "ceremony.prevPartialTitle": "Yesterday you moved forward too",
-  "ceremony.prevEmptyTitle": "A new day begins",
-  "ceremony.startToday": "Start today",
+  // Ceremony — task-completion flash
+  "ceremony.flashTitle": "A promise kept.",
   "ceremony.flashHint": "Tap anywhere to continue",
+  // Ceremony — today's close
+  "ceremony.allDoneTitle": "Every promise kept today.",
+  "ceremony.allDoneSubtitle": "You did it.",
+  "ceremony.partialTitle": "Part of today is done.",
+  "ceremony.partialSubtitle": "Every step counts — keep going tomorrow.",
+  "ceremony.pointsDeferredHint": "Points land in your wallet when tomorrow begins.",
+  "ceremony.viewTasks": "View today's tasks",
+  // Ceremony — yesterday's recap
+  "ceremony.prevFullTitle": "Yesterday, every promise kept.",
+  "ceremony.prevFullSubtitle": "Carry that momentum into today.",
+  "ceremony.prevPartialTitle": "Yesterday, part of it got done.",
+  "ceremony.prevPartialSubtitle": "Every step counts — keep going today.",
+  "ceremony.prevEmptyTitle": "No record from yesterday.",
+  "ceremony.prevEmptySubtitle": "Today is a fresh start.",
+  "ceremony.prevEmptyGoalSubtitle": "Today's a fresh start — try setting a goal.",
+  "ceremony.startToday": "Start a new day",
+  // Ceremony — stat labels
+  "ceremony.statCompleted": "Tasks done",
+  "ceremony.statStreak": "Streak",
+  "ceremony.statPointsToday": "Today's points",
+  "ceremony.statPointsPrev": "Yesterday's points",
 
   // Unlock tree
   "unlock.title": "Abilities",

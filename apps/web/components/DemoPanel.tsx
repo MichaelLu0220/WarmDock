@@ -1,9 +1,15 @@
 "use client";
 
+import "../lib/i18nSetup";
 import { useEffect, useState } from "react";
-import { configureGateways, useBootstrap } from "@warmdock/ui-web";
+import Link from "next/link";
+import { configureGateways, useBootstrap, useUIStore, Panel } from "@warmdock/ui-web";
 import { createDemoGateways } from "../lib/demoGateways";
-import { PanelStage } from "./PanelStage";
+import { DemoCoachmark } from "./DemoCoachmark";
+import { DemoStepCards } from "./DemoStepCards";
+import { DemoTourProvider } from "./DemoTour";
+import { OpenSignInButton } from "./OpenSignInButton";
+import { SignInModal } from "./SignInModal";
 
 let configured = false;
 
@@ -23,5 +29,56 @@ export function DemoPanel() {
 
 function DemoBody() {
   useBootstrap(null); // gateways already configured; no realtime in demo
-  return <PanelStage />;
+  const setPanelOpen = useUIStore((s) => s.setPanelOpen);
+  useEffect(() => {
+    setPanelOpen(true);
+  }, [setPanelOpen]);
+  useEffect(() => {
+    const prev = document.body.style.scrollbarGutter;
+    document.body.style.scrollbarGutter = "auto";
+    return () => { document.body.style.scrollbarGutter = prev; };
+  }, []);
+
+  return (
+    <DemoTourProvider>
+      <div className="wd-demo">
+        <header className="wd-nav">
+          <Link className="wd-nav-brand" href="/">
+            WarmDock
+          </Link>
+          <nav className="wd-nav-links">
+            <Link href="/">Home</Link>
+          </nav>
+          <div className="wd-nav-cta">
+            <OpenSignInButton className="wd-btn ghost">Sign in</OpenSignInButton>
+          </div>
+        </header>
+
+        <section className="wd-demo-intro">
+          <p className="wd-eyebrow">Live demo</p>
+          <h1>
+            This is your dock.
+            <br />
+            Go ahead — use it.
+          </h1>
+
+          <DemoStepCards />
+
+          <p className="wd-demo-note">
+            Nothing is saved in the demo.{" "}
+            <OpenSignInButton className="wd-demo-note-link">
+              Sign in to keep your streak
+            </OpenSignInButton>
+            .
+          </p>
+        </section>
+
+        <Panel />
+        <DemoCoachmark />
+
+        {/* Sign in 開啟同頁置中字卡(與首頁一致) */}
+        <SignInModal />
+      </div>
+    </DemoTourProvider>
+  );
 }

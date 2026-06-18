@@ -16,7 +16,7 @@ export function TaskCompletionFlash() {
     >
       <div className="wd-ceremony" style={{ pointerEvents: "none" }}>
         <div className="wd-ceremony__icon">✓</div>
-        <h2 className="wd-ceremony__title">完成一項承諾。</h2>
+        <h2 className="wd-ceremony__title">{t("ceremony.flashTitle")}</h2>
         <p
           className="wd-ceremony__subtitle"
           style={{ maxWidth: 220, wordBreak: "break-all" }}

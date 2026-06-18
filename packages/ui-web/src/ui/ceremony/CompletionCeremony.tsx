@@ -2,6 +2,7 @@ import { useSessionStore } from "@warmdock/app";
 import { useUIStore } from "@warmdock/app";
 import { useUnlockStore } from "@warmdock/app";
 import { useWalletStore } from "@warmdock/app";
+import { t } from "@warmdock/core/i18n";
 import { formatPointsDelta } from "@warmdock/core/rules/points";
 import { getVisibleSlotCount } from "@warmdock/core/rules/unlock";
 import type { DailySummary, Wallet } from "@warmdock/core/types";
@@ -21,7 +22,7 @@ function Stats({
     <div className="wd-ceremony__stats">
       <div className="wd-ceremony__stat">
         <div className="wd-ceremony__stat-value">{summary.tasksCompleted}</div>
-        <div className="wd-ceremony__stat-label">完成任務</div>
+        <div className="wd-ceremony__stat-label">{t("ceremony.statCompleted")}</div>
       </div>
       <div className="wd-ceremony__stat">
         <div className="wd-ceremony__stat-value wd-ceremony__stat-value--gold">
@@ -34,7 +35,7 @@ function Stats({
           <div className="wd-ceremony__stat-value wd-ceremony__stat-value--orange">
             {wallet.streakDays}
           </div>
-          <div className="wd-ceremony__stat-label">連續天數</div>
+          <div className="wd-ceremony__stat-label">{t("ceremony.statStreak")}</div>
         </div>
       )}
     </div>
@@ -64,16 +65,22 @@ function CeremonyContent({
           {isFull ? "✦" : "◇"}
         </div>
         <h2 className="wd-ceremony__title">
-          {isFull ? "今天的承諾,都兌現了。" : "今天完成了一部分。"}
+          {isFull ? t("ceremony.allDoneTitle") : t("ceremony.partialTitle")}
         </h2>
         <p className="wd-ceremony__subtitle">
-          {isFull ? "你做到了。" : "每一步都算數,明天繼續。"}
+          {isFull
+            ? t("ceremony.allDoneSubtitle")
+            : t("ceremony.partialSubtitle")}
         </p>
         {summary && (
-          <Stats summary={summary} wallet={wallet} pointsLabel="今日積分" />
+          <Stats
+            summary={summary}
+            wallet={wallet}
+            pointsLabel={t("ceremony.statPointsToday")}
+          />
         )}
         <p className="wd-modal__hint" style={{ marginTop: 20 }}>
-          積分將在明天開始時存入錢包。
+          {t("ceremony.pointsDeferredHint")}
         </p>
         {onAction && (
           <button
@@ -94,8 +101,10 @@ function CeremonyContent({
     return (
       <div className="wd-ceremony">
         <div className="wd-ceremony__icon">○</div>
-        <h2 className="wd-ceremony__title">昨天沒有留下紀錄。</h2>
-        <p className="wd-ceremony__subtitle">今天是新的開始。</p>
+        <h2 className="wd-ceremony__title">{t("ceremony.prevEmptyTitle")}</h2>
+        <p className="wd-ceremony__subtitle">
+          {t("ceremony.prevEmptySubtitle")}
+        </p>
         {onAction && (
           <button
             type="button"
@@ -124,20 +133,24 @@ function CeremonyContent({
       </div>
       <h2 className="wd-ceremony__title">
         {isFullComplete
-          ? "昨天的承諾,全都兌現了。"
+          ? t("ceremony.prevFullTitle")
           : hasAny
-            ? "昨天完成了一部分。"
-            : "昨天沒有留下紀錄。"}
+            ? t("ceremony.prevPartialTitle")
+            : t("ceremony.prevEmptyTitle")}
       </h2>
       <p className="wd-ceremony__subtitle">
         {isFullComplete
-          ? "帶著這份動力,繼續今天。"
+          ? t("ceremony.prevFullSubtitle")
           : hasAny
-            ? "每一步都算數,今天繼續。"
-            : "今天是新的開始,試著訂下一個目標。"}
+            ? t("ceremony.prevPartialSubtitle")
+            : t("ceremony.prevEmptyGoalSubtitle")}
       </p>
       {hasAny && (
-        <Stats summary={summary} wallet={wallet} pointsLabel="昨日積分" />
+        <Stats
+          summary={summary}
+          wallet={wallet}
+          pointsLabel={t("ceremony.statPointsPrev")}
+        />
       )}
       {onAction && (
         <button
@@ -169,7 +182,7 @@ export function CompletionCeremony() {
       summary={summary}
       wallet={wallet}
       onAction={() => setAllTasksCompleted(false)}
-      actionLabel="查看今日任務"
+      actionLabel={t("ceremony.viewTasks")}
     />
   );
 }
@@ -185,7 +198,7 @@ export function PreviousDayCeremony() {
       summary={previousDaySummary}
       wallet={wallet}
       onAction={closePreviousDaySummary}
-      actionLabel="開始新的一天"
+      actionLabel={t("ceremony.startToday")}
     />
   );
 }

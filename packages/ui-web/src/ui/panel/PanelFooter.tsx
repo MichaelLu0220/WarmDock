@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSessionStore } from "@warmdock/app";
 import { useSettingsStore } from "@warmdock/app";
 import { useTaskStore } from "@warmdock/app";
 import { useUIStore } from "@warmdock/app";
@@ -9,7 +8,6 @@ import { formatTimeUntilRefresh } from "@warmdock/core/rules/date";
 export function PanelFooter() {
   const settings = useSettingsStore((s) => s.settings);
   const tasks = useTaskStore((s) => s.tasks);
-  const summary = useSessionStore((s) => s.todaySummary);
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
 
   // 打開 panel 時抽新的 mantra;關閉時保持不變
@@ -36,15 +34,15 @@ export function PanelFooter() {
     [refreshTime, now]
   );
 
-  const { completed, total } = useMemo(() => {
-    if (summary) {
-      return { completed: summary.tasksCompleted, total: summary.tasksCreated };
-    }
-    return {
+  // footer 只在進行中顯示(結算/慶祝時 Panel 已隱藏它),用即時 tasks 反映當下進度。
+  // total 排除 draft(尚未設難度、還沒真正承諾的任務)。
+  const { completed, total } = useMemo(
+    () => ({
       completed: tasks.filter((task) => task.status === "completed").length,
-      total: tasks.length,
-    };
-  }, [summary, tasks]);
+      total: tasks.filter((task) => task.status !== "draft").length,
+    }),
+    [tasks]
+  );
 
   return (
     <div className="wd-footer">
