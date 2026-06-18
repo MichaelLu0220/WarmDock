@@ -73,7 +73,7 @@ function DemoBody() {
           </p>
         </section>
 
-        <Panel />
+        <Panel chrome="minimal" />
         <DemoCoachmark />
 
         {/* Sign in 開啟同頁置中字卡(與首頁一致) */}

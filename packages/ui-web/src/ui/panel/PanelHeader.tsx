@@ -12,7 +12,11 @@ const FLASH_DURATION_MS = 600;
 const HOLD_BEFORE_SWAP_MS = 620;
 const PULSE_DURATION_MS = 220;
 
-export function PanelHeader() {
+export function PanelHeader({
+  chrome = "full",
+}: {
+  chrome?: "full" | "minimal";
+}) {
   const wallet = useWalletStore((s) => s.wallet);
   const headerFlash = useUIStore((s) => s.headerPointsFlash);
   const clearHeaderFlash = useUIStore((s) => s.clearHeaderPointsFlash);
@@ -85,6 +89,24 @@ export function PanelHeader() {
   };
 
   const pinTitle = isPinned ? t("header.unpin") : t("header.pin");
+
+  // demo 展示用:收斂成首頁 mock 卡的單行提示標題 + streak(無日期/問候/點數/功能鈕)
+  if (chrome === "minimal") {
+    return (
+      <div className="wd-header wd-header--minimal">
+        <div className="wd-header__row">
+          <h1 className="wd-header__date" style={{ flex: 1 }}>
+            {t("header.prompt")}
+          </h1>
+          {wallet && wallet.streakDays > 0 && (
+            <span className="wd-header__streak">
+              🔥 {t("header.streakLong", { days: wallet.streakDays })}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="wd-header">

@@ -46,12 +46,12 @@ export function createDemoGateways(): UiGateways {
 
   const tasks: Task[] = [
     {
-      id: "demo-1", title: "Read 10 pages", targetDate: today, createdAt: now, updatedAt: now,
-      sortOrder: 0, status: "completed", completedAt: now, difficulty: 2, difficultySuggested: "easy",
-      basePoints: 2, finalRewardPoints: 2, isFocus: false,
+      id: "demo-1", title: "Send the project proposal", targetDate: today, createdAt: now, updatedAt: now,
+      sortOrder: 0, status: "completed", completedAt: now, difficulty: 4, difficultySuggested: "hard",
+      basePoints: 4, finalRewardPoints: 4, isFocus: false,
     },
     {
-      id: "demo-2", title: "Write morning pages", targetDate: today, createdAt: now, updatedAt: now,
+      id: "demo-2", title: "Practice piano, 20 min", targetDate: today, createdAt: now, updatedAt: now,
       sortOrder: 1, status: "ready", completedAt: null, difficulty: 3, difficultySuggested: "medium",
       basePoints: 3, finalRewardPoints: 3, isFocus: false,
     },
@@ -59,16 +59,17 @@ export function createDemoGateways(): UiGateways {
 
   const wallet: Wallet = {
     walletPoints: 40,
-    pendingTodayPoints: 2,
-    streakDays: 3,
+    pendingTodayPoints: 4,
+    streakDays: 6,
     lastCompletedDate: today,
     lastRolloverDate: null,
-    bestStreakDays: 5,
-    lifetimePointsEarned: 42,
+    bestStreakDays: 6,
+    lifetimePointsEarned: 44,
     pointsSpentOnUnlocks: 0,
     pendingTodayUnlockSpent: 0,
   };
 
+  // 預設 3 格:1 件已完成(Send)+ 1 件預填(Practice)+ 1 個空格讓使用者填第三件。
   const owned = new Set<string>();
   const requestIds = new Map<string, string>();
 

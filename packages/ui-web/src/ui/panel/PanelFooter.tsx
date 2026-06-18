@@ -2,12 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { useSettingsStore } from "@warmdock/app";
 import { useTaskStore } from "@warmdock/app";
 import { useUIStore } from "@warmdock/app";
+import { useWalletStore } from "@warmdock/app";
 import { pickRandomMantra, t } from "@warmdock/core/i18n";
 import { formatTimeUntilRefresh } from "@warmdock/core/rules/date";
 
-export function PanelFooter() {
+export function PanelFooter({
+  chrome = "full",
+}: {
+  chrome?: "full" | "minimal";
+}) {
   const settings = useSettingsStore((s) => s.settings);
   const tasks = useTaskStore((s) => s.tasks);
+  const wallet = useWalletStore((s) => s.wallet);
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
 
   // 打開 panel 時抽新的 mantra;關閉時保持不變
@@ -43,6 +49,18 @@ export function PanelFooter() {
     }),
     [tasks]
   );
+
+  // demo 展示用:收斂成首頁 mock 卡的 footer —— 左邊今日點數、右邊剩餘時間
+  if (chrome === "minimal") {
+    return (
+      <div className="wd-footer wd-footer--minimal">
+        <span>
+          {t("footer.points", { points: wallet?.pendingTodayPoints ?? 0 })}
+        </span>
+        <span>{t("footer.timeLeft", { time: timeLeft })}</span>
+      </div>
+    );
+  }
 
   return (
     <div className="wd-footer">

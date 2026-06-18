@@ -1176,3 +1176,151 @@ body {
     transform: scale(1);
   }
 }
+
+/* ============================================================
+   Demo —— 產品本體(共用 <Panel/>)視覺對齊首頁。
+   ui-web 預設是硬核像素(border-radius:0 + 三層重框),首頁則是
+   柔化像素(圓角 + 單層厚框 + hover 浮起)。以下只在 .wd-demo 範圍內
+   覆蓋,讓 demo 左側介紹欄與右側產品本體成為同一套視覺語言;
+   不動 ui-web 共用層(桌面 app 維持原樣),這套通過後再上推。
+   ============================================================ */
+
+/* 主面板/能力配置卡:完全對齊首頁 .wd-mock 量測真值
+   —— 2px 框 / 6px 圓角 / 6px6px0 硬陰影 / Zpix 像素字。
+   字體最關鍵:panel 原繼承 apps/web body 的 system-ui(無襯線),
+   這裡改回 --wd-font-body(Zpix)讓整張卡與 mock 同一套像素字。 */
+.wd-demo .wd-panel.wd-card,
+.wd-demo .wd-unlock-tree-card {
+  border-width: 2px;
+  border-radius: 6px;
+  box-shadow: var(--wd-shadow-lg);
+  font-family: var(--wd-font-body);
+}
+/* demo 的主面板貼合內容高度 + mock 的 16px 內距(取代原 14/18) */
+.wd-demo .wd-panel.wd-card {
+  height: auto;
+  max-height: calc(100vh - 120px);
+  padding: 16px;
+}
+/* 翻書頁陰影遮罩跟著卡片圓角,避免攤平瞬間露出方角 */
+.wd-demo .wd-panel::after {
+  border-radius: 6px;
+}
+
+/* header:像素字、15.2px/600、虛線分隔、下內距 12px(對齊 mock head) */
+.wd-demo .wd-header {
+  border-bottom-style: dashed;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+.wd-demo .wd-header__date {
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+.wd-demo .wd-header__streak {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+/* footer:像素字、虛線、上內距 11px(對齊 mock foot);字體較 mock 微放大易讀 */
+.wd-demo .wd-footer {
+  border-top-style: dashed;
+  padding-top: 11px;
+  font-size: 0.84rem;
+}
+
+/* 任務列表:去掉額外左右內距讓任務與標題/footer 切齊;列距 8px(對齊 mock) */
+.wd-demo .wd-task-list {
+  padding-left: 0;
+  padding-right: 0;
+  gap: 8px;
+}
+/* 任務列:無框純列 + 收緊內距(mock 的列無額外高度);hover 才浮一層淡底。
+   border 設透明保留 2px 佔位,避免 hover 補框時位移。 */
+.wd-demo .wd-task {
+  background: transparent;
+  border-color: transparent;
+  padding: 2px 4px;
+  gap: 9px;
+}
+.wd-demo .wd-task__title {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.wd-demo .wd-task:hover {
+  transform: none;
+  box-shadow: none;
+  background: var(--wd-paper);
+  border-radius: 6px;
+}
+.wd-demo .wd-task--dim,
+.wd-demo .wd-task--dim:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+/* 新增任務輸入列:安靜的無框列,聚焦時才浮出虛線框(對齊 mock 的「+ Add a task…」) */
+.wd-demo .wd-slot {
+  border-color: transparent;
+  background: transparent;
+  padding: 2px 4px;
+  font-size: 1rem;
+}
+.wd-demo .wd-slot:focus {
+  border-style: dashed;
+  border-color: var(--wd-border-soft);
+  background: var(--wd-input-bg);
+  border-radius: 6px;
+}
+
+/* 技能樹場地:收圓角 */
+.wd-demo .wd-unlock-tree-field {
+  border-radius: 6px;
+}
+
+/* 難度 / Focus 標籤:細框、收小、透明描邊,貼近 mock 的 band 樣式
+   (難度=中性灰、Focus=金) */
+.wd-demo .wd-tag {
+  border-width: 1px;
+  border-radius: 3px;
+  font-size: 0.74rem;
+  padding: 1px 6px;
+}
+.wd-demo .wd-tag-blue {
+  background: transparent;
+  border-color: var(--wd-border-soft);
+  color: var(--wd-ink-soft);
+}
+.wd-demo .wd-tag-gold {
+  background: transparent;
+  border-color: var(--wd-gold);
+  color: var(--wd-gold);
+}
+.wd-demo .wd-points-chip {
+  border-radius: 5px;
+}
+
+/* 勾選框:16×16、3px 圓角(對齊 mock box) */
+.wd-demo .wd-check {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 3px;
+}
+
+/* 各式像素按鈕/控制項:圓角 + 與首頁 .wd-btn 一致的 hover 上浮手感 */
+.wd-demo .wd-btn,
+.wd-demo .wd-icon-btn,
+.wd-demo .wd-score,
+.wd-demo .wd-input {
+  border-radius: 6px;
+}
+.wd-demo .wd-icon-btn:hover:not(:disabled),
+.wd-demo .wd-score:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--wd-border);
+}
+.wd-demo .wd-icon-btn:active:not(:disabled),
+.wd-demo .wd-score:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}

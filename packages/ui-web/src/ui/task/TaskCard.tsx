@@ -3,7 +3,7 @@ import { completeTask } from "@warmdock/app";
 import { useSessionStore } from "@warmdock/app";
 import { useUIStore } from "@warmdock/app";
 import { useWalletStore } from "@warmdock/app";
-import { t } from "@warmdock/core/i18n";
+import { difficultyBandLabel, t } from "@warmdock/core/i18n";
 import type { Task } from "@warmdock/core/types";
 import {
   canComplete as canCompleteTask,
@@ -28,6 +28,7 @@ export function TaskCard({ task, onOpenDetail }: TaskCardProps) {
 
   const needsSetup = taskNeedsSetup(task);
   const canComplete = canCompleteTask(task);
+  const done = isCompleted(task);
 
   const handleComplete = async () => {
     if (!canComplete || isCompleting) return;
@@ -85,10 +86,15 @@ export function TaskCard({ task, onOpenDetail }: TaskCardProps) {
         {needsSetup && (
           <span className="wd-tag wd-tag-gold">{t("task.needsSetup")}</span>
         )}
-        {!needsSetup && task.difficulty != null && (
-          <span className="wd-tag wd-tag-blue">{task.difficulty}</span>
+        {/* 完成的任務不再顯示難度/Focus 標籤(只留刪除線標題,對齊首頁 mock 卡) */}
+        {!needsSetup && !done && task.difficultySuggested != null && (
+          <span className="wd-tag wd-tag-blue">
+            {difficultyBandLabel(task.difficultySuggested)}
+          </span>
         )}
-        {task.isFocus && <span className="wd-tag wd-tag-gold">★</span>}
+        {!done && task.isFocus && (
+          <span className="wd-tag wd-tag-gold">{t("task.focus")}</span>
+        )}
       </span>
     </div>
   );

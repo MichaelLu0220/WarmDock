@@ -16,7 +16,11 @@ import { Toast } from "../Toast";
 import { PanelFooter } from "./PanelFooter";
 import { PanelHeader } from "./PanelHeader";
 
-export function Panel() {
+/**
+ * chrome="minimal" 收斂面板外殼成「首頁 mock 卡」樣貌(單行提示標題 + streak、
+ * 精簡 footer),只給 demo 展示用;正式 app 用預設的 "full"(完整 header/footer)。
+ */
+export function Panel({ chrome = "full" }: { chrome?: "full" | "minimal" }) {
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
   const isTaskDetailOpen = useUIStore((s) => s.isTaskDetailOpen);
   const isUnlockTreeOpen = useUIStore((s) => s.isUnlockTreeOpen);
@@ -52,7 +56,7 @@ export function Panel() {
         className="wd-panel wd-card"
         data-open={isPanelOpen ? "true" : "false"}
       >
-        <PanelHeader />
+        <PanelHeader chrome={chrome} />
 
         <div className="wd-panel__body">
           {isOffline && (
@@ -78,7 +82,7 @@ export function Panel() {
             ))}
         </div>
 
-        {showFooter && <PanelFooter />}
+        {showFooter && <PanelFooter chrome={chrome} />}
 
         {isTaskDetailOpen && selectedTask && (
           <TaskDetailModal task={selectedTask} />

@@ -15,18 +15,22 @@ export const en: Record<keyof typeof zhTW, string> = {
 
   // Panel header
   "header.greeting": "What do you want to finish today?",
+  "header.prompt": "What matters today?",
   "header.pin": "Pin panel (don't auto-close)",
   "header.unpin": "Unpin",
   "header.settings": "Settings",
   "header.unlockTree": "Abilities",
   "header.streakDays": "{days}d",
+  "header.streakLong": "{days} days",
 
   // Panel footer
   "footer.timeLeft": "{time} left",
+  "footer.points": "+{points} points",
 
   // Task
   "task.slotPlaceholder": "+ Add a task...",
   "task.needsSetup": "Needs setup",
+  "task.focus": "Focus",
   "task.completeAria": "Complete task",
 
   // Task detail modal

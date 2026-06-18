@@ -14,18 +14,22 @@ export const zhTW = {
 
   // Panel header
   "header.greeting": "今天想完成什麼?",
+  "header.prompt": "今天最重要的是什麼?",
   "header.pin": "固定 panel(不自動關閉)",
   "header.unpin": "取消固定",
   "header.settings": "設定",
   "header.unlockTree": "能力配置",
   "header.streakDays": "{days} 天",
+  "header.streakLong": "{days} 天",
 
   // Panel footer
   "footer.timeLeft": "剩 {time}",
+  "footer.points": "+{points} 點",
 
   // Task
   "task.slotPlaceholder": "+ 新增任務...",
   "task.needsSetup": "待設定",
+  "task.focus": "Focus",
   "task.completeAria": "完成任務",
 
   // Task detail modal
