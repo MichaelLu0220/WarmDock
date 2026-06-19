@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { configureGateways, useBootstrap, useUIStore, Panel } from "@warmdock/ui-web";
 import { createDemoGateways } from "../lib/demoGateways";
+import { DemoBookFlip } from "./DemoBookFlip";
 import { DemoCoachmark } from "./DemoCoachmark";
+import { DemoSettlementLink } from "./DemoSettlementLink";
 import { DemoStepCards } from "./DemoStepCards";
 import { DemoTourProvider } from "./DemoTour";
 import { OpenSignInButton } from "./OpenSignInButton";
@@ -64,6 +66,8 @@ function DemoBody() {
 
           <DemoStepCards />
 
+          <DemoSettlementLink />
+
           <p className="wd-demo-note">
             Nothing is saved in the demo.{" "}
             <OpenSignInButton className="wd-demo-note-link">
@@ -74,6 +78,7 @@ function DemoBody() {
         </section>
 
         <Panel chrome="minimal" />
+        <DemoBookFlip />
         <DemoCoachmark />
 
         {/* Sign in 開啟同頁置中字卡(與首頁一致) */}

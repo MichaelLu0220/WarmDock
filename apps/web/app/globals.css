@@ -907,6 +907,12 @@ body {
   cursor: pointer;
 }
 
+/* 結算捷徑按鈕(結算過後、回到任務頁時出現) */
+.wd-demo-summary-btn {
+  margin: 0 0 24px;
+  align-self: flex-start;
+}
+
 /* ── 引導步驟字卡(隨導覽進度切換,可左右翻看) ── */
 .wd-stepcards {
   margin: 8px 0 24px;
@@ -1323,4 +1329,385 @@ body {
 .wd-demo .wd-score:active:not(:disabled) {
   transform: translate(2px, 2px);
   box-shadow: none;
+}
+
+/* ============================================================
+   Demo —— 單任務完成慶祝(導覽第 4 步「The finish detail」)。
+   共用 flash overlay 是 position:fixed,但被釘在已套 transform 的
+   主面板卡內(containing block),demo 卡變小後整段內容擠到溢出、
+   難以辨識。這裡專為小卡重新設計成一張置中、留白舒服的慶祝卡:
+   綠勾徽章 + 以「+N 點」為主角,標題/任務名/提示層次分明。
+   只在 .wd-demo 範圍覆蓋,正式 app 維持原慶祝樣式。
+   ============================================================ */
+.wd-demo .wd-flash {
+  /* 不用半透明暗幕:小卡裡暗幕會讓深色文字(標題/任務/提示)變成
+     深底深字、又透出底下被淡化的任務列,擠在一起看不清。改成與卡片
+     同色的不透明奶油底,慶祝就像卡片本身翻成一張乾淨的成就卡。 */
+  border-radius: 6px;
+  background: var(--wd-cream);
+  background-image: var(--wd-texture);
+}
+.wd-demo .wd-flash__body {
+  justify-content: center;
+  gap: 0;
+  padding: 16px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* 綠勾徽章:實心圓底 + 白勾,取代原本懸空的大金勾 */
+.wd-demo .wd-flash__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  margin: 0 0 12px;
+  font-size: 24px;
+  color: var(--wd-cream);
+  background: var(--wd-green);
+  border: 2px solid var(--wd-border);
+  border-radius: 50%;
+  box-shadow: var(--wd-shadow-sm);
+  animation: wd-flash-pop 0.4s var(--wd-ease-smooth, ease) both;
+}
+
+/* 主角:本次賺到的點數,大字金色 */
+.wd-demo .wd-flash__points {
+  order: 1;
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
+}
+/* 標題「A promise kept.」收在點數下方,中性主色 */
+.wd-demo .wd-flash .wd-ceremony__title {
+  order: 2;
+  margin-top: 10px;
+  font-size: 1.05rem;
+}
+/* 任務名:單行省略,不再 break-all 把字拆碎。
+   flex:none + 明確 line-height:overflow:hidden 會把 flex 項的 min-height
+   降為 0、被壓成一條而把字垂直切掉,這裡固定高度避免被裁。 */
+.wd-demo .wd-flash__task {
+  order: 3;
+  flex: none;
+  max-width: 240px;
+  margin-top: 6px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 提示:最弱的一層,壓在最下方 */
+.wd-demo .wd-flash__hint {
+  order: 4;
+  margin-top: 14px;
+  font-size: 0.76rem;
+  opacity: 0.8;
+}
+
+@keyframes wd-flash-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Demo —— 任務設定畫面(導覽第 2 步「Set the weight」)。
+   共用 modal 也被釘在主面板卡內(同 flash 的 containing block),
+   原本 280px 寬 + 三層 inset 硬框 + 寬鬆內距,在縮小的 demo 卡裡
+   會比卡片還高、上下戳出暗背景之外,且硬框與 demo 柔化像素風不搭。
+   這裡重做成貼合小卡的緊湊版:柔化單層框、收緊每段間距,讓整張卡
+   穩穩落在暗背景內。只在 .wd-demo 範圍覆蓋,正式 app 維持原樣。
+   ============================================================ */
+/* 暗背景跟著卡片圓角(modal / flash 等覆蓋層都被關在卡內) */
+.wd-demo .wd-overlay {
+  border-radius: 6px;
+}
+.wd-demo .wd-modal {
+  box-sizing: border-box;
+  width: calc(100% - 24px);
+  max-width: 320px;
+  padding: 12px 16px;
+  border-width: 2px;
+  border-radius: 8px;
+  /* 取代原本三層 inset 硬框,改用與 demo 其他卡一致的單層柔陰影 */
+  box-shadow: var(--wd-shadow-lg);
+  /* 安全網:內容(例如解鎖 Focus 後多一列)超過小卡時才內捲,
+     正常情況不出現捲軸。overflow-x:hidden 同時防 overflow-y:auto
+     把水平軸一併升級成 auto。 */
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.wd-demo .wd-modal__title {
+  font-size: 1rem;
+}
+.wd-demo .wd-modal__input {
+  margin-top: 6px;
+  padding: 6px 10px;
+}
+.wd-demo .wd-modal__hint {
+  margin-top: 6px;
+}
+.wd-demo .wd-score-row {
+  margin-top: 6px;
+}
+.wd-demo .wd-score {
+  padding: 6px 0;
+  font-size: 1.05rem;
+}
+.wd-demo .wd-modal__focus {
+  margin-top: 8px;
+}
+.wd-demo .wd-modal__confirm {
+  margin-top: 10px;
+  padding: 7px;
+}
+/* 次要動作收成置中文字連結:省下一整顆按鈕的高度,讓 modal 穩穩落在小卡內,
+   視覺也更輕(主行動=確認鈕,離開=低調連結) */
+.wd-demo .wd-modal__later {
+  width: auto;
+  margin: 8px auto 0;
+  padding: 2px 4px;
+  display: block;
+  border: none;
+  background: none;
+  box-shadow: none;
+  font-size: 0.85rem;
+  color: var(--wd-ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.wd-demo .wd-modal__later:hover:not(:disabled) {
+  color: var(--wd-ink);
+  background: none;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============================================================
+   Demo —— 翻書轉場(就地縮放 morph)。app 一律呈現「書的左半頁」,
+   書脊在右緣。完成所有任務 → 結算 = 左頁留在右邊邊輕縮一下、一疊頁從
+   右脊往左翻入(折到右側出畫面)、目標頁內容在尾段疊上來淡入;
+   結算「看任務」→ 任務 = 反向(頁往右掀回)。變形與翻頁「重疊」進行
+   (不等變形做完才翻 → 連貫),由 DemoBookFlip.tsx 的 WAAPI + 以下 CSS
+   共同控制,時間軸常數需與該檔對齊。只在 .wd-demo。
+   ============================================================ */
+
+/* 轉場前段整張卡隱形(書頁負責演出);position:fixed 不影響版面。 */
+.wd-demo .wd-panel.wd-card.wd-card--flipping {
+  visibility: hidden;
+}
+/* 翻書尾段:目標頁內容疊在書(z 60)之上淡入,書在後面收尾。
+   只動 opacity(卡片) + body 的位移,不碰 .wd-panel 本身的 transform
+   (它靠 translateY(-50%) 垂直置中,被覆蓋會跳位)。 */
+.wd-demo .wd-panel.wd-card.wd-card--flip-reveal {
+  z-index: 61;
+  animation: wd-fb-reveal-fade 380ms cubic-bezier(0.33, 0, 0.2, 1) both;
+}
+.wd-demo .wd-panel.wd-card.wd-card--flip-reveal .wd-panel__body {
+  animation: wd-fb-reveal-rise 380ms cubic-bezier(0.33, 0, 0.2, 1) both;
+}
+@keyframes wd-fb-reveal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes wd-fb-reveal-rise {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* 書本容器:WAAPI 以左上為原點做 source→就地輕縮→dest 的位移縮放。 */
+.wd-flipbook {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+/* 透視場(與 morph 分層,互不干擾)。透視拉遠一點 → 翻頁前縮較柔、較絲滑。 */
+.wd-flipbook__stage {
+  position: absolute;
+  inset: 0;
+  perspective: 2400px;
+  perspective-origin: 50% 46%;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 18px 26px rgba(58, 42, 26, 0.22));
+}
+
+.wd-flipbook__base,
+.wd-flipbook__page,
+.wd-flipbook__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+}
+/* 翻完顯露的目的頁底(與卡片同色) */
+.wd-flipbook__base {
+  background: var(--wd-cream);
+  background-image: var(--wd-texture);
+  border: 2px solid var(--wd-border);
+}
+/* 右脊的頁堆厚度暗示 */
+.wd-flipbook__edge {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  right: 0;
+  width: 7px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--wd-border-soft) 0 1px,
+    transparent 1px 3px
+  );
+  opacity: 0.5;
+}
+
+/* 一頁:以右緣為脊做 3D 翻動 */
+.wd-flipbook__page {
+  transform-style: preserve-3d;
+  transform-origin: right center;
+  will-change: transform;
+}
+.wd-flipbook[data-dir="fwd"] .wd-flipbook__page {
+  animation: wd-fb-in var(--fb-dur, 420ms) cubic-bezier(0.37, 0, 0.27, 1) both;
+}
+.wd-flipbook[data-dir="back"] .wd-flipbook__page {
+  animation: wd-fb-out var(--fb-dur, 420ms) cubic-bezier(0.37, 0, 0.27, 1) both;
+}
+/* 往前:頁從右脊(折在右)往左翻入、覆蓋成左頁 */
+@keyframes wd-fb-in {
+  from {
+    transform: rotateY(180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+/* 往回:頁往右掀回 */
+@keyframes wd-fb-out {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(180deg);
+  }
+}
+
+/* 頁面正反兩面:像素書頁(奶油底 + 淡橫紋),背面預先翻 180° */
+.wd-flipbook__face {
+  backface-visibility: hidden;
+  overflow: hidden;
+  background-color: var(--wd-cream);
+  background-image: repeating-linear-gradient(
+    transparent 0 16px,
+    rgba(122, 104, 80, 0.1) 16px 17px
+  );
+  border: 2px solid var(--wd-border);
+}
+.wd-flipbook__face--back {
+  transform: rotateY(180deg);
+}
+
+/* 書頁上的淡內容:一頁日常任務的縮影(標題列 + 打勾任務列) */
+.wd-flipbook__mock {
+  position: absolute;
+  inset: 0;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  opacity: 0.5;
+}
+.wd-flipbook__mock-head {
+  width: 56%;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--wd-border-soft);
+  margin-bottom: 7px;
+}
+.wd-flipbook__mock-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wd-flipbook__mock-row i {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--wd-border-soft);
+  border-radius: 2px;
+}
+.wd-flipbook__mock-row span {
+  flex: 1;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--wd-border-soft);
+}
+/* 已完成的任務列:勾選框填色、文字列淡化(打勾過的感覺) */
+.wd-flipbook__mock-row.is-done i {
+  background: var(--wd-green);
+  border-color: var(--wd-green);
+}
+.wd-flipbook__mock-row.is-done span {
+  opacity: 0.5;
+}
+
+/* 翻動光影:頁面立到約 90° 時最暗,模擬翻頁受光 */
+.wd-flipbook__shade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: wd-fb-shade var(--fb-dur, 420ms) ease-in-out both;
+}
+.wd-flipbook[data-dir="fwd"] .wd-flipbook__shade {
+  background: linear-gradient(
+    to right,
+    rgba(58, 42, 26, 0.5),
+    rgba(58, 42, 26, 0) 62%
+  );
+}
+.wd-flipbook[data-dir="back"] .wd-flipbook__shade {
+  background: linear-gradient(
+    to left,
+    rgba(58, 42, 26, 0.5),
+    rgba(58, 42, 26, 0) 62%
+  );
+}
+@keyframes wd-fb-shade {
+  0% {
+    opacity: 0;
+  }
+  48% {
+    opacity: 0.46;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wd-flipbook {
+    display: none;
+  }
 }

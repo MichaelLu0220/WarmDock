@@ -8,7 +8,16 @@ import {
   useRef,
   useState,
 } from "react";
-import { useTaskStore, useUIStore, useSessionStore } from "@warmdock/ui-web";
+import {
+  configureGateways,
+  getGateways,
+  useTaskStore,
+  useUIStore,
+  useSessionStore,
+  useWalletStore,
+  useUnlockStore,
+} from "@warmdock/ui-web";
+import { buildDemoScene, createDemoGateways } from "../lib/demoGateways";
 
 // 指向面板內不同元素的選擇器(coachmark 泡泡定位用)
 const READY = ".wd-panel .wd-check:not(.wd-check--done):not(:disabled)";
@@ -93,6 +102,42 @@ export const TOUR_STEPS: TourStep[] = [
 
 const indexOfId = (id: TourStepId) => TOUR_STEPS.findIndex((s) => s.id === id);
 
+/**
+ * 跳場:把右側 demo 的 gateway + stores 換成某導覽步驟對應的狀態。
+ * 重設 gateway(讓後續互動仍正確),再以 snapshot 直接灌入 stores
+ * (不走 runBootstrap 的 loading 切換,避免「Loading…」閃一下)。
+ * allTasksCompleted 最後才設,讓 DemoBookFlip 在新內容就緒後才觸發翻書 morph。
+ */
+async function applyScene(step: TourStepId): Promise<void> {
+  const scene = buildDemoScene(step);
+  configureGateways(createDemoGateways(scene.seed));
+  const snap = await getGateways().session.bootstrap();
+
+  useTaskStore.getState().setTasks(snap.tasks);
+  useWalletStore.getState().setWallet(snap.wallet);
+  useUnlockStore.getState().setStatus(snap.unlocks);
+
+  const session = useSessionStore.getState();
+  session.setToday(snap.today ?? "");
+  session.setTodaySummary(snap.summary);
+  session.setDaySettled(snap.settled);
+
+  const ui = useUIStore.getState();
+  ui.closeTaskDetail();
+  ui.hideTaskCompletionFlash();
+  ui.setComposingTask(false);
+
+  session.setAllTasksCompleted(snap.summary?.isAllCompleted ?? false);
+
+  if (scene.ui.modalTaskId) {
+    ui.openTaskDetail(scene.ui.modalTaskId);
+    ui.setComposingTask(true);
+  }
+  if (scene.ui.flash) {
+    ui.showTaskCompletionFlash(scene.ui.flash.title, scene.ui.flash.points);
+  }
+}
+
 type TourValue = {
   steps: TourStep[];
   /** 目前實際進度(由操作自動推進) */
@@ -102,6 +147,8 @@ type TourValue = {
   flashing: boolean;
   /** finish 步已完成、但完成 overlay 尚未出現的空窗 → 泡泡先收起,避免殘留跳動 */
   awaitingOverlay: boolean;
+  /** 手動跳到某步(左側字卡導覽用):同步把右側 demo 切到該步的場景 */
+  jumpTo: (index: number) => void;
 };
 
 const TourContext = createContext<TourValue | null>(null);
@@ -132,6 +179,9 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
   const ceremonySeen = useRef(false);
   const baseCompleted = useRef(0);
   const flashTimer = useRef<number | null>(null);
+  // 手動跳步期間暫停自動推進:跳步的場景是非同步套用的,期間舊狀態
+  // 可能誤觸 advance,把剛跳到的步驟又彈走。
+  const manualJump = useRef(false);
 
   const hasDraft = tasks.some((t) => t.status === "draft");
   const completed = tasks.filter((t) => t.status === "completed").length;
@@ -161,7 +211,7 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
 
   // 完成偵測 + 推進
   useEffect(() => {
-    if (flashing) return;
+    if (flashing || manualJump.current) return;
     switch (step.id) {
       case "add":
         if (hasDraft) advance("weight");
@@ -195,8 +245,25 @@ export function DemoTourProvider({ children }: { children: React.ReactNode }) {
     !completionFlash &&
     !allTasksCompleted;
 
+  // 手動跳步:取消推進中的短閃、把右側 demo 換成該步場景、再切 index。
+  // 場景非同步套用期間暫停自動推進,套用完(+一幀)再恢復。
+  const jumpTo = useCallback((target: number) => {
+    if (target < 0 || target >= TOUR_STEPS.length) return;
+    if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    setFlashing(false);
+    manualJump.current = true;
+    void applyScene(TOUR_STEPS[target].id).finally(() => {
+      requestAnimationFrame(() => {
+        manualJump.current = false;
+      });
+    });
+    setIndex(target);
+  }, []);
+
   return (
-    <TourContext.Provider value={{ steps: TOUR_STEPS, index, step, flashing, awaitingOverlay }}>
+    <TourContext.Provider
+      value={{ steps: TOUR_STEPS, index, step, flashing, awaitingOverlay, jumpTo }}
+    >
       {children}
     </TourContext.Provider>
   );

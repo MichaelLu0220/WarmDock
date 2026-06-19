@@ -86,8 +86,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
       <div className="wd-modal" onClick={(e) => e.stopPropagation()}>
         <h2 className="wd-modal__title">{t("detail.title")}</h2>
         <input
-          className="wd-input"
-          style={{ width: "100%", boxSizing: "border-box", marginTop: 4 }}
+          className="wd-input wd-modal__input"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={isSubmitting}
@@ -98,7 +97,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
           {t("detail.suggestion", { band: difficultyBandLabel(suggested) })}
         </p>
 
-        <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+        <div className="wd-score-row">
           {options.map((score) => (
             <button
               key={score}
@@ -112,17 +111,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
         </div>
 
         {showFocusOption && (
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginTop: 14,
-              fontSize: 13,
-              cursor: "pointer",
-              userSelect: "none",
-            }}
-          >
+          <label className="wd-modal__focus">
             <button
               type="button"
               className={`wd-check ${isFocus ? "wd-check--done" : ""}`}
@@ -137,8 +126,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
 
         <button
           type="button"
-          className="wd-btn wd-btn-primary"
-          style={{ marginTop: 18, width: "100%" }}
+          className="wd-btn wd-btn-primary wd-modal__confirm"
           disabled={!selected || isSubmitting}
           onClick={() => void handleConfirm()}
         >
@@ -149,8 +137,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
             completed until a difficulty is chosen later. */}
         <button
           type="button"
-          className="wd-btn"
-          style={{ marginTop: 10, width: "100%", background: "transparent" }}
+          className="wd-btn wd-modal__later"
           disabled={isSubmitting}
           onClick={() => void handleLater()}
         >

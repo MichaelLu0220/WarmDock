@@ -324,6 +324,36 @@ body,
   color: var(--wd-ink-soft);
   margin-top: 14px;
 }
+/* 任務設定 modal 內部排版:原 inline style 改寫成 class(值不變),
+   讓 .wd-demo 能乾淨覆蓋成適合小卡的緊湊版。 */
+.wd-modal__input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+.wd-score-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.wd-modal__focus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+.wd-modal__confirm {
+  margin-top: 18px;
+  width: 100%;
+}
+.wd-modal__later {
+  margin-top: 10px;
+  width: 100%;
+  background: transparent;
+}
 
 /* 設定面板的小節標籤 */
 .wd-section-label {
@@ -761,6 +791,19 @@ body,
 /* 單任務完成 flash overlay */
 .wd-flash {
   cursor: pointer;
+}
+/* 預設外觀(正式 app):沿用既有 inline 樣式改寫成 class,值不變,
+   只是讓 .wd-demo 能乾淨覆蓋而不必跟 inline style 打 specificity。 */
+.wd-flash__task {
+  max-width: 220px;
+  word-break: break-word;
+}
+.wd-flash__points {
+  margin-top: 16px;
+  font-size: 22px;
+}
+.wd-flash__hint {
+  margin-top: 14px;
 }
 
 /* ============================================================

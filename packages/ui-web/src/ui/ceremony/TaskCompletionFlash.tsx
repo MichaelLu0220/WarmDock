@@ -14,24 +14,14 @@ export function TaskCompletionFlash() {
       onClick={hideTaskCompletionFlash}
       role="button"
     >
-      <div className="wd-ceremony" style={{ pointerEvents: "none" }}>
-        <div className="wd-ceremony__icon">✓</div>
+      <div className="wd-ceremony wd-flash__body" style={{ pointerEvents: "none" }}>
+        <div className="wd-ceremony__icon wd-flash__badge">✓</div>
         <h2 className="wd-ceremony__title">{t("ceremony.flashTitle")}</h2>
-        <p
-          className="wd-ceremony__subtitle"
-          style={{ maxWidth: 220, wordBreak: "break-all" }}
-        >
-          {flash.taskTitle}
-        </p>
-        <div
-          className="wd-ceremony__stat-value wd-ceremony__stat-value--gold"
-          style={{ marginTop: 16, fontSize: 22 }}
-        >
+        <p className="wd-ceremony__subtitle wd-flash__task">{flash.taskTitle}</p>
+        <div className="wd-ceremony__stat-value wd-ceremony__stat-value--gold wd-flash__points">
           {formatPointsDelta(flash.pointsEarned)}
         </div>
-        <p className="wd-modal__hint" style={{ marginTop: 14 }}>
-          {t("ceremony.flashHint")}
-        </p>
+        <p className="wd-modal__hint wd-flash__hint">{t("ceremony.flashHint")}</p>
       </div>
     </div>
   );
