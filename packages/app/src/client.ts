@@ -1,9 +1,9 @@
 /**
  * Gateway injection. The shared UI/app layer is platform-agnostic; each host
- * (web cloud client, or the in-memory demo) configures the gateways once at
- * startup. Mirrors the desktop data/index.ts assembly point, but injectable.
+ * configures gateways once at startup.
  */
 import type {
+  AiGateway,
   RealtimeGateway,
   SessionGateway,
   SettingsGateway,
@@ -16,7 +16,8 @@ export interface UiGateways {
   session: SessionGateway;
   unlock: UnlockGateway;
   settings: SettingsGateway;
-  /** optional — the demo (offline fake data) has no realtime. */
+  ai?: AiGateway;
+  /** optional: the demo/offline fake data has no realtime. */
   realtime?: RealtimeGateway;
 }
 
@@ -28,7 +29,7 @@ export function configureGateways(gateways: UiGateways): void {
 
 export function getGateways(): UiGateways {
   if (!configured) {
-    throw new Error("@warmdock/ui-web: gateways not configured — call configureGateways() first");
+    throw new Error("@warmdock/ui-web: gateways not configured; call configureGateways() first");
   }
   return configured;
 }

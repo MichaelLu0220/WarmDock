@@ -25,6 +25,7 @@ export {
   setTaskDetail,
   completeTask,
 } from "./orchestrators/tasks";
+export { analyzeTaskProposal } from "./orchestrators/ai";
 export { loadUnlockProgress, purchaseUnlock } from "./orchestrators/unlocks";
 export { updateSettings } from "./orchestrators/settings";
 export { runBootstrap, checkConnection } from "./orchestrators/bootstrap";
