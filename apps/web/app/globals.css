@@ -1184,170 +1184,37 @@ body {
 }
 
 /* ============================================================
-   Demo —— 產品本體(共用 <Panel/>)視覺對齊首頁。
-   ui-web 預設是硬核像素(border-radius:0 + 三層重框),首頁則是
-   柔化像素(圓角 + 單層厚框 + hover 浮起)。以下只在 .wd-demo 範圍內
-   覆蓋,讓 demo 左側介紹欄與右側產品本體成為同一套視覺語言;
-   不動 ui-web 共用層(桌面 app 維持原樣),這套通過後再上推。
+   Demo / 正式 app —— 共用 <Panel/> 的「卡片貼合內容」版面。
+   柔化像素外觀(圓角/2px 框/虛線/無框任務列/透明描邊標籤…)已上推
+   ui-web base(packages/ui-web/src/styles/globals.css),三個 host 共用。
+   這裡只留「版面」規則:base .wd-panel 是固定高度(桌面浮窗用),web
+   情境(demo 介紹頁、正式 app stage)要改成貼合內容高度 + 16px 內距。
    ============================================================ */
-
-/* 主面板/能力配置卡:完全對齊首頁 .wd-mock 量測真值
-   —— 2px 框 / 6px 圓角 / 6px6px0 硬陰影 / Zpix 像素字。
-   字體最關鍵:panel 原繼承 apps/web body 的 system-ui(無襯線),
-   這裡改回 --wd-font-body(Zpix)讓整張卡與 mock 同一套像素字。 */
 .wd-demo .wd-panel.wd-card,
-.wd-demo .wd-unlock-tree-card {
-  border-width: 2px;
-  border-radius: 6px;
-  box-shadow: var(--wd-shadow-lg);
-  font-family: var(--wd-font-body);
-}
-/* demo 的主面板貼合內容高度 + mock 的 16px 內距(取代原 14/18) */
-.wd-demo .wd-panel.wd-card {
+.wd-web-stage .wd-panel.wd-card {
   height: auto;
   max-height: calc(100vh - 120px);
   padding: 16px;
 }
-/* 翻書頁陰影遮罩跟著卡片圓角,避免攤平瞬間露出方角 */
-.wd-demo .wd-panel::after {
-  border-radius: 6px;
-}
-
-/* header:像素字、15.2px/600、虛線分隔、下內距 12px(對齊 mock head) */
-.wd-demo .wd-header {
-  border-bottom-style: dashed;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-}
-.wd-demo .wd-header__date {
-  font-size: 1.02rem;
-  font-weight: 600;
-}
-.wd-demo .wd-header__streak {
-  font-size: 0.86rem;
-  font-weight: 700;
-}
-/* footer:像素字、虛線、上內距 11px(對齊 mock foot);字體較 mock 微放大易讀 */
-.wd-demo .wd-footer {
-  border-top-style: dashed;
-  padding-top: 11px;
-  font-size: 0.84rem;
-}
-
-/* 任務列表:去掉額外左右內距讓任務與標題/footer 切齊;列距 8px(對齊 mock) */
-.wd-demo .wd-task-list {
-  padding-left: 0;
-  padding-right: 0;
-  gap: 8px;
-}
-/* 任務列:無框純列 + 收緊內距(mock 的列無額外高度);hover 才浮一層淡底。
-   border 設透明保留 2px 佔位,避免 hover 補框時位移。 */
-.wd-demo .wd-task {
-  background: transparent;
-  border-color: transparent;
-  padding: 2px 4px;
-  gap: 9px;
-}
-.wd-demo .wd-task__title {
-  font-size: 1rem;
-  line-height: 1.2;
-}
-.wd-demo .wd-task:hover {
-  transform: none;
-  box-shadow: none;
-  background: var(--wd-paper);
-  border-radius: 6px;
-}
-.wd-demo .wd-task--dim,
-.wd-demo .wd-task--dim:hover {
-  background: transparent;
-  border-color: transparent;
-}
-
-/* 新增任務輸入列:安靜的無框列,聚焦時才浮出虛線框(對齊 mock 的「+ Add a task…」) */
-.wd-demo .wd-slot {
-  border-color: transparent;
-  background: transparent;
-  padding: 2px 4px;
-  font-size: 1rem;
-}
-.wd-demo .wd-slot:focus {
-  border-style: dashed;
-  border-color: var(--wd-border-soft);
-  background: var(--wd-input-bg);
-  border-radius: 6px;
-}
-
-/* 技能樹場地:收圓角 */
-.wd-demo .wd-unlock-tree-field {
-  border-radius: 6px;
-}
-
-/* 難度 / Focus 標籤:細框、收小、透明描邊,貼近 mock 的 band 樣式
-   (難度=中性灰、Focus=金) */
-.wd-demo .wd-tag {
-  border-width: 1px;
-  border-radius: 3px;
-  font-size: 0.74rem;
-  padding: 1px 6px;
-}
-.wd-demo .wd-tag-blue {
-  background: transparent;
-  border-color: var(--wd-border-soft);
-  color: var(--wd-ink-soft);
-}
-.wd-demo .wd-tag-gold {
-  background: transparent;
-  border-color: var(--wd-gold);
-  color: var(--wd-gold);
-}
-.wd-demo .wd-points-chip {
-  border-radius: 5px;
-}
-
-/* 勾選框:16×16、3px 圓角(對齊 mock box) */
-.wd-demo .wd-check {
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
-  border-radius: 3px;
-}
-
-/* 各式像素按鈕/控制項:圓角 + 與首頁 .wd-btn 一致的 hover 上浮手感 */
-.wd-demo .wd-btn,
-.wd-demo .wd-icon-btn,
-.wd-demo .wd-score,
-.wd-demo .wd-input {
-  border-radius: 6px;
-}
-.wd-demo .wd-icon-btn:hover:not(:disabled),
-.wd-demo .wd-score:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--wd-border);
-}
-.wd-demo .wd-icon-btn:active:not(:disabled),
-.wd-demo .wd-score:active:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-}
 
 /* ============================================================
-   Demo —— 單任務完成慶祝(導覽第 4 步「The finish detail」)。
+   單任務完成慶祝(導覽第 4 步「The finish detail」)。
    共用 flash overlay 是 position:fixed,但被釘在已套 transform 的
-   主面板卡內(containing block),demo 卡變小後整段內容擠到溢出、
-   難以辨識。這裡專為小卡重新設計成一張置中、留白舒服的慶祝卡:
-   綠勾徽章 + 以「+N 點」為主角,標題/任務名/提示層次分明。
-   只在 .wd-demo 範圍覆蓋,正式 app 維持原慶祝樣式。
+   主面板卡內(containing block);web 小卡(demo + 正式 app)若用半透明
+   暗幕,深色文字會變深底深字、又透出底下被淡化的任務列,擠在一起看不清。
+   這裡為小卡重設計成一張置中、留白舒服的成就卡:綠勾徽章 + 以「+N 點」
+   為主角,標題/任務名/提示層次分明。套 .wd-demo 與 .wd-web-stage(正式
+   app);桌面(固定高度卡)維持原慶祝樣式,屬之後共用層統一範圍。
    ============================================================ */
-.wd-demo .wd-flash {
-  /* 不用半透明暗幕:小卡裡暗幕會讓深色文字(標題/任務/提示)變成
-     深底深字、又透出底下被淡化的任務列,擠在一起看不清。改成與卡片
-     同色的不透明奶油底,慶祝就像卡片本身翻成一張乾淨的成就卡。 */
+.wd-demo .wd-flash,
+.wd-web-stage .wd-flash {
+  /* 與卡片同色的不透明奶油底,慶祝就像卡片本身翻成一張乾淨的成就卡。 */
   border-radius: 6px;
   background: var(--wd-cream);
   background-image: var(--wd-texture);
 }
-.wd-demo .wd-flash__body {
+.wd-demo .wd-flash__body,
+.wd-web-stage .wd-flash__body {
   justify-content: center;
   gap: 0;
   padding: 16px;
@@ -1357,7 +1224,8 @@ body {
 }
 
 /* 綠勾徽章:實心圓底 + 白勾,取代原本懸空的大金勾 */
-.wd-demo .wd-flash__badge {
+.wd-demo .wd-flash__badge,
+.wd-web-stage .wd-flash__badge {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1375,14 +1243,16 @@ body {
 }
 
 /* 主角:本次賺到的點數,大字金色 */
-.wd-demo .wd-flash__points {
+.wd-demo .wd-flash__points,
+.wd-web-stage .wd-flash__points {
   order: 1;
   margin: 0;
   font-size: 34px;
   line-height: 1;
 }
 /* 標題「A promise kept.」收在點數下方,中性主色 */
-.wd-demo .wd-flash .wd-ceremony__title {
+.wd-demo .wd-flash .wd-ceremony__title,
+.wd-web-stage .wd-flash .wd-ceremony__title {
   order: 2;
   margin-top: 10px;
   font-size: 1.05rem;
@@ -1390,7 +1260,8 @@ body {
 /* 任務名:單行省略,不再 break-all 把字拆碎。
    flex:none + 明確 line-height:overflow:hidden 會把 flex 項的 min-height
    降為 0、被壓成一條而把字垂直切掉,這裡固定高度避免被裁。 */
-.wd-demo .wd-flash__task {
+.wd-demo .wd-flash__task,
+.wd-web-stage .wd-flash__task {
   order: 3;
   flex: none;
   max-width: 240px;
@@ -1402,7 +1273,8 @@ body {
   text-overflow: ellipsis;
 }
 /* 提示:最弱的一層,壓在最下方 */
-.wd-demo .wd-flash__hint {
+.wd-demo .wd-flash__hint,
+.wd-web-stage .wd-flash__hint {
   order: 4;
   margin-top: 14px;
   font-size: 0.76rem;
@@ -1424,25 +1296,27 @@ body {
 }
 
 /* ============================================================
-   Demo —— 任務設定畫面(導覽第 2 步「Set the weight」)。
+   任務設定畫面(導覽第 2 步「Set the weight」)。
    共用 modal 也被釘在主面板卡內(同 flash 的 containing block),
-   原本 280px 寬 + 三層 inset 硬框 + 寬鬆內距,在縮小的 demo 卡裡
-   會比卡片還高、上下戳出暗背景之外,且硬框與 demo 柔化像素風不搭。
-   這裡重做成貼合小卡的緊湊版:柔化單層框、收緊每段間距,讓整張卡
-   穩穩落在暗背景內。只在 .wd-demo 範圍覆蓋,正式 app 維持原樣。
+   原本 280px 寬 + 三層 inset 硬框 + 寬鬆內距,在 web 小卡裡會比卡片還高、
+   上下戳出暗背景之外,且硬框與柔化像素風不搭。這裡重做成貼合小卡的緊湊版:
+   柔化單層框、收緊每段間距,讓整張卡穩穩落在暗背景內。套 .wd-demo 與
+   .wd-web-stage(正式 app);桌面維持原樣,屬之後共用層統一範圍。
    ============================================================ */
 /* 暗背景跟著卡片圓角(modal / flash 等覆蓋層都被關在卡內) */
-.wd-demo .wd-overlay {
+.wd-demo .wd-overlay,
+.wd-web-stage .wd-overlay {
   border-radius: 6px;
 }
-.wd-demo .wd-modal {
+.wd-demo .wd-modal,
+.wd-web-stage .wd-modal {
   box-sizing: border-box;
   width: calc(100% - 24px);
   max-width: 320px;
   padding: 12px 16px;
   border-width: 2px;
   border-radius: 8px;
-  /* 取代原本三層 inset 硬框,改用與 demo 其他卡一致的單層柔陰影 */
+  /* 取代原本三層 inset 硬框,改用與其他卡一致的單層柔陰影 */
   box-shadow: var(--wd-shadow-lg);
   /* 安全網:內容(例如解鎖 Focus 後多一列)超過小卡時才內捲,
      正常情況不出現捲軸。overflow-x:hidden 同時防 overflow-y:auto
@@ -1451,33 +1325,41 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
 }
-.wd-demo .wd-modal__title {
+.wd-demo .wd-modal__title,
+.wd-web-stage .wd-modal__title {
   font-size: 1rem;
 }
-.wd-demo .wd-modal__input {
+.wd-demo .wd-modal__input,
+.wd-web-stage .wd-modal__input {
   margin-top: 6px;
   padding: 6px 10px;
 }
-.wd-demo .wd-modal__hint {
+.wd-demo .wd-modal__hint,
+.wd-web-stage .wd-modal__hint {
   margin-top: 6px;
 }
-.wd-demo .wd-score-row {
+.wd-demo .wd-score-row,
+.wd-web-stage .wd-score-row {
   margin-top: 6px;
 }
-.wd-demo .wd-score {
+.wd-demo .wd-score,
+.wd-web-stage .wd-score {
   padding: 6px 0;
   font-size: 1.05rem;
 }
-.wd-demo .wd-modal__focus {
+.wd-demo .wd-modal__focus,
+.wd-web-stage .wd-modal__focus {
   margin-top: 8px;
 }
-.wd-demo .wd-modal__confirm {
+.wd-demo .wd-modal__confirm,
+.wd-web-stage .wd-modal__confirm {
   margin-top: 10px;
   padding: 7px;
 }
 /* 次要動作收成置中文字連結:省下一整顆按鈕的高度,讓 modal 穩穩落在小卡內,
    視覺也更輕(主行動=確認鈕,離開=低調連結) */
-.wd-demo .wd-modal__later {
+.wd-demo .wd-modal__later,
+.wd-web-stage .wd-modal__later {
   width: auto;
   margin: 8px auto 0;
   padding: 2px 4px;
@@ -1490,7 +1372,8 @@ body {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.wd-demo .wd-modal__later:hover:not(:disabled) {
+.wd-demo .wd-modal__later:hover:not(:disabled),
+.wd-web-stage .wd-modal__later:hover:not(:disabled) {
   color: var(--wd-ink);
   background: none;
   transform: none;

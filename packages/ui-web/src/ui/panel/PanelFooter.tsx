@@ -9,7 +9,7 @@ import { formatTimeUntilRefresh } from "@warmdock/core/rules/date";
 export function PanelFooter({
   chrome = "full",
 }: {
-  chrome?: "full" | "minimal";
+  chrome?: "full" | "minimal" | "app";
 }) {
   const settings = useSettingsStore((s) => s.settings);
   const tasks = useTaskStore((s) => s.tasks);
@@ -56,6 +56,21 @@ export function PanelFooter({
       <div className="wd-footer wd-footer--minimal">
         <span>
           {t("footer.points", { points: wallet?.pendingTodayPoints ?? 0 })}
+        </span>
+        <span>{t("footer.timeLeft", { time: timeLeft })}</span>
+      </div>
+    );
+  }
+
+  // 正式 web app:精簡卡 footer,但保留進度 —— 點數 / 完成進度 / 剩餘時間
+  if (chrome === "app") {
+    return (
+      <div className="wd-footer wd-footer--app">
+        <span>
+          {t("footer.points", { points: wallet?.pendingTodayPoints ?? 0 })}
+        </span>
+        <span>
+          <span style={{ color: "var(--wd-green)" }}>✓</span> {completed}/{total}
         </span>
         <span>{t("footer.timeLeft", { time: timeLeft })}</span>
       </div>

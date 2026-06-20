@@ -13,7 +13,7 @@ export function PanelStage() {
 
   return (
     <div className="wd-web-stage">
-      <Panel />
+      <Panel chrome="app" />
     </div>
   );
 }

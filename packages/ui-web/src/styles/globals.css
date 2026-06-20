@@ -79,16 +79,15 @@ body,
     var(--wd-shadow-lg);
 }
 
-/* 舊名相容:主卡片 */
+/* 舊名相容:主卡片。
+   柔化像素(原硬核三層重框 → 單層 2px 框 + 圓角),由 demo 扶正成共用底樣。 */
 .wd-card {
   background-color: var(--wd-cream);
   background-image: var(--wd-texture);
-  border: 3px solid var(--wd-border);
-  box-shadow:
-    inset 0 0 0 2px var(--wd-cream),
-    inset 0 0 0 4px var(--wd-border-soft),
-    var(--wd-shadow-lg);
-  border-radius: 0;
+  border: 2px solid var(--wd-border);
+  box-shadow: var(--wd-shadow-lg);
+  border-radius: 6px;
+  font-family: var(--wd-font-body);
 }
 
 /* 像素按鈕 */
@@ -101,7 +100,7 @@ body,
   padding: 6px 12px;
   cursor: pointer;
   box-shadow: var(--wd-shadow-sm);
-  border-radius: 0;
+  border-radius: 6px;
   transition:
     background var(--wd-dur-fast) var(--wd-ease-smooth),
     transform var(--wd-dur-fast) var(--wd-ease-smooth);
@@ -150,7 +149,7 @@ body,
   box-shadow: var(--wd-shadow-sm);
   padding: 4px 8px;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: 6px;
   line-height: 1;
   transition:
     background var(--wd-dur-fast) var(--wd-ease-smooth),
@@ -158,6 +157,8 @@ body,
 }
 .wd-icon-btn:hover {
   background: var(--wd-gold-soft);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--wd-border);
 }
 .wd-icon-btn:active {
   transform: translate(2px, 2px);
@@ -179,7 +180,7 @@ body,
   border: 2px solid var(--wd-border-soft);
   padding: 8px 10px;
   outline: none;
-  border-radius: 0;
+  border-radius: 6px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -194,27 +195,29 @@ body,
 /* 小標籤 */
 .wd-tag {
   font-family: var(--wd-font-body);
-  font-size: var(--wd-fs-sm);
+  font-size: 0.74rem;
   padding: 1px 6px;
-  border: 2px solid var(--wd-border);
+  border: 1px solid var(--wd-border);
   background: var(--wd-cream);
-  border-radius: 0;
+  border-radius: 3px;
   line-height: 1;
 }
 .wd-tag-gold {
-  background: var(--wd-gold-soft);
+  background: transparent;
   border-color: var(--wd-gold);
+  color: var(--wd-gold);
 }
 .wd-tag-blue {
-  background: var(--wd-blue-soft);
-  border-color: var(--wd-blue);
+  background: transparent;
+  border-color: var(--wd-border-soft);
+  color: var(--wd-ink-soft);
 }
 
 /* 像素 checkbox(18×18 固定,不被 flex 壓) */
 .wd-check {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -223,7 +226,7 @@ body,
   background: var(--wd-cream);
   border: 2px solid var(--wd-border);
   cursor: pointer;
-  border-radius: 0;
+  border-radius: 3px;
   box-shadow: var(--wd-shadow-sm);
   transition: background var(--wd-dur-fast) var(--wd-ease-smooth);
 }
@@ -265,12 +268,14 @@ body,
   border: 2px solid var(--wd-border);
   padding: 8px 0;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: 6px;
   box-shadow: var(--wd-shadow-sm);
   transition: background var(--wd-dur-fast) var(--wd-ease-smooth);
 }
 .wd-score:hover {
   background: var(--wd-gold-soft);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--wd-border);
 }
 .wd-score:active {
   transform: translate(2px, 2px);
@@ -477,6 +482,7 @@ body,
   content: "";
   position: absolute;
   inset: 0;
+  border-radius: 6px;
   pointer-events: none;
   z-index: 30;
   background: linear-gradient(
@@ -543,9 +549,9 @@ body,
 
 /* Header */
 .wd-header {
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-  border-bottom: 2px solid var(--wd-border-soft);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 2px dashed var(--wd-border-soft);
 }
 .wd-header__row {
   display: flex;
@@ -553,8 +559,8 @@ body,
 }
 .wd-header__date {
   margin: 0;
-  font-size: var(--wd-fs-lg);
-  font-weight: 700;
+  font-size: 1.02rem;
+  font-weight: 600;
   color: var(--wd-ink);
 }
 .wd-header__greeting {
@@ -577,7 +583,8 @@ body,
 }
 .wd-header__streak {
   margin-left: auto;
-  font-size: var(--wd-fs-sm);
+  font-size: 0.86rem;
+  font-weight: 700;
   color: var(--wd-orange);
 }
 
@@ -586,6 +593,17 @@ body,
   align-items: center;
 }
 .wd-footer.wd-footer--minimal {
+  justify-content: space-between;
+  text-align: left;
+  flex-wrap: nowrap;
+}
+
+/* app 變體(正式 web app):minimal 的乾淨精簡卡視覺,但保留功能 ——
+   header 第一行 = 提示標題 + ⚙設定/✦能力樹;第二行 = 點數錢包 + streak。 */
+.wd-header--app .wd-header__row {
+  align-items: center;
+}
+.wd-footer.wd-footer--app {
   justify-content: space-between;
   text-align: left;
   flex-wrap: nowrap;
@@ -612,10 +630,10 @@ body,
 
 /* Footer */
 .wd-footer {
-  padding-top: 8px;
+  padding-top: 11px;
   margin-top: 4px;
-  border-top: 2px solid var(--wd-border-soft);
-  font-size: var(--wd-fs-xs);
+  border-top: 2px dashed var(--wd-border-soft);
+  font-size: 0.84rem;
   color: var(--wd-ink-soft);
   text-align: center;
   display: flex;
@@ -641,16 +659,16 @@ body,
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 0 18px 4px 16px;
+  padding: 0 0 4px;
 }
 
 .wd-slot {
   font-family: var(--wd-font-body);
-  font-size: var(--wd-fs-md);
+  font-size: 1rem;
   color: var(--wd-ink);
-  background: var(--wd-paper);
-  border: 2px dashed var(--wd-border-soft);
-  padding: 10px 12px;
+  background: transparent;
+  border: 2px dashed transparent;
+  padding: 2px 4px;
   outline: none;
   border-radius: 0;
   width: 100%;
@@ -661,9 +679,10 @@ body,
   color: var(--wd-dim);
 }
 .wd-slot:focus {
-  border-style: solid;
-  border-color: var(--wd-border);
+  border-style: dashed;
+  border-color: var(--wd-border-soft);
   background: var(--wd-input-bg);
+  border-radius: 6px;
 }
 .wd-slot:disabled {
   opacity: 0.5;
@@ -673,10 +692,10 @@ body,
 .wd-task {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--wd-cream);
-  border: 2px solid var(--wd-border);
+  gap: 9px;
+  padding: 2px 4px;
+  background: transparent;
+  border: 2px solid transparent;
   cursor: default;
   width: 100%;
   box-sizing: border-box;
@@ -685,25 +704,29 @@ body,
     box-shadow var(--wd-dur-fast) var(--wd-ease-smooth);
 }
 .wd-task:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--wd-shadow-sm);
+  transform: none;
+  box-shadow: none;
+  background: var(--wd-paper);
+  border-radius: 6px;
 }
 .wd-task--dim {
-  background: var(--wd-paper);
-  border-color: var(--wd-border-soft);
+  background: transparent;
+  border-color: transparent;
   color: var(--wd-dim);
 }
 .wd-task--dim:hover {
   transform: none;
   box-shadow: none;
+  background: transparent;
+  border-color: transparent;
 }
 .wd-task--completing {
   animation: wd-task-complete 420ms steps(6, end);
 }
 .wd-task__title {
   flex: 1;
-  font-size: var(--wd-fs-md);
-  line-height: 1.3;
+  font-size: 1rem;
+  line-height: 1.2;
   word-break: break-all;
 }
 .wd-task--dim .wd-task__title {
@@ -830,15 +853,13 @@ body,
   box-sizing: border-box;
   background-color: var(--wd-cream);
   background-image: var(--wd-texture);
-  border: 3px solid var(--wd-border);
-  box-shadow:
-    inset 0 0 0 2px var(--wd-cream),
-    inset 0 0 0 4px var(--wd-border-soft),
-    var(--wd-shadow-lg);
+  border: 2px solid var(--wd-border);
+  box-shadow: var(--wd-shadow-lg);
   padding: 14px 18px; /* 與 .wd-panel 一致 */
   display: flex;
   flex-direction: column;
-  border-radius: 0;
+  border-radius: 6px;
+  font-family: var(--wd-font-body);
   transform: translateY(-50%);
   transform-origin: 100% 50%;
   backface-visibility: hidden;
@@ -923,6 +944,7 @@ html.wd-card-instant .wd-unlock-tree-card {
   background: var(--wd-gold-soft);
   border: 2px solid var(--wd-gold);
   box-shadow: var(--wd-shadow-sm);
+  border-radius: 5px;
   flex-shrink: 0;
 }
 .wd-points-chip__icon {
@@ -938,6 +960,7 @@ html.wd-card-instant .wd-unlock-tree-card {
   background-image: var(--wd-texture);
   border: 2px solid var(--wd-border-soft);
   box-shadow: inset 2px 2px 0 rgba(58, 42, 26, 0.12);
+  border-radius: 6px;
 }
 
 .wd-unlock-tree-hint {

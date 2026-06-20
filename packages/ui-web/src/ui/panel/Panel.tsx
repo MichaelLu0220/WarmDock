@@ -17,10 +17,16 @@ import { PanelFooter } from "./PanelFooter";
 import { PanelHeader } from "./PanelHeader";
 
 /**
- * chrome="minimal" 收斂面板外殼成「首頁 mock 卡」樣貌(單行提示標題 + streak、
- * 精簡 footer),只給 demo 展示用;正式 app 用預設的 "full"(完整 header/footer)。
+ * chrome 外殼三型:
+ *  - "full"    完整 header/footer(桌面 app 預設)。
+ *  - "minimal" 收斂成「首頁 mock 卡」(單行提示標題 + streak、精簡 footer),demo 展示用。
+ *  - "app"     正式 web app:minimal 的乾淨精簡視覺,但保留設定/能力樹/點數/進度等功能。
  */
-export function Panel({ chrome = "full" }: { chrome?: "full" | "minimal" }) {
+export function Panel({
+  chrome = "full",
+}: {
+  chrome?: "full" | "minimal" | "app";
+}) {
   const isPanelOpen = useUIStore((s) => s.isPanelOpen);
   const isTaskDetailOpen = useUIStore((s) => s.isTaskDetailOpen);
   const isUnlockTreeOpen = useUIStore((s) => s.isUnlockTreeOpen);

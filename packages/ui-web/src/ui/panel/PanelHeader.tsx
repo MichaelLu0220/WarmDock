@@ -15,7 +15,7 @@ const PULSE_DURATION_MS = 220;
 export function PanelHeader({
   chrome = "full",
 }: {
-  chrome?: "full" | "minimal";
+  chrome?: "full" | "minimal" | "app";
 }) {
   const wallet = useWalletStore((s) => s.wallet);
   const headerFlash = useUIStore((s) => s.headerPointsFlash);
@@ -104,6 +104,74 @@ export function PanelHeader({
             </span>
           )}
         </div>
+      </div>
+    );
+  }
+
+  // 正式 web app:minimal 的乾淨單行提示標題,但保留 ⚙設定 / ✦能力樹 與點數錢包列
+  // (省略 ● 釘選 —— 桌面 auto-hide 專屬,web 無意義)。
+  if (chrome === "app") {
+    return (
+      <div className="wd-header wd-header--app">
+        <div className="wd-header__row">
+          <h1 className="wd-header__date" style={{ flex: 1 }}>
+            {t("header.prompt")}
+          </h1>
+          <div className="wd-header__actions">
+            <button
+              type="button"
+              className="wd-icon-btn"
+              onClick={openSettings}
+              aria-label={t("header.settings")}
+              title={t("header.settings")}
+            >
+              {"⚙︎"}
+            </button>
+            <button
+              type="button"
+              className="wd-icon-btn"
+              onClick={() => void openUnlockTree()}
+              aria-label={t("header.unlockTree")}
+              title={t("header.unlockTree")}
+            >
+              ✦
+            </button>
+          </div>
+        </div>
+
+        {wallet && walletDisplay && (
+          <div className="wd-header__wallet">
+            <span style={{ color: "var(--wd-gold)" }}>◆</span>
+            <span style={{ fontWeight: 700 }}>{walletDisplay.main}</span>
+            {walletDisplay.suffix && (
+              <span
+                className={
+                  pulseOn
+                    ? "wd-header-pending wd-header-pending--pulse"
+                    : "wd-header-pending"
+                }
+              >
+                {walletDisplay.suffix}
+              </span>
+            )}
+            {todayUnlockSpent > 0 && (
+              <span style={{ color: "var(--wd-orange)" }}>
+                (-{formatPoints(todayUnlockSpent)})
+              </span>
+            )}
+            {wallet.streakDays > 0 && (
+              <span className="wd-header__streak">
+                🔥 {t("header.streakLong", { days: wallet.streakDays })}
+              </span>
+            )}
+
+            {localFlash && (
+              <span key={localFlash.id} className="wd-header-flash">
+                +{formatPoints(localFlash.amount)}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     );
   }
