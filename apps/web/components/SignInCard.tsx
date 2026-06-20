@@ -24,6 +24,7 @@ export function SignInCard({ onClose }: { onClose?: () => void }) {
   const [ageOk, setAgeOk] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   async function sendOtp(e: FormEvent) {
     e.preventDefault();
@@ -62,11 +63,14 @@ export function SignInCard({ onClose }: { onClose?: () => void }) {
       setError("Please confirm you are 13 or older.");
       return;
     }
+    setGoogleBusy(true);
     setError(null);
     try {
+      // 成功時瀏覽器會直接跳轉到 Google,本頁卸載,故不需重置 googleBusy。
       await getWarmDockClient().auth.signInWithGoogle(`${window.location.origin}/app`);
     } catch (err) {
       setError(message(err));
+      setGoogleBusy(false);
     }
   }
 
@@ -90,8 +94,12 @@ export function SignInCard({ onClose }: { onClose?: () => void }) {
         <span>I am 13 or older</span>
       </label>
 
-      <button className="wd-btn block ghost" onClick={google} disabled={busy || !ageOk}>
-        Continue with Google
+      <button
+        className="wd-btn block ghost"
+        onClick={google}
+        disabled={busy || googleBusy || !ageOk}
+      >
+        {googleBusy ? "Connecting…" : "Continue with Google"}
       </button>
 
       <div className="wd-auth-divider">
@@ -108,7 +116,7 @@ export function SignInCard({ onClose }: { onClose?: () => void }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <button className="wd-btn block" type="submit" disabled={busy || !ageOk}>
+          <button className="wd-btn block" type="submit" disabled={busy || googleBusy || !ageOk}>
             {busy ? "Sending…" : "Email me a sign-in code"}
           </button>
         </form>
