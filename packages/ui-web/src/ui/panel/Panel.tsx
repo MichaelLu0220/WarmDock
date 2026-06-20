@@ -94,7 +94,7 @@ export function Panel({
           <TaskDetailModal task={selectedTask} />
         )}
 
-        {isSettingsOpen && <SettingsPanel />}
+        {isSettingsOpen && <SettingsPanel chrome={chrome} />}
 
         <TaskCompletionFlash />
       </div>

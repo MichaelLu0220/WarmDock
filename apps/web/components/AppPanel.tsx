@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { configureGateways, useBootstrap } from "@warmdock/ui-web";
+import { configureAuthActions, configureGateways, useBootstrap } from "@warmdock/ui-web";
 import { getWarmDockClient } from "../lib/supabaseClient";
 import { PanelStage } from "./PanelStage";
 import { RecoveryGate } from "./RecoveryGate";
@@ -18,6 +18,8 @@ export function AppPanel() {
   const check = useCallback(async () => {
     const client = getWarmDockClient();
     configureGateways(client);
+    // 讓共用 SettingsPanel 的「登出」在 web 也能用(桌面在 App.tsx 注入,web 在此)
+    configureAuthActions({ signOut: () => client.auth.signOut() });
     const session = await client.auth.getSession();
     if (!session) {
       router.replace("/sign-in");

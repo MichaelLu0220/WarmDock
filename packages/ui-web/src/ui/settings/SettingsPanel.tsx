@@ -22,11 +22,19 @@ const PANEL_WIDTH_OPTIONS = [
   { value: 360, labelKey: "settings.widthWide" },
 ] as const;
 
-export function SettingsPanel() {
+export function SettingsPanel({
+  chrome = "full",
+}: {
+  chrome?: "full" | "minimal" | "app";
+}) {
   const settings = useSettingsStore((s) => s.settings);
   const closeSettings = useUIStore((s) => s.closeSettings);
   const unlocks = useUnlockStore((s) => s.status);
   const auth = getAuthActions();
+
+  // web app(chrome 非 "full")沒有原生視窗:面板寬度、失焦自動收合(pin)、
+  // 結束 app(quit)都是桌面浮窗專屬,在瀏覽器分頁裡無意義,故隱藏。
+  const isDesktop = chrome === "full";
 
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,46 +82,50 @@ export function SettingsPanel() {
           ))}
         </div>
 
-        <p className="wd-section-label">{t("settings.panelWidth")}</p>
-        <div style={{ display: "flex", gap: 8 }}>
-          {PANEL_WIDTH_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              className={`wd-score ${
-                settings.panelWidth === opt.value ? "wd-score--selected" : ""
-              }`}
-              style={{ fontSize: 13 }}
-              onClick={() => void apply({ panelWidth: opt.value })}
-            >
-              {t(opt.labelKey)}
-            </button>
-          ))}
-        </div>
+        {isDesktop && (
+          <>
+            <p className="wd-section-label">{t("settings.panelWidth")}</p>
+            <div style={{ display: "flex", gap: 8 }}>
+              {PANEL_WIDTH_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`wd-score ${
+                    settings.panelWidth === opt.value ? "wd-score--selected" : ""
+                  }`}
+                  style={{ fontSize: 13 }}
+                  onClick={() => void apply({ panelWidth: opt.value })}
+                >
+                  {t(opt.labelKey)}
+                </button>
+              ))}
+            </div>
 
-        <p className="wd-section-label">{t("settings.behavior")}</p>
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            fontSize: 13,
-            cursor: "pointer",
-            userSelect: "none",
-          }}
-        >
-          <button
-            type="button"
-            className={`wd-check ${settings.pinEnabled ? "wd-check--done" : ""}`}
-            aria-label={t("settings.pinLabel")}
-            onClick={() => void apply({ pinEnabled: !settings.pinEnabled })}
-          />
-          <span
-            onClick={() => void apply({ pinEnabled: !settings.pinEnabled })}
-          >
-            {t("settings.pinLabel")}
-          </span>
-        </label>
+            <p className="wd-section-label">{t("settings.behavior")}</p>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+            >
+              <button
+                type="button"
+                className={`wd-check ${settings.pinEnabled ? "wd-check--done" : ""}`}
+                aria-label={t("settings.pinLabel")}
+                onClick={() => void apply({ pinEnabled: !settings.pinEnabled })}
+              />
+              <span
+                onClick={() => void apply({ pinEnabled: !settings.pinEnabled })}
+              >
+                {t("settings.pinLabel")}
+              </span>
+            </label>
+          </>
+        )}
 
         {isRefreshTimeSettingVisible(unlocks) && (
           <>
@@ -153,14 +165,16 @@ export function SettingsPanel() {
           </button>
         )}
 
-        <button
-          type="button"
-          className="wd-btn wd-btn-quit"
-          style={{ marginTop: 10, width: "100%" }}
-          onClick={() => void quitApp()}
-        >
-          {t("settings.quit")}
-        </button>
+        {isDesktop && (
+          <button
+            type="button"
+            className="wd-btn wd-btn-quit"
+            style={{ marginTop: 10, width: "100%" }}
+            onClick={() => void quitApp()}
+          >
+            {t("settings.quit")}
+          </button>
+        )}
       </div>
     </div>
   );
