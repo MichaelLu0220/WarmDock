@@ -7,6 +7,7 @@ describe("resolveTaskSuggestion", () => {
       suggestedBand: "hard",
       suggestedScore: null,
       aiAvailable: false,
+      sourceLabel: null,
     });
   });
 
@@ -24,6 +25,7 @@ describe("resolveTaskSuggestion", () => {
       suggestedBand: "easy",
       suggestedScore: 2,
       aiAvailable: true,
+      sourceLabel: "by WarmAI",
     });
   });
 
@@ -41,6 +43,7 @@ describe("resolveTaskSuggestion", () => {
       suggestedBand: "easy",
       suggestedScore: null,
       aiAvailable: false,
+      sourceLabel: null,
     });
   });
 });
