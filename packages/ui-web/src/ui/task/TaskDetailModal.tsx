@@ -8,6 +8,7 @@ import { canShowFocusTaskOption } from "@warmdock/core/rules/unlock";
 import { DIFFICULTY_OPTIONS } from "@warmdock/core/rules/task";
 import type { Difficulty, Task } from "@warmdock/core/types";
 import { resolveTaskSuggestion } from "./aiSuggestion";
+import { scheduleTaskAnalysis } from "./taskAnalysisScheduler";
 
 type TaskDetailModalProps = {
   task: Task;
@@ -50,28 +51,15 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
 
   useEffect(() => {
     const trimmed = title.trim();
-    let cancelled = false;
     setAnalysis(null);
 
-    if (!trimmed) {
-      setIsAnalyzing(false);
-      return;
-    }
-
-    setIsAnalyzing(true);
-    void analyzeTaskProposal(trimmed)
-      .then((result) => {
-        if (cancelled) return;
-        setAnalysis(result);
-        if (result.available) setSelected(result.suggestedScore);
-      })
-      .finally(() => {
-        if (!cancelled) setIsAnalyzing(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return scheduleTaskAnalysis({
+      title: trimmed,
+      analyze: analyzeTaskProposal,
+      onAnalysis: setAnalysis,
+      onSelectedScore: setSelected,
+      onAnalyzingChange: setIsAnalyzing,
+    });
   }, [title]);
 
   const handleConfirm = async () => {
