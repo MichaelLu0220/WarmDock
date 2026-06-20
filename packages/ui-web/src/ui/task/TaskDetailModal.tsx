@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { discardTask, setTaskDetail, updateTaskTitle } from "@warmdock/app";
+import { analyzeTaskProposal, discardTask, setTaskDetail, updateTaskTitle } from "@warmdock/app";
 import { useUIStore } from "@warmdock/app";
 import { useUnlockStore } from "@warmdock/app";
+import type { AiAnalysis } from "@warmdock/api";
 import { difficultyBandLabel, t } from "@warmdock/core/i18n";
 import { canShowFocusTaskOption } from "@warmdock/core/rules/unlock";
-import { DIFFICULTY_OPTIONS, suggestDifficulty } from "@warmdock/core/rules/task";
+import { DIFFICULTY_OPTIONS } from "@warmdock/core/rules/task";
 import type { Difficulty, Task } from "@warmdock/core/types";
+import { resolveTaskSuggestion } from "./aiSuggestion";
 
 type TaskDetailModalProps = {
   task: Task;
@@ -20,9 +22,12 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
   const [selected, setSelected] = useState<Difficulty | null>(null);
   const [isFocus, setIsFocus] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [analysis, setAnalysis] = useState<AiAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // suggestion follows the (possibly edited) title
-  const suggested = suggestDifficulty(title);
+  const suggestion = resolveTaskSuggestion(title, analysis);
+  const suggested = suggestion.suggestedBand;
   const options = DIFFICULTY_OPTIONS[suggested];
   const showFocusOption = canShowFocusTaskOption(unlocks);
 
@@ -42,6 +47,32 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
       setTimeout(() => document.body.focus(), 10);
     };
   }, [setComposingTask]);
+
+  useEffect(() => {
+    const trimmed = title.trim();
+    let cancelled = false;
+    setAnalysis(null);
+
+    if (!trimmed) {
+      setIsAnalyzing(false);
+      return;
+    }
+
+    setIsAnalyzing(true);
+    void analyzeTaskProposal(trimmed)
+      .then((result) => {
+        if (cancelled) return;
+        setAnalysis(result);
+        if (result.available) setSelected(result.suggestedScore);
+      })
+      .finally(() => {
+        if (!cancelled) setIsAnalyzing(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [title]);
 
   const handleConfirm = async () => {
     if (!selected || isSubmitting) return;
@@ -95,6 +126,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
 
         <p className="wd-modal__hint">
           {t("detail.suggestion", { band: difficultyBandLabel(suggested) })}
+          {isAnalyzing ? " ..." : ""}
         </p>
 
         <div className="wd-score-row">

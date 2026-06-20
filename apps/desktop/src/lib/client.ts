@@ -1,4 +1,9 @@
-import { createWarmDockClient, type WarmDockClient } from "@warmdock/api";
+import {
+  createLocalWarmAiGateway,
+  createWarmDockClient,
+  type WarmDockClient,
+} from "@warmdock/api";
+import { warmAiConfigFromEnv } from "./warmaiConfig";
 
 const env = import.meta.env as Record<string, string | undefined>;
 const SUPABASE_URL = env.VITE_SUPABASE_URL ?? "http://127.0.0.1:54321";
@@ -15,6 +20,7 @@ export function getClient(): WarmDockClient {
       supabaseKey: SUPABASE_KEY,
       auth: { persistSession: true, autoRefreshToken: true },
     });
+    client.ai = createLocalWarmAiGateway(warmAiConfigFromEnv(env));
   }
   return client;
 }
