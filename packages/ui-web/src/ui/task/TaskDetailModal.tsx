@@ -126,6 +126,7 @@ export function TaskDetailModal({ task }: TaskDetailModalProps) {
 
         <p className="wd-modal__hint">
           {t("detail.suggestion", { band: difficultyBandLabel(suggested) })}
+          {suggestion.sourceLabel ? ` · ${suggestion.sourceLabel}` : ""}
           {isAnalyzing ? " ..." : ""}
         </p>
 

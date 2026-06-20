@@ -6,6 +6,7 @@ export interface TaskSuggestionState {
   suggestedBand: DifficultyBand;
   suggestedScore: Difficulty | null;
   aiAvailable: boolean;
+  sourceLabel: "by WarmAI" | null;
 }
 
 export function resolveTaskSuggestion(
@@ -17,6 +18,7 @@ export function resolveTaskSuggestion(
       suggestedBand: analysis.suggestedBand,
       suggestedScore: analysis.suggestedScore,
       aiAvailable: true,
+      sourceLabel: "by WarmAI",
     };
   }
 
@@ -24,5 +26,6 @@ export function resolveTaskSuggestion(
     suggestedBand: suggestDifficulty(title),
     suggestedScore: null,
     aiAvailable: false,
+    sourceLabel: null,
   };
 }
