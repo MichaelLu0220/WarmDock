@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WarmDock Abilities Page-in-Page Canvas Mockup</title>
+  <style>
+    @font-face {
+      font-family: "Zpix";
+      src: url("../apps/desktop/public/fonts/zpix.ttf") format("truetype");
+      font-display: swap;
+    }
+
+    :root {
+      --page: #efe5cf;
+      --paper: #fff8e7;
+      --ink: #3a2a1a;
+      --ink-soft: #7a6850;
+      --border: #6b4a2b;
+      --gold-soft: #e8c479;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        linear-gradient(45deg, rgba(107, 74, 43, 0.04) 25%, transparent 25%) 0 0 / 8px 8px,
+        linear-gradient(45deg, transparent 75%, rgba(107, 74, 43, 0.04) 75%) 0 0 / 8px 8px,
+        var(--page);
+      color: var(--ink);
+      font-family: "Zpix", "Courier New", monospace;
+    }
+
+    .wrap {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+    }
+
+    .toolbar {
+      width: min(572px, calc(100vw - 40px));
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    .toolbar strong {
+      color: var(--ink);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button {
+      border: 2px solid var(--border);
+      background: var(--gold-soft);
+      color: var(--ink);
+      padding: 5px 8px;
+      border-radius: 6px;
+      font: inherit;
+      box-shadow: 2px 2px 0 var(--border);
+      cursor: pointer;
+    }
+
+    canvas {
+      width: min(572px, calc(100vw - 40px));
+      height: auto;
+      image-rendering: pixelated;
+      border-radius: 8px;
+      box-shadow: 8px 8px 0 rgba(58, 42, 26, 0.82);
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="toolbar">
+      <span><strong>Page-in-page abilities</strong> / click cards inside the canvas</span>
+      <span class="buttons">
+        <button type="button" data-view="overview">overview</button>
+        <button type="button" data-view="capacity">capacity</button>
+        <button type="button" data-view="today">today</button>
+      </span>
+    </div>
+    <canvas id="mockup" width="572" height="389" aria-label="WarmDock abilities page-in-page canvas mockup"></canvas>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("mockup");
+    const ctx = canvas.getContext("2d");
+    const font = '"Zpix", "Courier New", monospace';
+
+    const C = {
+      paper: "#fff8e7",
+      paperSoft: "#f4ecd8",
+      paperDeep: "#e9dcc0",
+      ink: "#3a2a1a",
+      inkSoft: "#7a6850",
+      border: "#6b4a2b",
+      borderSoft: "#a68963",
+      gold: "#d9a441",
+      goldSoft: "#e8c479",
+      glow: "#ffe9b0",
+      green: "#6b8a3a",
+      red: "#c05640",
+      blue: "#6b8ba4",
+      dim: "#b8a88c",
+    };
+
+    let view = "overview";
+    let selected = "slots4";
+    let press = 0;
+    let ripple = { x: 0, y: 0, t: 0 };
+
+    const hit = {
+      core: [70, 166, 116, 78],
+      capacity: [198, 166, 166, 78],
+      today: [376, 166, 80, 78],
+      review: [468, 166, 84, 78],
+      suggest: [70, 262, 482, 58],
+      back: [70, 74, 58, 30],
+    };
+
+    function roundedRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function box(x, y, w, h, fill, stroke = C.border, line = 3, dashed = false, r = 7) {
+      ctx.save();
+      roundedRect(x, y, w, h, r);
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = line;
+      ctx.setLineDash(dashed ? [6, 6] : []);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function text(value, x, y, size, color = C.ink, weight = "normal", align = "left") {
+      ctx.save();
+      ctx.font = `${weight} ${size}px ${font}`;
+      ctx.fillStyle = color;
+      ctx.textAlign = align;
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(value, x, y);
+      ctx.restore();
+    }
+
+    function diamond(x, y, size, color = C.gold) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = color;
+      ctx.fillRect(-size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+
+    function sparkle(x, y, size, color = C.ink) {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.lineTo(x + size * 0.3, y - size * 0.3);
+      ctx.lineTo(x + size, y);
+      ctx.lineTo(x + size * 0.3, y + size * 0.3);
+      ctx.lineTo(x, y + size);
+      ctx.lineTo(x - size * 0.3, y + size * 0.3);
+      ctx.lineTo(x - size, y);
+      ctx.lineTo(x - size * 0.3, y - size * 0.3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function gridIcon(cx, cy, count, color = C.ink, cell = 7, gap = 4) {
+      const cols = 3;
+      const rows = Math.ceil(count / cols);
+      const totalW = cols * cell + (cols - 1) * gap;
+      const totalH = rows * cell + (rows - 1) * gap;
+      ctx.fillStyle = color;
+      for (let i = 0; i < count; i += 1) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        ctx.fillRect(cx - totalW / 2 + col * (cell + gap), cy - totalH / 2 + row * (cell + gap), cell, cell);
+      }
+    }
+
+    function clockIcon(x, y, color = C.ink) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y, 13, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y - 8);
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 8, y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function dashLine(x1, y1, x2, y2) {
+      ctx.save();
+      ctx.strokeStyle = C.borderSoft;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([7, 5]);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawTexture() {
+      ctx.fillStyle = C.paper;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(107, 74, 43, 0.045)";
+      for (let y = 0; y < canvas.height; y += 8) {
+        for (let x = 0; x < canvas.width; x += 8) {
+          if (((x + y) / 8) % 2 === 0) ctx.fillRect(x, y, 4, 4);
+        }
+      }
+    }
+
+    function frame(title) {
+      drawTexture();
+      box(44, 43, 532, 344, "rgba(255, 248, 231, 0.42)", C.border, 3);
+      ctx.save();
+      ctx.beginPath();
+      roundedRect(44, 43, 532, 344, 7);
+      ctx.clip();
+
+      text(title, 70, 88, 22, C.ink, "900");
+      diamond(508, 82, 8, C.gold);
+      text("120", 523, 89, 13, C.ink, "900");
+      dashLine(70, 113, 552, 113);
+    }
+
+    function finishFrame() {
+      ctx.fillStyle = C.borderSoft;
+      [0, 1, 2].forEach((i) => {
+        ctx.beginPath();
+        ctx.arc(292 + i * 18, 373, 5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    function areaCard(key, title, subtitle, iconDraw, x, y, w, h, accent = C.gold) {
+      const active = view === key;
+      box(x, y, w, h, active ? C.goldSoft : C.paper, active ? C.gold : C.border, active ? 4 : 3, false);
+      iconDraw(x + 28, y + 30);
+      text(title, x + 54, y + 29, 15, C.ink, "900");
+      text(subtitle, x + 54, y + 55, 11, C.inkSoft, "700");
+      diamond(x + w - 18, y + 18, 7, accent);
+    }
+
+    function drawOverview() {
+      frame("Abilities");
+      text("Choose a page inside the page", 70, 138, 13, C.inkSoft, "700");
+
+      areaCard("core", "Core", "Awaken system", (x, y) => sparkle(x, y, 12, C.ink), ...hit.core);
+      areaCard("capacity", "Capacity", "4 -> 5 -> 6 -> 7", (x, y) => gridIcon(x, y, 6), ...hit.capacity);
+      areaCard("today", "Today", "Focus + Rhythm", (x, y) => {
+        text("*", x - 8, y + 8, 24, C.red, "900", "center");
+        clockIcon(x + 12, y, C.ink);
+      }, ...hit.today, C.red);
+      areaCard("review", "Review", "Weekly view", (x, y) => {
+        ctx.fillStyle = C.blue;
+        ctx.fillRect(x - 11, y + 10, 5, 12);
+        ctx.fillRect(x - 2, y + 2, 5, 20);
+        ctx.fillRect(x + 7, y - 7, 5, 29);
+      }, ...hit.review, C.blue);
+
+      box(...hit.suggest, C.paperSoft, C.borderSoft, 3, true);
+      text("Suggest", 91, 286, 15, C.ink, "900");
+      text("Open Capacity: one more slot is the next visible commitment.", 175, 286, 12, C.inkSoft, "700");
+      text("click", 520, 286, 10, C.gold, "900", "right");
+
+      drawRipple();
+      finishFrame();
+    }
+
+    function innerHeader(name) {
+      frame(name);
+      box(...hit.back, C.paperSoft, C.borderSoft, 2, false);
+      text("< Back", 84, 94, 12, C.inkSoft, "900");
+      text("inner page", 500, 133, 11, C.inkSoft, "700", "right");
+    }
+
+    function node(x, y, n, cost, state, isSelected) {
+      const fill = state === "ok" ? C.goldSoft : state === "ready" ? C.paper : C.paperSoft;
+      const stroke = isSelected ? C.gold : state === "locked" ? C.borderSoft : C.border;
+      box(x, y, 70, 76, fill, stroke, isSelected ? 4 : 3, state === "locked");
+      gridIcon(x + 35, y + 24, n, state === "locked" ? C.dim : C.ink);
+      text(String(n), x + 20, y + 58, 17, state === "locked" ? C.inkSoft : C.ink, "900");
+      diamond(x + 48, y + 52, 7, state === "locked" ? C.dim : C.gold);
+      text(String(cost), x + 58, y + 58, 11, state === "locked" ? C.dim : C.gold, "900");
+    }
+
+    function drawCapacity() {
+      innerHeader("Capacity");
+      dashLine(70, 153, 552, 153);
+      ctx.save();
+      ctx.strokeStyle = C.borderSoft;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(137, 207);
+      ctx.lineTo(456, 207);
+      ctx.stroke();
+      ctx.restore();
+
+      const xs = [88, 203, 318, 433];
+      const states = ["ready", "locked", "locked", "locked"];
+      [4, 5, 6, 7].forEach((n, i) => node(xs[i], i % 2 ? 184 : 170, n, [30, 80, 160, 280][i], states[i], selected === `slots${n}`));
+
+      box(70, 274, 482, 58, C.paper, C.border, 3);
+      text("More Room", 91, 298, 16, C.ink, "900");
+      text("One more place, one more promise. Hold a node to commit.", 91, 321, 12, C.inkSoft, "700");
+      diamond(472, 299, 8, C.gold);
+      text("30", 490, 305, 13, C.gold, "900");
+      drawRipple();
+      finishFrame();
+    }
+
+    function drawToday() {
+      innerHeader("Today");
+      box(88, 166, 198, 92, C.paper, C.border, 3);
+      text("*", 116, 211, 30, C.red, "900", "center");
+      text("Focus Task", 150, 200, 17, C.ink, "900");
+      text("Spend attention where it matters.", 150, 226, 11, C.inkSoft, "700");
+      diamond(248, 238, 7, C.gold);
+      text("50", 260, 243, 11, C.gold, "900");
+
+      box(304, 166, 198, 92, C.paper, C.border, 3);
+      clockIcon(332, 207, C.ink);
+      text("Rhythm", 366, 200, 17, C.ink, "900");
+      text("Choose when the day turns.", 366, 226, 11, C.inkSoft, "700");
+      diamond(464, 238, 7, C.gold);
+      text("20", 476, 243, 11, C.gold, "900");
+
+      box(70, 280, 482, 52, C.paperSoft, C.borderSoft, 3, true);
+      text("Interaction note", 91, 303, 13, C.ink, "900");
+      text("Tap card -> ink bump. Hold ready card -> gold fill -> confirm.", 224, 303, 11, C.inkSoft, "700");
+      drawRipple();
+      finishFrame();
+    }
+
+    function drawSimple(name, title, subtitle) {
+      innerHeader(name);
+      box(88, 166, 424, 118, C.paper, C.border, 3);
+      text(title, 112, 209, 21, C.ink, "900");
+      text(subtitle, 112, 240, 13, C.inkSoft, "700");
+      box(88, 304, 424, 32, C.paperSoft, C.borderSoft, 2, true);
+      text("This keeps the main page calm, while details live inside the page.", 105, 325, 11, C.inkSoft, "700");
+      drawRipple();
+      finishFrame();
+    }
+
+    function drawRipple() {
+      const age = performance.now() - ripple.t;
+      if (age < 520) {
+        const p = age / 520;
+        ctx.save();
+        ctx.globalAlpha = 0.35 * (1 - p);
+        ctx.strokeStyle = C.gold;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, 10 + p * 42, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    function draw() {
+      if (view === "overview") drawOverview();
+      else if (view === "capacity") drawCapacity();
+      else if (view === "today") drawToday();
+      else if (view === "core") drawSimple("Core", "Awaken", "Start the ability system with a deliberate hold.");
+      else if (view === "review") drawSimple("Review", "Weekly Analysis", "A quiet summary page for patterns after the week.");
+      else if (view === "suggest") drawSimple("Suggest", "Next: Capacity", "Recommendation opens the matching inner page, not a shop card.");
+    }
+
+    function inside(rect, x, y) {
+      return x >= rect[0] && x <= rect[0] + rect[2] && y >= rect[1] && y <= rect[1] + rect[3];
+    }
+
+    canvas.addEventListener("click", (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = (event.clientX - rect.left) * (canvas.width / rect.width);
+      const y = (event.clientY - rect.top) * (canvas.height / rect.height);
+      ripple = { x, y, t: performance.now() };
+
+      if (view !== "overview" && inside(hit.back, x, y)) view = "overview";
+      else if (view === "overview" && inside(hit.core, x, y)) view = "core";
+      else if (view === "overview" && inside(hit.capacity, x, y)) view = "capacity";
+      else if (view === "overview" && inside(hit.today, x, y)) view = "today";
+      else if (view === "overview" && inside(hit.review, x, y)) view = "review";
+      else if (view === "overview" && inside(hit.suggest, x, y)) view = "suggest";
+      draw();
+    });
+
+    document.querySelectorAll("button[data-view]").forEach((button) => {
+      button.addEventListener("click", () => {
+        view = button.dataset.view;
+        ripple = { x: 286, y: 194, t: performance.now() };
+        draw();
+      });
+    });
+
+    function loop() {
+      draw();
+      if (performance.now() - ripple.t < 540) requestAnimationFrame(loop);
+    }
+
+    canvas.addEventListener("click", () => requestAnimationFrame(loop));
+    document.querySelectorAll("button[data-view]").forEach((button) => {
+      button.addEventListener("click", () => requestAnimationFrame(loop));
+    });
+
+    document.fonts.ready.then(draw);
+    draw();
+  </script>
+</body>
+</html>

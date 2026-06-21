@@ -6,6 +6,12 @@ import type { DailySummary } from "@warmdock/core/types";
  * 開關流程協調在 orchestrators/windowFlow。
  */
 
+/** 書本 app 的頁序:首頁(任務)→ 能力配置 → 設置。翻書導覽用。 */
+export const APP_PAGES = ["home", "abilities", "settings"] as const;
+export type AppPage = (typeof APP_PAGES)[number];
+const LAST_PAGE = APP_PAGES.length - 1;
+const clampPage = (p: number) => Math.max(0, Math.min(p, LAST_PAGE));
+
 type HeaderPointsFlash = {
   amount: number;
   oldPending: number;
@@ -18,6 +24,8 @@ type TaskCompletionFlash = {
 };
 
 type UIState = {
+  /** 目前翻到第幾頁(0=首頁 / 1=能力 / 2=設置)。翻書導覽的單一真相。 */
+  appPage: number;
   isPanelOpen: boolean;
   isWindowTransitioning: boolean;
   isTaskDetailOpen: boolean;
@@ -40,6 +48,9 @@ type UIState = {
 };
 
 type UIActions = {
+  goToPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
   setPanelOpen: (value: boolean) => void;
   setWindowTransitioning: (value: boolean) => void;
   setUnlockTreeOpen: (value: boolean) => void;
@@ -65,6 +76,7 @@ let headerFlashSeq = 0;
 let noticeSeq = 0;
 
 export const useUIStore = create<UIState & UIActions>((set) => ({
+  appPage: 0,
   isPanelOpen: false,
   isWindowTransitioning: false,
   isTaskDetailOpen: false,
@@ -80,6 +92,10 @@ export const useUIStore = create<UIState & UIActions>((set) => ({
   headerPointsFlash: null,
   isComposingTask: false,
   notice: null,
+
+  goToPage: (page) => set({ appPage: clampPage(page) }),
+  nextPage: () => set((s) => ({ appPage: clampPage(s.appPage + 1) })),
+  prevPage: () => set((s) => ({ appPage: clampPage(s.appPage - 1) })),
 
   setPanelOpen: (value) => set({ isPanelOpen: value }),
   setWindowTransitioning: (value) => set({ isWindowTransitioning: value }),

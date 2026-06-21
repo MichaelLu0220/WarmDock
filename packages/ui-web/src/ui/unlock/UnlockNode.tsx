@@ -152,6 +152,11 @@ function renderIcon(
   }
 }
 
+/** 給清單版能力頁重用:把節點 icon 畫在 56×56 viewBox 中央(28,28)。 */
+export function renderUnlockIcon(icon: IconKey, dim = false) {
+  return renderIcon(icon, 28, 28, dim, false);
+}
+
 export function UnlockNode({
   nodeId,
   x,

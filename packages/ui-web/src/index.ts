@@ -29,6 +29,7 @@ export {
 
 // DOM pieces
 export { Panel } from "./ui/panel/Panel";
+export { Book } from "./ui/panel/Book";
 export { ErrorBoundary } from "./ui/ErrorBoundary";
 export { injectMotionVars } from "./ui/motion";
 

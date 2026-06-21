@@ -1190,11 +1190,19 @@ body {
    這裡只留「版面」規則:base .wd-panel 是固定高度(桌面浮窗用),web
    情境(demo 介紹頁、正式 app stage)要改成貼合內容高度 + 16px 內距。
    ============================================================ */
-.wd-demo .wd-panel.wd-card,
-.wd-web-stage .wd-panel.wd-card {
+.wd-demo .wd-panel.wd-card {
   height: auto;
   max-height: calc(100vh - 120px);
   padding: 16px;
+}
+
+/* 正式 app 是「橫式書本」:固定寬高的橫卡(~400×274),書脊在右緣。
+   三頁(首頁/能力/設定)共用此尺寸;翻書轉場以此卡為準。 */
+.wd-web-stage .wd-panel.wd-card {
+  width: min(400px, calc(100vw - 32px));
+  height: min(274px, calc(100vh - 32px));
+  max-height: min(274px, calc(100vh - 32px));
+  padding: 12px 14px;
 }
 
 /* ============================================================
@@ -1378,219 +1386,4 @@ body {
   background: none;
   transform: none;
   box-shadow: none;
-}
-
-/* ============================================================
-   Demo —— 翻書轉場(就地縮放 morph)。app 一律呈現「書的左半頁」,
-   書脊在右緣。完成所有任務 → 結算 = 左頁留在右邊邊輕縮一下、一疊頁從
-   右脊往左翻入(折到右側出畫面)、目標頁內容在尾段疊上來淡入;
-   結算「看任務」→ 任務 = 反向(頁往右掀回)。變形與翻頁「重疊」進行
-   (不等變形做完才翻 → 連貫),由 DemoBookFlip.tsx 的 WAAPI + 以下 CSS
-   共同控制,時間軸常數需與該檔對齊。只在 .wd-demo。
-   ============================================================ */
-
-/* 轉場前段整張卡隱形(書頁負責演出);position:fixed 不影響版面。 */
-.wd-demo .wd-panel.wd-card.wd-card--flipping {
-  visibility: hidden;
-}
-/* 翻書尾段:目標頁內容疊在書(z 60)之上淡入,書在後面收尾。
-   只動 opacity(卡片) + body 的位移,不碰 .wd-panel 本身的 transform
-   (它靠 translateY(-50%) 垂直置中,被覆蓋會跳位)。 */
-.wd-demo .wd-panel.wd-card.wd-card--flip-reveal {
-  z-index: 61;
-  animation: wd-fb-reveal-fade 380ms cubic-bezier(0.33, 0, 0.2, 1) both;
-}
-.wd-demo .wd-panel.wd-card.wd-card--flip-reveal .wd-panel__body {
-  animation: wd-fb-reveal-rise 380ms cubic-bezier(0.33, 0, 0.2, 1) both;
-}
-@keyframes wd-fb-reveal-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes wd-fb-reveal-rise {
-  from {
-    transform: translateY(6px);
-  }
-  to {
-    transform: none;
-  }
-}
-
-/* 書本容器:WAAPI 以左上為原點做 source→就地輕縮→dest 的位移縮放。 */
-.wd-flipbook {
-  position: fixed;
-  z-index: 60;
-  pointer-events: none;
-  transform-origin: 0 0;
-  will-change: transform;
-}
-/* 透視場(與 morph 分層,互不干擾)。透視拉遠一點 → 翻頁前縮較柔、較絲滑。 */
-.wd-flipbook__stage {
-  position: absolute;
-  inset: 0;
-  perspective: 2400px;
-  perspective-origin: 50% 46%;
-  transform-style: preserve-3d;
-  filter: drop-shadow(0 18px 26px rgba(58, 42, 26, 0.22));
-}
-
-.wd-flipbook__base,
-.wd-flipbook__page,
-.wd-flipbook__face {
-  position: absolute;
-  inset: 0;
-  border-radius: 6px;
-}
-/* 翻完顯露的目的頁底(與卡片同色) */
-.wd-flipbook__base {
-  background: var(--wd-cream);
-  background-image: var(--wd-texture);
-  border: 2px solid var(--wd-border);
-}
-/* 右脊的頁堆厚度暗示 */
-.wd-flipbook__edge {
-  position: absolute;
-  top: 5px;
-  bottom: 5px;
-  right: 0;
-  width: 7px;
-  background: repeating-linear-gradient(
-    to right,
-    var(--wd-border-soft) 0 1px,
-    transparent 1px 3px
-  );
-  opacity: 0.5;
-}
-
-/* 一頁:以右緣為脊做 3D 翻動 */
-.wd-flipbook__page {
-  transform-style: preserve-3d;
-  transform-origin: right center;
-  will-change: transform;
-}
-.wd-flipbook[data-dir="fwd"] .wd-flipbook__page {
-  animation: wd-fb-in var(--fb-dur, 420ms) cubic-bezier(0.37, 0, 0.27, 1) both;
-}
-.wd-flipbook[data-dir="back"] .wd-flipbook__page {
-  animation: wd-fb-out var(--fb-dur, 420ms) cubic-bezier(0.37, 0, 0.27, 1) both;
-}
-/* 往前:頁從右脊(折在右)往左翻入、覆蓋成左頁 */
-@keyframes wd-fb-in {
-  from {
-    transform: rotateY(180deg);
-  }
-  to {
-    transform: rotateY(0deg);
-  }
-}
-/* 往回:頁往右掀回 */
-@keyframes wd-fb-out {
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(180deg);
-  }
-}
-
-/* 頁面正反兩面:像素書頁(奶油底 + 淡橫紋),背面預先翻 180° */
-.wd-flipbook__face {
-  backface-visibility: hidden;
-  overflow: hidden;
-  background-color: var(--wd-cream);
-  background-image: repeating-linear-gradient(
-    transparent 0 16px,
-    rgba(122, 104, 80, 0.1) 16px 17px
-  );
-  border: 2px solid var(--wd-border);
-}
-.wd-flipbook__face--back {
-  transform: rotateY(180deg);
-}
-
-/* 書頁上的淡內容:一頁日常任務的縮影(標題列 + 打勾任務列) */
-.wd-flipbook__mock {
-  position: absolute;
-  inset: 0;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  opacity: 0.5;
-}
-.wd-flipbook__mock-head {
-  width: 56%;
-  height: 9px;
-  border-radius: 2px;
-  background: var(--wd-border-soft);
-  margin-bottom: 7px;
-}
-.wd-flipbook__mock-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.wd-flipbook__mock-row i {
-  flex: none;
-  width: 11px;
-  height: 11px;
-  border: 2px solid var(--wd-border-soft);
-  border-radius: 2px;
-}
-.wd-flipbook__mock-row span {
-  flex: 1;
-  height: 7px;
-  border-radius: 2px;
-  background: var(--wd-border-soft);
-}
-/* 已完成的任務列:勾選框填色、文字列淡化(打勾過的感覺) */
-.wd-flipbook__mock-row.is-done i {
-  background: var(--wd-green);
-  border-color: var(--wd-green);
-}
-.wd-flipbook__mock-row.is-done span {
-  opacity: 0.5;
-}
-
-/* 翻動光影:頁面立到約 90° 時最暗,模擬翻頁受光 */
-.wd-flipbook__shade {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  animation: wd-fb-shade var(--fb-dur, 420ms) ease-in-out both;
-}
-.wd-flipbook[data-dir="fwd"] .wd-flipbook__shade {
-  background: linear-gradient(
-    to right,
-    rgba(58, 42, 26, 0.5),
-    rgba(58, 42, 26, 0) 62%
-  );
-}
-.wd-flipbook[data-dir="back"] .wd-flipbook__shade {
-  background: linear-gradient(
-    to left,
-    rgba(58, 42, 26, 0.5),
-    rgba(58, 42, 26, 0) 62%
-  );
-}
-@keyframes wd-fb-shade {
-  0% {
-    opacity: 0;
-  }
-  48% {
-    opacity: 0.46;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wd-flipbook {
-    display: none;
-  }
 }

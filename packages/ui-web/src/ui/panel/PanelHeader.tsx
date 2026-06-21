@@ -108,8 +108,9 @@ export function PanelHeader({
     );
   }
 
-  // 正式 web app:minimal 的乾淨單行提示標題,但保留 ⚙設定 / ✦能力樹 與點數錢包列
-  // (省略 ● 釘選 —— 桌面 auto-hide 專屬,web 無意義)。
+  // 正式 web app(書本首頁):乾淨單行提示標題 + 點數錢包列。
+  // 設定/能力改用「翻頁」導覽(Book 的頁緣拽動),故 header 不放 ⚙/✦ 按鈕,
+  // 也省略 ● 釘選(桌面 auto-hide 專屬,web 無意義)。
   if (chrome === "app") {
     return (
       <div className="wd-header wd-header--app">
@@ -117,26 +118,6 @@ export function PanelHeader({
           <h1 className="wd-header__date" style={{ flex: 1 }}>
             {t("header.prompt")}
           </h1>
-          <div className="wd-header__actions">
-            <button
-              type="button"
-              className="wd-icon-btn"
-              onClick={openSettings}
-              aria-label={t("header.settings")}
-              title={t("header.settings")}
-            >
-              {"⚙︎"}
-            </button>
-            <button
-              type="button"
-              className="wd-icon-btn"
-              onClick={() => void openUnlockTree()}
-              aria-label={t("header.unlockTree")}
-              title={t("header.unlockTree")}
-            >
-              ✦
-            </button>
-          </div>
         </div>
 
         {wallet && walletDisplay && (

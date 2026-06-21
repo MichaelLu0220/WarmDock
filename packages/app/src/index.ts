@@ -14,7 +14,7 @@ export { useWalletStore } from "./stores/walletStore";
 export { useUnlockStore } from "./stores/unlockStore";
 export { useSessionStore } from "./stores/sessionStore";
 export { useSettingsStore } from "./stores/settingsStore";
-export { useUIStore } from "./stores/uiStore";
+export { useUIStore, APP_PAGES, type AppPage } from "./stores/uiStore";
 
 // orchestrators
 export {

@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WarmDock Abilities B1 Canvas Mockup</title>
+  <style>
+    @font-face {
+      font-family: "Zpix";
+      src: url("../apps/desktop/public/fonts/zpix.ttf") format("truetype");
+      font-display: swap;
+    }
+
+    :root {
+      --page: #efe5cf;
+      --paper: #fff8e7;
+      --paper-soft: #f4ecd8;
+      --ink: #3a2a1a;
+      --ink-soft: #7a6850;
+      --border: #6b4a2b;
+      --border-soft: #a68963;
+      --gold: #d9a441;
+      --gold-soft: #e8c479;
+      --green: #6b8a3a;
+      --red: #c05640;
+      --blue: #6b8ba4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        linear-gradient(45deg, rgba(107, 74, 43, 0.04) 25%, transparent 25%) 0 0 / 8px 8px,
+        linear-gradient(45deg, transparent 75%, rgba(107, 74, 43, 0.04) 75%) 0 0 / 8px 8px,
+        var(--page);
+      color: var(--ink);
+      font-family: "Zpix", "Courier New", monospace;
+    }
+
+    .wrap {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+    }
+
+    .toolbar {
+      width: min(572px, calc(100vw - 40px));
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .toolbar strong {
+      color: var(--ink);
+    }
+
+    button {
+      border: 2px solid var(--border);
+      background: var(--gold-soft);
+      color: var(--ink);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font: inherit;
+      box-shadow: 3px 3px 0 var(--border);
+      cursor: pointer;
+    }
+
+    canvas {
+      width: min(572px, calc(100vw - 40px));
+      height: auto;
+      image-rendering: pixelated;
+      border-radius: 8px;
+      box-shadow: 10px 10px 0 rgba(58, 42, 26, 0.82);
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="toolbar">
+      <span><strong>B1 no-scroll overview</strong> / canvas mockup only</span>
+      <button type="button" id="toggle">toggle state</button>
+    </div>
+    <canvas id="mockup" width="572" height="1145" aria-label="WarmDock Abilities B1 canvas mockup"></canvas>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("mockup");
+    const ctx = canvas.getContext("2d");
+    const toggle = document.getElementById("toggle");
+
+    let mode = 0;
+    toggle.addEventListener("click", () => {
+      mode = (mode + 1) % 3;
+      draw();
+    });
+
+    const C = {
+      paper: "#fff8e7",
+      paperSoft: "#f4ecd8",
+      paperDeep: "#e9dcc0",
+      ink: "#3a2a1a",
+      inkSoft: "#7a6850",
+      border: "#6b4a2b",
+      borderSoft: "#a68963",
+      gold: "#d9a441",
+      goldSoft: "#e8c479",
+      glow: "#ffe9b0",
+      green: "#6b8a3a",
+      red: "#c05640",
+      blue: "#6b8ba4",
+      dim: "#b8a88c",
+    };
+
+    const font = '"Zpix", "Courier New", monospace';
+
+    function roundedRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function fillRound(x, y, w, h, r, fill, stroke = C.border, line = 3, dashed = false) {
+      ctx.save();
+      roundedRect(x, y, w, h, r);
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = line;
+      ctx.setLineDash(dashed ? [7, 7] : []);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function text(value, x, y, size, color = C.ink, weight = "normal", align = "left") {
+      ctx.save();
+      ctx.font = `${weight} ${size}px ${font}`;
+      ctx.fillStyle = color;
+      ctx.textAlign = align;
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(value, x, y);
+      ctx.restore();
+    }
+
+    function diamond(x, y, size, color = C.gold) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = color;
+      ctx.fillRect(-size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+
+    function sparkle(x, y, size, color = C.ink) {
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.lineTo(x + size * 0.28, y - size * 0.28);
+      ctx.lineTo(x + size, y);
+      ctx.lineTo(x + size * 0.28, y + size * 0.28);
+      ctx.lineTo(x, y + size);
+      ctx.lineTo(x - size * 0.28, y + size * 0.28);
+      ctx.lineTo(x - size, y);
+      ctx.lineTo(x - size * 0.28, y - size * 0.28);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function gridIcon(x, y, count, color = C.ink, cell = 11, gap = 6) {
+      const cols = 3;
+      const rows = Math.ceil(count / cols);
+      const totalW = cols * cell + (cols - 1) * gap;
+      const totalH = rows * cell + (rows - 1) * gap;
+      ctx.fillStyle = color;
+      for (let i = 0; i < count; i += 1) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        ctx.fillRect(
+          x - totalW / 2 + col * (cell + gap),
+          y - totalH / 2 + row * (cell + gap),
+          cell,
+          cell
+        );
+      }
+    }
+
+    function clockIcon(x, y, color = C.ink) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y - 13);
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 12, y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function barsIcon(x, y, color = C.blue) {
+      ctx.fillStyle = color;
+      [12, 23, 34].forEach((h, i) => {
+        ctx.fillRect(x - 18 + i * 14, y + 18 - h, 8, h);
+      });
+    }
+
+    function stateColor(state) {
+      if (state === "unlocked") return { fill: C.goldSoft, stroke: C.border, text: C.green, dash: false };
+      if (state === "purchasable") return { fill: C.paper, stroke: C.border, text: C.ink, dash: false };
+      if (state === "insufficient") return { fill: C.paper, stroke: C.borderSoft, text: C.inkSoft, dash: false };
+      return { fill: C.paperSoft, stroke: C.borderSoft, text: C.inkSoft, dash: true };
+    }
+
+    function node(x, y, w, h, icon, label, cost, state, selected = false) {
+      const s = stateColor(state);
+      fillRound(x, y, w, h, 8, s.fill, selected ? C.gold : s.stroke, selected ? 5 : 3, s.dash);
+      if (state === "purchasable") {
+        ctx.globalAlpha = 0.22;
+        fillRound(x + 4, y + 4, w - 8, h - 8, 5, C.glow, C.gold, 2, false);
+        ctx.globalAlpha = 1;
+      }
+      icon(x + w / 2, y + 30, state === "blocked" || state === "awaiting" ? C.dim : C.ink);
+      text(label, x + w / 2, y + 71, 18, state === "blocked" || state === "awaiting" ? C.inkSoft : C.ink, "700", "center");
+      if (cost != null) {
+        diamond(x + w / 2 - 17, y + h - 18, 8, state === "blocked" ? C.dim : C.gold);
+        text(String(cost), x + w / 2 - 3, y + h - 12, 15, state === "blocked" ? C.dim : C.gold, "700");
+      }
+      if (state === "unlocked") {
+        text("✓", x + w - 23, y + 25, 20, C.green, "700", "center");
+      }
+      if (state === "blocked" || state === "awaiting") {
+        text("LOCK", x + w / 2, y + h - 12, 11, C.inkSoft, "700", "center");
+      }
+    }
+
+    function branch(x, y, w, h, iconFn, label, cost, state, selected = false) {
+      const s = stateColor(state);
+      fillRound(x, y, w, h, 8, s.fill, selected ? C.gold : s.stroke, selected ? 5 : 3, s.dash);
+      iconFn(x + 31, y + h / 2 - 3, state === "blocked" || state === "awaiting" ? C.dim : undefined);
+      text(label, x + 60, y + 34, 17, state === "blocked" || state === "awaiting" ? C.inkSoft : C.ink, "700");
+      diamond(x + 63, y + 58, 8, state === "blocked" ? C.dim : C.gold);
+      text(String(cost), x + 77, y + 64, 14, state === "blocked" ? C.dim : C.gold, "700");
+      if (state === "purchasable") text("READY", x + w - 10, y + 64, 10, C.green, "700", "right");
+      if (state === "insufficient") text("LOW", x + w - 10, y + 64, 10, C.inkSoft, "700", "right");
+      if (state === "blocked") text("LOCK", x + w - 10, y + 64, 10, C.inkSoft, "700", "right");
+    }
+
+    function drawTexture() {
+      ctx.fillStyle = C.paper;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(107, 74, 43, 0.045)";
+      for (let y = 0; y < canvas.height; y += 8) {
+        for (let x = 0; x < canvas.width; x += 8) {
+          if (((x + y) / 8) % 2 === 0) ctx.fillRect(x, y, 4, 4);
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawTexture();
+
+      fillRound(38, 38, 532, 1108, 7, "rgba(255, 248, 231, 0.5)", C.border, 4, false);
+      ctx.save();
+      ctx.beginPath();
+      roundedRect(38, 38, 532, 1108, 7);
+      ctx.clip();
+
+      const points = mode === 0 ? 0 : mode === 1 ? 120 : 360;
+      const awakened = mode > 0;
+      const selected = mode === 0 ? "root" : mode === 1 ? "slots4" : "slots5";
+
+      sparkle(98, 105, 10, C.ink);
+      text("Abilities", 130, 111, 33, C.ink, "900");
+      fillRound(436, 86, 61, 38, 8, C.goldSoft, C.gold, 4, false);
+      diamond(459, 104, 9, C.gold);
+      text(String(points), 476, 111, 15, C.ink, "700", "center");
+
+      text("CORE", 88, 160, 14, C.inkSoft, "700");
+      const rootState = awakened ? "unlocked" : "purchasable";
+      fillRound(88, 176, 408, 94, 8, awakened ? C.goldSoft : C.paper, selected === "root" ? C.gold : C.border, selected === "root" ? 5 : 4, !awakened);
+      if (!awakened) {
+        ctx.globalAlpha = 0.16;
+        fillRound(98, 186, 388, 74, 5, C.glow, C.gold, 2, false);
+        ctx.globalAlpha = 1;
+      }
+      sparkle(132, 225, 13, C.ink);
+      text("覺醒", 176, 219, 25, C.ink, "900");
+      text(awakened ? "能力系統已開啟" : "按住，開始一段承諾", 176, 249, 18, C.inkSoft, "normal");
+      text(awakened ? "✓ Unlocked" : "HOLD", 477, 232, 14, awakened ? C.green : C.gold, "700", "right");
+
+      text("CAPACITY LADDER", 88, 314, 14, C.inkSoft, "700");
+      ctx.save();
+      ctx.strokeStyle = awakened ? C.borderSoft : C.dim;
+      ctx.lineWidth = 5;
+      ctx.setLineDash(awakened ? [] : [8, 8]);
+      ctx.beginPath();
+      ctx.moveTo(143, 394);
+      ctx.lineTo(442, 394);
+      ctx.stroke();
+      ctx.restore();
+
+      const states = mode === 0
+        ? ["awaiting", "awaiting", "awaiting", "awaiting"]
+        : mode === 1
+          ? ["purchasable", "blocked", "blocked", "blocked"]
+          : ["unlocked", "purchasable", "insufficient", "blocked"];
+      const xs = [88, 194, 300, 406];
+      const labels = ["4", "5", "6", "7"];
+      const costs = [30, 80, 160, 280];
+      for (let i = 0; i < 4; i += 1) {
+        node(xs[i], i % 2 === 0 ? 342 : 366, 73, 102, (x, y, c) => gridIcon(x, y, i + 4, c, 8, 5), labels[i], costs[i], states[i], selected === `slots${i + 4}`);
+      }
+
+      text("BRANCH BOOKMARKS", 88, 507, 14, C.inkSoft, "700");
+      const branchY = 524;
+      const branchStates = mode === 0 ? ["awaiting", "awaiting", "awaiting"] : mode === 1 ? ["insufficient", "purchasable", "blocked"] : ["purchasable", "unlocked", "insufficient"];
+      branch(88, branchY, 127, 84, (x, y, c) => text("★", x, y + 10, 28, c || C.red, "900", "center"), "焦點", 50, branchStates[0], selected === "focus");
+      branch(230, branchY, 127, 84, (x, y, c) => clockIcon(x, y, c || C.ink), "節奏", 20, branchStates[1], selected === "rhythm");
+      branch(372, branchY, 124, 84, (x, y, c) => barsIcon(x, y, c || C.blue), "分析", 120, branchStates[2], selected === "analysis");
+
+      text("SELECTED DETAIL", 88, 665, 14, C.inkSoft, "700");
+      fillRound(88, 684, 408, 206, 8, C.paper, C.border, 4, false);
+      const detail = mode === 0
+        ? {
+            title: "覺醒",
+            state: "可覺醒",
+            line1: "按下去，開始一段與自己的承諾。",
+            line2: "長按 2 秒後，再確認一次。",
+            cost: "Free",
+            hint: "Hold to awaken",
+          }
+        : mode === 1
+          ? {
+              title: "多一個容器",
+              state: "可解鎖",
+              line1: "多一個位置，多一份承諾。",
+              line2: "解鎖後任務槽變成 4。",
+              cost: "◆ 30",
+              hint: "Hold 2s, then confirm",
+            }
+          : {
+              title: "再深一些",
+              state: "可解鎖",
+              line1: "今天可以承載再多一點。",
+              line2: "前置：多一個容器已解鎖。",
+              cost: "◆ 80",
+              hint: "Hold 2s, then confirm",
+            };
+      text(detail.title, 112, 733, 27, C.ink, "900");
+      fillRound(384, 706, 88, 34, 6, C.goldSoft, C.gold, 3, false);
+      text(detail.state, 428, 729, 13, detail.state === "可解鎖" ? C.green : C.ink, "700", "center");
+      text(detail.line1, 112, 775, 18, C.inkSoft);
+      text(detail.line2, 112, 808, 18, C.inkSoft);
+      text(detail.cost, 112, 855, 20, C.gold, "900");
+      text(detail.hint, 472, 855, 14, C.inkSoft, "700", "right");
+
+      fillRound(88, 926, 408, 68, 8, C.paperSoft, C.borderSoft, 3, true);
+      text("No scroll zone", 112, 958, 17, C.ink, "700");
+      text("所有 8 個能力都在這一頁內完成掃描", 112, 982, 15, C.inkSoft);
+
+      ctx.fillStyle = C.borderSoft;
+      ctx.beginPath();
+      ctx.arc(286, 1080, 6, 0, Math.PI * 2);
+      ctx.arc(306, 1080, 6, 0, Math.PI * 2);
+      ctx.arc(326, 1080, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    document.fonts.ready.then(draw);
+    draw();
+  </script>
+</body>
+</html>
